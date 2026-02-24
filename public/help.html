@@ -1,0 +1,935 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Help — Kido &amp; Babo Hub</title>
+
+  <meta name="theme-color" content="#16a34a" />
+  <link rel="icon" href="/logo.jpg" />
+
+  <style>
+    :root{
+      --bg:#0b1020;
+
+      /* ✅ Dim bright white text to softer grey */
+      --text: rgba(234,240,255,.86);
+      --muted:#b7c3ff;
+
+      --line:rgba(255,255,255,.12);
+      --shadow:0 18px 60px rgba(0,0,0,.45);
+      --radius:18px;
+      --accent: linear-gradient(90deg,#006600,#bb0000,#000000);
+
+      /* ✅ Eye-care variables (saved via localStorage) */
+      --kbBrightness: 1;     /* 0.65 - 1 */
+      --kbTextScale: 1;      /* 0.9 - 1.25 */
+      --kbSoftContrast: 0;   /* 0/1 */
+      --kbBlue: 0;           /* 0 - 0.6 */
+      --kbBlueHue: 35;
+      --kbBlueSat: 100%;
+      --kbBlueLum: 55%;
+    }
+
+    *{ box-sizing:border-box; }
+
+    html{
+      font-size: calc(16px * var(--kbTextScale));
+    }
+
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+
+      /* ✅ Eye-care dim */
+      filter: brightness(var(--kbBrightness));
+
+      background: radial-gradient(1100px 560px at 10% 10%, #23316e 0%, transparent 50%),
+                  radial-gradient(900px 520px at 90% 10%, #7a1b1b 0%, transparent 55%),
+                  radial-gradient(800px 520px at 50% 100%, #0e5b2f 0%, transparent 55%),
+                  var(--bg);
+
+      color:var(--text);
+      min-height:100vh;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    /* ✅ Blue light overlay layer */
+    #kbBlueOverlay{
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 999999;
+      background: hsl(var(--kbBlueHue) var(--kbBlueSat) var(--kbBlueLum));
+      opacity: var(--kbBlue);
+      mix-blend-mode: multiply;
+    }
+
+    /* ✅ Soft contrast mode */
+    .kb-soft .card,
+    .kb-soft header,
+    .kb-soft main{
+      border-color: rgba(255,255,255,.08) !important;
+    }
+    .kb-soft .nav button,
+    .kb-soft .nav a.navBtn,
+    .kb-soft .btn,
+    .kb-soft a.mini{
+      background: rgba(255,255,255,.06) !important;
+      border-color: rgba(255,255,255,.10) !important;
+    }
+    .kb-soft .nav button:hover,
+    .kb-soft .nav a.navBtn:hover,
+    .kb-soft .btn:hover,
+    .kb-soft a.mini:hover{
+      background: rgba(255,255,255,.09) !important;
+      border-color: rgba(255,255,255,.14) !important;
+    }
+    .kb-soft p{ color: rgba(234,240,255,.78); }
+
+    /* ✅ Reduce motion mode */
+    .kb-reduce-motion *{
+      animation: none !important;
+      transition: none !important;
+      scroll-behavior: auto !important;
+    }
+
+    .wrap{ max-width: 980px; margin: 0 auto; padding: 18px 14px 60px; }
+
+    header{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding: 14px 14px 10px;
+      border:1px solid var(--line);
+      background: rgba(15, 23, 51, .55);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .brandRow{ display:flex; align-items:center; gap:12px; }
+    .logo{
+      width:44px; height:44px; border-radius: 14px;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.08);
+      object-fit: cover;
+      box-shadow: 0 8px 22px rgba(0,0,0,.25);
+      flex: 0 0 auto;
+    }
+
+    .brand{ display:flex; flex-direction:column; gap:4px; padding: 2px 6px; }
+    .brand .title{ font-weight: 900; font-size: 18px; letter-spacing: .2px; line-height: 1.1; }
+    .brand .sub{
+      font-size: 12px; color: var(--muted); font-weight: 700; line-height: 1.35;
+    }
+
+    .nav{ display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; align-items:center; }
+
+    .nav button, .nav a.navBtn{
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-weight: 900;
+      cursor:pointer;
+      transition: transform .05s ease, background .15s ease, border-color .15s ease;
+      white-space:nowrap;
+      font-size: 13px;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    }
+    .nav button:hover, .nav a.navBtn:hover{ background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.24); }
+    .nav button:active, .nav a.navBtn:active{ transform: translateY(1px); }
+
+    .nav button.primary{
+      background: var(--accent);
+      border-color: rgba(255,255,255,.30);
+      box-shadow: 0 10px 25px rgba(0,0,0,.25);
+      position: relative;
+      overflow: hidden;
+    }
+    .nav button.primary.is-open::before{
+      content:"";
+      position:absolute;
+      inset:-40%;
+      background: conic-gradient(from 0deg, rgba(255,255,255,.0), rgba(255,255,255,.35), rgba(255,255,255,.0));
+      animation: spinGlow 1.4s linear infinite;
+      filter: blur(1px);
+    }
+    .nav button.primary.is-open span{ position: relative; z-index: 1; }
+    @keyframes spinGlow { to { transform: rotate(360deg); } }
+
+    /* ✅ dimmer */
+    .langPill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 10px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.07);
+      font-weight:950;font-size:12px;color: rgba(234,240,255,.82);
+      white-space:nowrap;
+    }
+
+    main{
+      margin-top: 14px;
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(15, 23, 51, .55);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:hidden;
+    }
+
+    .page{ padding: 18px 16px; }
+
+    .card{
+      background: rgba(12, 19, 48, .72);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+
+    h1{ margin:0 0 6px; font-size:18px; font-weight: 1000; }
+
+    /* ✅ dimmer p */
+    p{ margin: 8px 0; color: rgba(234,240,255,.82); line-height:1.55; font-weight:800; font-size:13px; }
+
+    .muted{ color: var(--muted); font-weight: 800; font-size: 13px; }
+
+    .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:12px; }
+
+    .btn{
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.10);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 11px 12px;
+      font-weight: 1000;
+      cursor:pointer;
+      transition: transform .05s ease, background .15s ease, border-color .15s ease;
+      white-space:nowrap;
+      font-size: 13px;
+    }
+    .btn:hover{ background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.24); }
+    .btn:active{ transform: translateY(1px); }
+
+    .btn.blue{ background: rgba(77,212,255,.20); border-color: rgba(77,212,255,.35); }
+    .btn.green{ background: rgba(124,255,107,.20); border-color: rgba(124,255,107,.35); }
+    .btn.red{ background: rgba(255,77,109,.22); border-color: rgba(255,77,109,.45); }
+    .btn.gray{ background: rgba(255,255,255,.10); border-color: rgba(255,255,255,.16); }
+
+    select{
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      font-weight:900;
+      min-width:240px;
+      outline:none;
+    }
+
+    /* ✅ dimmer box */
+    .box{
+      margin-top:14px;
+      border:1px dashed rgba(183,195,255,.55);
+      background: rgba(255,255,255,.06);
+      border-radius:16px;
+      padding:14px;
+      font-weight:900;
+      line-height:1.6;
+      white-space:pre-wrap;
+      color: rgba(234,240,255,.82);
+    }
+
+    .miniLinks{ margin-top:12px; display:flex; gap:10px; flex-wrap:wrap; }
+
+    /* ✅ dimmer .mini links */
+    a.mini{
+      text-decoration:none;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      color: rgba(234,240,255,.84);
+      padding:10px 12px;
+      border-radius:14px;
+      font-weight:950;
+      font-size:13px;
+      display:inline-flex; align-items:center; gap:8px;
+    }
+    a.mini:hover{ background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.24); }
+
+    /* ✅ slightly dimmer .miniTip */
+    .miniTip{
+      margin-top:10px;
+      font-size:12.5px;
+      font-weight:900;
+      color: rgba(183,195,255,.90);
+      line-height:1.45;
+    }
+
+    .sr-only{
+      position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden;
+      clip:rect(0,0,0,0); white-space:nowrap; border:0;
+    }
+    .kbd{
+      border:1px solid rgba(255,255,255,.18);
+      border-bottom-width:3px;
+      padding:2px 6px;
+      border-radius:8px;
+      background: rgba(255,255,255,.08);
+      font-weight:1000;
+      color: rgba(234,240,255,.86);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(12,1fr);
+      gap:12px;
+      margin-top:12px;
+    }
+    .col-12{ grid-column: span 12; }
+    @media (max-width:860px){
+      header{ flex-direction:column; align-items:stretch; }
+      .nav{ justify-content:flex-start; }
+      .brandRow{ justify-content:flex-start; }
+      select{ min-width: 100%; }
+    }
+
+    /* ✅ dimmer footer */
+    .footer{
+      margin-top: 14px;
+      padding: 14px 16px;
+      border-top: 1px solid rgba(255,255,255,.12);
+      color: rgba(234,240,255,.78);
+      font-weight: 800;
+      font-size: 12px;
+      text-align:center;
+      background: rgba(0,0,0,.12);
+    }
+
+    button:focus, select:focus{
+      outline: 3px solid rgba(183,195,255,.85);
+      outline-offset: 2px;
+    }
+
+    /* ✅ Eye-care panel UI (same style as homepage) */
+    .kb-panel{
+      margin-bottom:12px;
+      border-radius: 16px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      padding: 12px;
+    }
+    .kb-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      margin-top: 10px;
+    }
+    .kb-row label{
+      font-weight: 900;
+      font-size: 13px;
+      color: rgba(234,240,255,.84);
+    }
+    .kb-inline{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
+      min-width: 280px;
+    }
+    .kb-pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.07);
+      font-weight: 900;
+      font-size: 12px;
+      color: rgba(234,240,255,.84);
+      white-space: nowrap;
+    }
+    .kb-toggle{
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      color: rgba(234,240,255,.86);
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-weight: 950;
+      cursor:pointer;
+      white-space: nowrap;
+      font-size: 13px;
+    }
+    .kb-toggle:hover{ background: rgba(255,255,255,.12); }
+    input[type="range"]{ width: 240px; accent-color: #b7c3ff; }
+  </style>
+</head>
+
+<body>
+  <!-- ✅ Blue-light overlay layer -->
+  <div id="kbBlueOverlay" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <!-- HOME-LIKE HEADER -->
+    <header>
+      <div class="brandRow">
+        <img class="logo" src="/logo.jpg" alt="Kido & Babo Hub logo" />
+        <div class="brand">
+          <div class="title">Kido &amp; Babo Hub</div>
+          <div class="sub">
+            Help • Homes • Schools • Religious Institutions • Parents • Children • Admins • All Devices
+          </div>
+        </div>
+      </div>
+
+      <div class="nav" aria-label="Top navigation">
+        <button onclick="goPage('index.html')">🏠 Home</button>
+        <button onclick="goPage('studentsdashboard.html')">📊 Students Dashboard</button>
+        <button onclick="goPage('tracker.html')">📍 Tracker</button>
+        <button onclick="goPage('translator.html')">🌍 Translator</button>
+        <button onclick="goPage('pay.html')">🎁 Free Trial</button>
+
+        <button class="primary" id="helpToolsBtn" onclick="toggleTools()" aria-controls="toolsPanel" aria-expanded="false">
+          <span>🧰 Help Tools</span>
+        </button>
+
+        <span class="langPill" id="langPill">🌐 Language: EN</span>
+
+        <!-- ✅ Global Eye-Care button -->
+        <button class="kb-toggle" id="kbEyeBtn" onclick="kbToggleEyePanel()" aria-expanded="false">👁️ Eye-Care</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="page">
+
+        <!-- ✅ Global Eye-Care panel -->
+        <div class="kb-panel" id="kbEyePanel" style="display:none;" aria-label="Eye-care settings panel">
+          <div class="kb-row" style="margin-top:0;">
+            <div>
+              <div style="font-weight:1000;">👁️ Eye-Care Settings</div>
+              <div class="muted">Protect your eyes. Settings are saved automatically.</div>
+            </div>
+            <span class="kb-pill" id="kbAutoPill">Auto Night: ON</span>
+          </div>
+
+          <div class="kb-row">
+            <label for="kbBrightness">🔆 Brightness (dim)</label>
+            <div class="kb-inline">
+              <input id="kbBrightness" type="range" min="0.65" max="1" step="0.01" />
+              <span class="kb-pill" id="kbBrightnessVal">100%</span>
+            </div>
+          </div>
+
+          <div class="kb-row">
+            <label for="kbBlue">🟧 Blue-light filter (warm)</label>
+            <div class="kb-inline">
+              <input id="kbBlue" type="range" min="0" max="0.6" step="0.01" />
+              <span class="kb-pill" id="kbBlueVal">0%</span>
+            </div>
+          </div>
+
+          <div class="kb-row">
+            <label for="kbTextScale">🔎 Text size</label>
+            <div class="kb-inline">
+              <input id="kbTextScale" type="range" min="0.9" max="1.25" step="0.01" />
+              <span class="kb-pill" id="kbTextVal">100%</span>
+            </div>
+          </div>
+
+          <div class="kb-row">
+            <label>🫧 Soft contrast</label>
+            <div class="kb-inline">
+              <button class="kb-toggle" onclick="kbToggleSoftContrast()" id="kbSoftBtn" aria-pressed="false">OFF</button>
+              <span class="muted">Less harsh UI</span>
+            </div>
+          </div>
+
+          <div class="kb-row">
+            <label>🌀 Reduce motion</label>
+            <div class="kb-inline">
+              <button class="kb-toggle" onclick="kbToggleReduceMotion()" id="kbMotionBtn" aria-pressed="false">OFF</button>
+              <span class="muted">Stops animations</span>
+            </div>
+          </div>
+
+          <div class="kb-row">
+            <label>🌙 Auto Night Mode (6pm–6am)</label>
+            <div class="kb-inline">
+              <button class="kb-toggle" onclick="kbToggleAutoNight()" id="kbAutoBtn" aria-pressed="true">ON</button>
+              <span class="muted">Auto protects eyes at night</span>
+            </div>
+          </div>
+
+          <div class="kb-row">
+            <button class="kb-toggle" onclick="kbResetEyeCare()">♻ Reset Eye-Care</button>
+            <span class="muted">Back to safe defaults</span>
+          </div>
+        </div>
+
+        <!-- TOOLS PANEL -->
+        <div id="toolsPanel" class="card" style="display:none;margin-bottom:12px;">
+          <div class="row" style="justify-content:space-between;margin-top:0;">
+            <div style="font-weight:1000;font-size:16px;">🧰 Help Tools</div>
+            <div class="muted">Voice + shortcuts</div>
+          </div>
+
+          <div class="row">
+            <button id="btnReadAll2" class="btn blue" title="Read everything on this page">🔊 Read All</button>
+            <button id="btnReadSelected2" class="btn gray" title="Highlight text then read only that part">🖍 Read Selected</button>
+            <button id="btnStop2" class="btn red" title="Stop voice">⏹ Stop</button>
+            <button id="btnVoice2" class="btn green" title="Turn voice on or off">Voice: ON</button>
+
+            <select id="voiceLang2" aria-label="Voice language">
+              <option value="">Auto (Device language)</option>
+              <option value="en-US">English (US)</option>
+              <option value="en-GB">English (UK)</option>
+              <option value="en">English (General)</option>
+              <option value="sw-KE">Kiswahili (Kenya)</option>
+              <option value="sw">Kiswahili (General)</option>
+              <option value="fr-FR">French</option>
+              <option value="es-ES">Spanish</option>
+              <option value="ar">Arabic</option>
+            </select>
+          </div>
+
+          <div class="miniTip">
+            Tip: highlight text then click <b>Read Selected</b>.
+            Shortcuts:
+            <span class="kbd">Ctrl</span>+<span class="kbd">Shift</span>+<span class="kbd">S</span> reads selected •
+            <span class="kbd">Esc</span> stops.
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="col-12">
+            <div class="card">
+              <h1>🆘 Help — Quick Guide</h1>
+              <p class="muted">
+                Support for Schools, Homes, Religious Institutions, Teachers, Parents, and Kids.
+              </p>
+
+              <!-- MAIN VOICE CONTROLS (still visible even if panel closed) -->
+              <div class="row" aria-label="Voice controls">
+                <button id="btnReadAll" class="btn blue" title="Read everything on this page">🔊 Read All</button>
+                <button id="btnReadSelected" class="btn gray" title="Highlight text then read only that part">🖍 Read Selected</button>
+                <button id="btnStop" class="btn red" title="Stop voice">⏹ Stop</button>
+                <button id="btnVoice" class="btn green" title="Turn voice on or off">Voice: ON</button>
+
+                <select id="voiceLang" aria-label="Voice language">
+                  <option value="">Auto (Device language)</option>
+                  <option value="en-US">English (US)</option>
+                  <option value="en-GB">English (UK)</option>
+                  <option value="en">English (General)</option>
+                  <option value="sw-KE">Kiswahili (Kenya)</option>
+                  <option value="sw">Kiswahili (General)</option>
+                  <option value="fr-FR">French</option>
+                  <option value="es-ES">Spanish</option>
+                  <option value="ar">Arabic</option>
+                </select>
+              </div>
+
+              <div class="miniTip">
+                Tip: highlight text then click <b>Read Selected</b>.
+                Shortcuts:
+                <span class="kbd">Ctrl</span>+<span class="kbd">Shift</span>+<span class="kbd">S</span> reads selected •
+                <span class="kbd">Esc</span> stops.
+              </div>
+
+              <div class="box" id="helpText">
+🧭 START HERE (FAST)
+
+1) Open Students Dashboard and create an account (email + password).
+2) New users get a 7-day free trial automatically.
+3) Admin: Create Home/School/RBI to get a Join Code.
+4) Teacher/Parent: Join using the Join Code and choose your role.
+5) When trial ends, you will be redirected to Pay.
+6) Important: Pay using the SAME email you used to register/login.
+7) After payment, return to Dashboard and refresh to activate.
+
+📍 GPS TRACKER (CHILD PHONE)
+
+1) Admin/Teacher opens Students Dashboard → GPS Tracking Link.
+2) Select student → Create trackerUrl.
+3) Copy/share the link to the child phone (WhatsApp/SMS).
+4) On the child phone: open the link → allow Location → keep internet ON.
+
+☎️ CONTACT SUPPORT
+
+Email: kidobabo3@gmail.com
+WhatsApp: +254 725 328 169
+
+When contacting support, send:
+• Your Paystack reference
+• The email you used to login/pay
+              </div>
+
+              <div class="miniLinks" aria-label="Quick links">
+                <a class="mini" href="/index.html">🏠 Home</a>
+                <a class="mini" href="/studentsdashboard.html#tracking">📍 Tracker GPS</a>
+                <a class="mini" href="/pay.html">🌱 Free Trial</a>
+              </div>
+
+              <div class="sr-only" aria-live="polite" id="srLive"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer">
+          kidobabohub.web.app • Est. 2026 • © Copyright
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    function goPage(file){ window.location.href = file; }
+
+    function toggleTools(force){
+      const p = document.getElementById("toolsPanel");
+      const b = document.getElementById("helpToolsBtn");
+      if(!p || !b) return;
+
+      const isOpen = p.style.display !== "none" && p.style.display !== "";
+      const opening = (typeof force === "boolean") ? force : !isOpen;
+
+      p.style.display = opening ? "block" : "none";
+      b.classList.toggle("is-open", opening);
+      b.setAttribute("aria-expanded", opening ? "true" : "false");
+
+      // Sync tool buttons state text from main buttons
+      syncSecondaryControls();
+    }
+
+    // ✅ Eye-care panel toggle (global)
+    function kbToggleEyePanel(){
+      const p = document.getElementById("kbEyePanel");
+      const btn = document.getElementById("kbEyeBtn");
+      if(!p || !btn) return;
+      const open = (p.style.display === "none" || !p.style.display);
+      p.style.display = open ? "block" : "none";
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+    window.kbToggleEyePanel = kbToggleEyePanel;
+
+    // Show language selected on home page (site-wide)
+    (function(){
+      const mode = localStorage.getItem("kb_siteLangMode") || "offline";
+      const code = localStorage.getItem("kb_siteLangCode") || "en";
+      const pill = document.getElementById("langPill");
+      if(pill){
+        pill.textContent = `🌐 Language: ${String(code).toUpperCase()} • ${mode}`;
+      }
+      const voice = localStorage.getItem("kb_siteVoiceLang") || "en";
+      document.documentElement.lang = voice;
+    })();
+  </script>
+
+  <script>
+    // =========================
+    // ✅ GLOBAL EYE-CARE SYSTEM (same behavior as homepage)
+    // =========================
+    const EC = {
+      LS: "kb_eyeCare_v1",
+      defaults: {
+        brightness: 0.90,
+        blue: 0.12,
+        textScale: 1.00,
+        softContrast: true,
+        reduceMotion: false,
+        autoNight: true
+      }
+    };
+
+    function kbReadEC(){
+      try{
+        const raw = localStorage.getItem(EC.LS);
+        const obj = raw ? JSON.parse(raw) : {};
+        return { ...EC.defaults, ...(obj||{}) };
+      }catch(_){
+        return { ...EC.defaults };
+      }
+    }
+    function kbWriteEC(v){
+      localStorage.setItem(EC.LS, JSON.stringify(v||{}));
+    }
+
+    function kbApplyEC(state){
+      if(state.autoNight){
+        const h = new Date().getHours();
+        const isNight = (h >= 18 || h < 6);
+        const nightBrightness = Math.min(state.brightness, 0.85);
+        const nightBlue = Math.max(state.blue, 0.18);
+
+        document.documentElement.style.setProperty("--kbBrightness", String(isNight ? nightBrightness : state.brightness));
+        document.documentElement.style.setProperty("--kbBlue", String(isNight ? nightBlue : state.blue));
+
+        const ap = document.getElementById("kbAutoPill");
+        if(ap) ap.textContent = "Auto Night: ON";
+      } else {
+        document.documentElement.style.setProperty("--kbBrightness", String(state.brightness));
+        document.documentElement.style.setProperty("--kbBlue", String(state.blue));
+
+        const ap = document.getElementById("kbAutoPill");
+        if(ap) ap.textContent = "Auto Night: OFF";
+      }
+
+      document.documentElement.style.setProperty("--kbTextScale", String(state.textScale));
+
+      document.documentElement.classList.toggle("kb-soft", !!state.softContrast);
+      document.documentElement.classList.toggle("kb-reduce-motion", !!state.reduceMotion);
+
+      const b = document.getElementById("kbBrightness");
+      const bl = document.getElementById("kbBlue");
+      const t = document.getElementById("kbTextScale");
+
+      if(b) b.value = String(state.brightness);
+      if(bl) bl.value = String(state.blue);
+      if(t) t.value = String(state.textScale);
+
+      const bV = document.getElementById("kbBrightnessVal");
+      const blV = document.getElementById("kbBlueVal");
+      const tV = document.getElementById("kbTextVal");
+
+      if(bV) bV.textContent = Math.round(parseFloat(state.brightness) * 100) + "%";
+      if(blV) blV.textContent = Math.round(parseFloat(state.blue) * 100) + "%";
+      if(tV) tV.textContent = Math.round(parseFloat(state.textScale) * 100) + "%";
+
+      const softBtn = document.getElementById("kbSoftBtn");
+      const motionBtn = document.getElementById("kbMotionBtn");
+      const autoBtn = document.getElementById("kbAutoBtn");
+
+      if(softBtn){
+        softBtn.textContent = state.softContrast ? "ON" : "OFF";
+        softBtn.setAttribute("aria-pressed", state.softContrast ? "true" : "false");
+      }
+      if(motionBtn){
+        motionBtn.textContent = state.reduceMotion ? "ON" : "OFF";
+        motionBtn.setAttribute("aria-pressed", state.reduceMotion ? "true" : "false");
+      }
+      if(autoBtn){
+        autoBtn.textContent = state.autoNight ? "ON" : "OFF";
+        autoBtn.setAttribute("aria-pressed", state.autoNight ? "true" : "false");
+      }
+    }
+
+    function kbBindEyeCare(){
+      let st = kbReadEC();
+      kbApplyEC(st);
+
+      const brightness = document.getElementById("kbBrightness");
+      const blue = document.getElementById("kbBlue");
+      const text = document.getElementById("kbTextScale");
+
+      if(brightness){
+        brightness.addEventListener("input", ()=>{
+          st = kbReadEC();
+          st.brightness = parseFloat(brightness.value);
+          kbWriteEC(st);
+          kbApplyEC(st);
+        });
+      }
+      if(blue){
+        blue.addEventListener("input", ()=>{
+          st = kbReadEC();
+          st.blue = parseFloat(blue.value);
+          kbWriteEC(st);
+          kbApplyEC(st);
+        });
+      }
+      if(text){
+        text.addEventListener("input", ()=>{
+          st = kbReadEC();
+          st.textScale = parseFloat(text.value);
+          kbWriteEC(st);
+          kbApplyEC(st);
+        });
+      }
+    }
+
+    window.kbToggleSoftContrast = function(){
+      const st = kbReadEC();
+      st.softContrast = !st.softContrast;
+      kbWriteEC(st);
+      kbApplyEC(st);
+    };
+
+    window.kbToggleReduceMotion = function(){
+      const st = kbReadEC();
+      st.reduceMotion = !st.reduceMotion;
+      kbWriteEC(st);
+      kbApplyEC(st);
+    };
+
+    window.kbToggleAutoNight = function(){
+      const st = kbReadEC();
+      st.autoNight = !st.autoNight;
+      kbWriteEC(st);
+      kbApplyEC(st);
+    };
+
+    window.kbResetEyeCare = function(){
+      kbWriteEC({ ...EC.defaults });
+      kbApplyEC(kbReadEC());
+    };
+
+    // keep auto-night correct
+    setInterval(()=> kbApplyEC(kbReadEC()), 60 * 1000);
+
+    // init eye-care
+    kbBindEyeCare();
+  </script>
+
+  <script>
+    // ✅ Simple, safe Text-to-Speech (no external APIs)
+    const VOICE_ON_KEY = "kbh_voice_on";
+    const VOICE_LANG_KEY = "kbh_voice_lang";
+
+    let voiceEnabled = (localStorage.getItem(VOICE_ON_KEY) !== "0"); // default ON
+
+    const btnReadAll = document.getElementById("btnReadAll");
+    const btnReadSelected = document.getElementById("btnReadSelected");
+    const btnStop = document.getElementById("btnStop");
+    const btnVoice = document.getElementById("btnVoice");
+    const voiceLang = document.getElementById("voiceLang");
+
+    // Secondary controls (inside Tools panel)
+    const btnReadAll2 = document.getElementById("btnReadAll2");
+    const btnReadSelected2 = document.getElementById("btnReadSelected2");
+    const btnStop2 = document.getElementById("btnStop2");
+    const btnVoice2 = document.getElementById("btnVoice2");
+    const voiceLang2 = document.getElementById("voiceLang2");
+
+    const helpText = document.getElementById("helpText");
+    const srLive = document.getElementById("srLive");
+
+    const savedLang = localStorage.getItem(VOICE_LANG_KEY) || "";
+
+    // Prefer site-wide language choice from Home as default for voice dropdown (if user never set help voice)
+    (function setDefaultVoiceLang(){
+      if(savedLang){
+        voiceLang.value = savedLang;
+        voiceLang2.value = savedLang;
+        return;
+      }
+      const siteVoice = localStorage.getItem("kb_siteVoiceLang") || "";
+      if(siteVoice){
+        // Try to map basic codes to common voice locales
+        const map = {
+          "en":"en", "sw":"sw-KE", "fr":"fr-FR", "es":"es-ES", "ar":"ar"
+        };
+        const v = map[siteVoice] || "";
+        voiceLang.value = v;
+        voiceLang2.value = v;
+      }
+    })();
+
+    function hasTTS(){
+      return typeof window.speechSynthesis !== "undefined" && typeof SpeechSynthesisUtterance !== "undefined";
+    }
+
+    function announce(m){ srLive.textContent = m; }
+
+    function stopSpeaking(){
+      if(!hasTTS()) return;
+      try { window.speechSynthesis.cancel(); } catch(_){}
+    }
+
+    function speak(text){
+      if(!voiceEnabled) return;
+      if(!hasTTS()){
+        alert("Voice is not supported on this device/browser.");
+        return;
+      }
+      const t = (text || "").trim();
+      if(!t) return;
+
+      try{
+        stopSpeaking();
+        const u = new SpeechSynthesisUtterance(t);
+        const langVal = (voiceLang.value || voiceLang2.value || "").trim();
+        u.lang = langVal || (navigator.language || "en-US");
+        u.rate = 1;
+        u.pitch = 1;
+        window.speechSynthesis.speak(u);
+      }catch(_){}
+    }
+
+    function setVoiceButton(){
+      const label = voiceEnabled ? "Voice: ON" : "Voice: OFF";
+      btnVoice.textContent = label;
+      btnVoice2.textContent = label;
+      localStorage.setItem(VOICE_ON_KEY, voiceEnabled ? "1" : "0");
+    }
+
+    function syncSecondaryControls(){
+      // keep dropdowns synced
+      if(voiceLang2 && voiceLang){
+        if(voiceLang2.value !== voiceLang.value) voiceLang2.value = voiceLang.value;
+      }
+      setVoiceButton();
+    }
+
+    setVoiceButton();
+
+    function toggleVoice(){
+      voiceEnabled = !voiceEnabled;
+      setVoiceButton();
+      if(!voiceEnabled) stopSpeaking();
+      announce(btnVoice.textContent);
+      if(voiceEnabled) speak("Voice is on.");
+    }
+
+    function readSelected(){
+      const sel = (window.getSelection && window.getSelection().toString()) ? window.getSelection().toString() : "";
+      if(!sel.trim()){
+        speak("Please highlight the text you want me to read.");
+        return;
+      }
+      speak(sel);
+      announce("Reading selected text.");
+    }
+
+    // Main buttons
+    btnVoice.onclick = toggleVoice;
+    btnStop.onclick = ()=>{ stopSpeaking(); announce("Stopped speaking."); };
+    btnReadAll.onclick = ()=>{ speak(helpText.textContent); announce("Reading help content."); };
+    btnReadSelected.onclick = readSelected;
+
+    // Secondary buttons
+    btnVoice2.onclick = toggleVoice;
+    btnStop2.onclick = ()=>{ stopSpeaking(); announce("Stopped speaking."); };
+    btnReadAll2.onclick = ()=>{ speak(helpText.textContent); announce("Reading help content."); };
+    btnReadSelected2.onclick = readSelected;
+
+    function saveLang(val){
+      localStorage.setItem(VOICE_LANG_KEY, val || "");
+      // sync both dropdowns
+      voiceLang.value = val || "";
+      voiceLang2.value = val || "";
+      if(voiceEnabled) speak("Language set.");
+    }
+
+    voiceLang.addEventListener("change", ()=> saveLang(voiceLang.value));
+    voiceLang2.addEventListener("change", ()=> saveLang(voiceLang2.value));
+
+    // Keyboard shortcuts
+    document.addEventListener("keydown", (e)=>{
+      if(e.key === "Escape"){ stopSpeaking(); return; }
+      if(e.ctrlKey && e.shiftKey && (e.key === "S" || e.key === "s")){
+        e.preventDefault();
+        readSelected();
+      }
+    });
+  </script>
+
+  <!-- keep if you already use it (safe) -->
+  <script src="/lang.js" defer></script>
+</body>
+</html>

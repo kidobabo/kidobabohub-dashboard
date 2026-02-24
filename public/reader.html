@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Flipbook Reader — Kido &amp; Babo Hub</title>
+  <meta name="theme-color" content="#16a34a"/>
+  <link rel="icon" href="/logo.jpg"/>
+
+  <style>
+    :root{
+      --bg:#0b1020; --text:#eaf0ff; --muted:#b7c3ff; --line:rgba(255,255,255,.12);
+      --shadow:0 18px 60px rgba(0,0,0,.45);
+      --radius:18px;
+      --accent: linear-gradient(90deg,#006600,#bb0000,#000000);
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color:var(--text);
+      min-height:100vh;
+    }
+    .wrap{ max-width: 1100px; margin: 0 auto; padding: 14px 12px 60px; }
+    .top{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
+      padding: 12px;
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(15, 23, 51, .55);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+    .left{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .logo{ width:38px; height:38px; border-radius: 12px; object-fit:cover; border:1px solid rgba(255,255,255,.18); }
+    .title{ font-weight: 950; }
+    .muted{ color: var(--muted); font-weight: 800; font-size: 12px; }
+    .btns{ display:flex; gap:8px; flex-wrap:wrap; }
+    button{
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-weight: 900;
+      cursor:pointer;
+    }
+    button.primary{
+      background: var(--accent);
+      border-color: rgba(255,255,255,.30);
+    }
+    button:disabled{ opacity:.55; cursor:not-allowed; }
+
+    .stage{
+      margin-top: 12px;
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(15, 23, 51, .55);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
+      padding: 14px;
+    }
+
+    /* Flip container */
+    #flipWrap{
+      width: 100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height: 520px;
+    }
+    #flipbook{
+      width: min(980px, 100%);
+      height: min(640px, calc(100vh - 220px));
+      background: rgba(0,0,0,.20);
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.12);
+      overflow:hidden;
+    }
+
+    /* Each page image */
+    .pageImg{
+      width:100%;
+      height:100%;
+      object-fit: contain;
+      background: rgba(0,0,0,.18);
+    }
+
+    .status{
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      font-weight: 850;
+      font-size: 12px;
+      color: rgba(234,240,255,.88);
+    }
+  </style>
+
+  <!-- PDF.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+  <!-- StPageFlip (UMD build via CDN) -->
+  <script src="https://unpkg.com/page-flip/dist/js/page-flip.browser.min.js"></script>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div class="left">
+        <img class="logo" src="/logo.jpg" alt="logo"/>
+        <div>
+          <div class="title" id="bookTitle">Loading…</div>
+          <div class="muted" id="bookMeta">Flipbook • Read aloud</div>
+        </div>
+      </div>
+
+      <div class="btns">
+        <button onclick="goBack()">← Library</button>
+        <button id="btnRead" class="primary" onclick="readThisPage()" disabled>🔊 Read page</button>
+        <button id="btnStop" onclick="stopReading()">⏹ Stop</button>
+        <button id="btnSound" onclick="toggleFlipSound()">🔉 Sound: ON</button>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div id="flipWrap">
+        <div id="flipbook"></div>
+      </div>
+      <div class="status" id="status">Preparing…</div>
+    </div>
+  </div>
+
+  <audio id="flipAudio" src="/sounds/page-flip.mp3" preload="auto"></audio>
+
+  <script>
+    // ----------------------------
+    // Config
+    // ----------------------------
+    const BOOKS_JSON = "/storybooks.pdf/books.json";
+    const DEFAULT_SCALE = 1.35;  // increase for sharper pages; lower for speed
+    const MAX_CONCURRENT = 1;    // keep 1 for low-memory phones
+
+    // ----------------------------
+    // State
+    // ----------------------------
+    let books = [];
+    let book = null;
+    let pdf = null;
+    let pageFlip = null;
+    let flipSoundOn = true;
+    let pageTexts = []; // extracted text per page index (0-based)
+    let rendered = 0;
+
+    function qs(name){
+      const u = new URL(location.href);
+      return u.searchParams.get(name);
+    }
+
+    function goBack(){
+      location.href = "readaloud.html";
+    }
+
+    // ----------------------------
+    // Voice helpers
+    // ----------------------------
+    function voiceLang(){
+      return localStorage.getItem("kb_siteVoiceLang") || "en";
+    }
+    function stopReading(){
+      try{
+        if("speechSynthesis" in window) speechSynthesis.cancel();
+      }catch(e){}
+    }
+    function speak(text){
+      try{
+        if(!("speechSynthesis" in window)) return;
+        stopReading();
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = voiceLang();
+        u.rate = 0.98;
+        u.pitch = 1.12;
+        speechSynthesis.speak(u);
+      }catch(e){}
+    }
+
+    // ----------------------------
+    // Flip sound
+    // ----------------------------
+    function toggleFlipSound(){
+      flipSoundOn = !flipSoundOn;
+      document.getElementById("btnSound").textContent = flipSoundOn ? "🔉 Sound: ON" : "🔇 Sound: OFF";
+    }
+    function playFlipSound(){
+      if(!flipSoundOn) return;
+      const a = document.getElementById("flipAudio");
+      if(!a) return;
+      a.currentTime = 0;
+      a.play().catch(()=>{});
+    }
+
+    // ----------------------------
+    // Load books.json and chosen book
+    // ----------------------------
+    async function loadBooks(){
+      const r = await fetch(BOOKS_JSON, {cache:"no-store"});
+      books = await r.json();
+    }
+    function pickBook(){
+      const id = qs("book");
+      book = books.find(b => b.id === id) || books[0];
+      if(!book) throw new Error("No book found");
+      document.getElementById("bookTitle").textContent = book.title || book.id;
+      document.documentElement.lang = voiceLang();
+    }
+
+    // ----------------------------
+    // PDF render -> pages as <img> elements
+    // ----------------------------
+    async function loadPdf(){
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+      setStatus("Loading PDF…");
+      const task = pdfjsLib.getDocument({ url: book.file });
+      pdf = await task.promise;
+
+      setStatus(`PDF loaded. Pages: ${pdf.numPages}. Rendering…`);
+    }
+
+    async function renderPageToDataUrl(pageNum, scale){
+      const page = await pdf.getPage(pageNum);
+      const viewport = page.getViewport({ scale });
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d", { alpha:false });
+      canvas.width = Math.floor(viewport.width);
+      canvas.height = Math.floor(viewport.height);
+
+      await page.render({ canvasContext: ctx, viewport }).promise;
+
+      // text extraction (best-effort)
+      let text = "";
+      try{
+        const tc = await page.getTextContent();
+        text = (tc.items || []).map(i => i.str).join(" ").replace(/\s+/g," ").trim();
+      }catch(e){}
+
+      return { dataUrl: canvas.toDataURL("image/jpeg", 0.86), text };
+    }
+
+    async function renderAllPages(){
+      const total = pdf.numPages;
+      pageTexts = new Array(total).fill("");
+
+      // Create a container of HTML pages for PageFlip
+      const flipEl = document.getElementById("flipbook");
+      flipEl.innerHTML = "";
+
+      // We add placeholder pages first (so flipbook can init quickly)
+      for(let i=1;i<=total;i++){
+        const pageDiv = document.createElement("div");
+        pageDiv.className = "page";
+
+        const img = document.createElement("img");
+        img.className = "pageImg";
+        img.alt = "Page " + i;
+        img.src = ""; // filled after render
+        img.dataset.page = String(i);
+
+        pageDiv.appendChild(img);
+        flipEl.appendChild(pageDiv);
+      }
+
+      // Init PageFlip
+      pageFlip = new St.PageFlip(flipEl, {
+        width: 420,
+        height: 560,
+        size: "stretch",
+        showCover: true,         // show cover as single page
+        maxShadowOpacity: 0.25,
+        mobileScrollSupport: true
+      });
+      pageFlip.loadFromHTML(document.querySelectorAll("#flipbook .page"));
+
+      // flip event: sound + update status + auto-read (optional)
+      pageFlip.on("flip", (e) => {
+        playFlipSound();
+        const pageIndex = e.data; // 0-based
+        setStatus(`Page ${pageIndex + 1} / ${total}`);
+      });
+
+      // Render pages sequentially (safe for low-memory devices)
+      rendered = 0;
+      for(let p=1; p<=total; p++){
+        const { dataUrl, text } = await renderPageToDataUrl(p, DEFAULT_SCALE);
+        pageTexts[p-1] = text || "";
+        const img = flipEl.querySelector(`img[data-page="${p}"]`);
+        if(img) img.src = dataUrl;
+
+        rendered++;
+        setStatus(`Rendering… (${rendered}/${total})`);
+      }
+
+      setStatus(`Ready. Page 1 / ${total}`);
+      document.getElementById("btnRead").disabled = false;
+    }
+
+    function currentPageIndex(){
+      if(!pageFlip) return 0;
+      // getCurrentPageIndex exists in recent builds; fallback if missing
+      try{
+        return pageFlip.getCurrentPageIndex();
+      }catch(e){
+        return 0;
+      }
+    }
+
+    function readThisPage(){
+      const i = currentPageIndex();
+      const total = pageTexts.length || (pdf ? pdf.numPages : 0);
+      const t = (pageTexts[i] || "").trim();
+
+      if(!t){
+        speak(`This page has no selectable text to read. Page ${i+1} of ${total}.`);
+        return;
+      }
+
+      // Read page text (you can add “Page X” intro if you want)
+      speak(t);
+    }
+
+    function setStatus(msg){
+      const s = document.getElementById("status");
+      if(s) s.textContent = msg;
+    }
+
+    // ----------------------------
+    // Start
+    // ----------------------------
+    (async function init(){
+      try{
+        await loadBooks();
+        pickBook();
+        await loadPdf();
+        await renderAllPages();
+      }catch(err){
+        console.error(err);
+        setStatus("Error: " + (err?.message || err));
+      }
+    })();
+  </script>
+</body>
+</html>

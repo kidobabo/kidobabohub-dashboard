@@ -1,0 +1,1879 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Students Dashboard • Kido &amp; Babo Hub</title>
+
+  <!-- ✅ IMPORTANT: This is a PRIVATE page. Keep it out of Google search -->
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="googlebot" content="noindex, nofollow">
+
+  <meta name="theme-color" content="#16a34a" />
+  <link rel="icon" href="/logo.jpg" />
+
+  <!-- ✅ Leaflet (OpenStreetMap) for Local Maps -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
+
+  <style>
+    :root{
+      --bg:#0b1020;
+
+      /* ===== Eye-care baseline (softer whites) ===== */
+      --text: rgba(232,238,248,.90);         /* softer than pure white */
+      --textStrong: rgba(240,245,255,.92);
+      --muted: rgba(181,194,238,.78);        /* softer muted */
+      --line: rgba(255,255,255,.10);
+      --shadow: 0 18px 60px rgba(0,0,0,.45);
+      --radius: 18px;
+
+      --accent: linear-gradient(90deg,#006600,#bb0000,#000000);
+
+      /* Focus ring */
+      --focus: rgba(183,195,255,.85);
+
+      /* Eye-care filter knobs */
+      --eyeBrightness: 1;
+      --eyeContrast: 1;
+      --eyeSaturate: 1;
+      --eyeWarm: 0; /* 0 normal, 1 warm */
+    }
+
+    /* When eye-care is ON, we soften everything more */
+    html.kb-eye-on{
+      --text: rgba(222,230,244,.86);
+      --textStrong: rgba(235,240,250,.88);
+      --muted: rgba(174,186,226,.72);
+      --line: rgba(255,255,255,.08);
+
+      --eyeBrightness: .92;
+      --eyeContrast: .95;
+      --eyeSaturate: .92;
+      --eyeWarm: 1;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1100px 560px at 10% 10%, rgba(35,49,110,.85) 0%, transparent 50%),
+                  radial-gradient(900px 520px at 90% 10%, rgba(122,27,27,.80) 0%, transparent 55%),
+                  radial-gradient(800px 520px at 50% 100%, rgba(14,91,47,.78) 0%, transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      min-height:100vh;
+
+      /* eye-care global filters */
+      filter: brightness(var(--eyeBrightness)) contrast(var(--eyeContrast)) saturate(var(--eyeSaturate));
+    }
+
+    /* warm overlay (optional, only when eye-care on) */
+    html.kb-eye-on body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      background: rgba(255,170,80,.05);
+      mix-blend-mode: overlay;
+      z-index: 999999;
+    }
+
+    .wrap{ max-width: 980px; margin: 0 auto; padding: 18px 14px 60px; }
+
+    header{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding: 14px 14px 10px;
+      border:1px solid var(--line);
+      background: rgba(15, 23, 51, .50);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .brandRow{ display:flex; align-items:center; gap:12px; }
+    .logo{
+      width:44px; height:44px; border-radius: 14px;
+      border:1px solid rgba(255,255,255,.15);
+      background: rgba(255,255,255,.06);
+      object-fit: cover;
+      box-shadow: 0 8px 22px rgba(0,0,0,.25);
+      flex: 0 0 auto;
+    }
+
+    .brand{ display:flex; flex-direction:column; gap:4px; padding: 2px 6px; }
+    .brand .title{ font-weight: 900; font-size: 18px; letter-spacing: .2px; line-height: 1.1; color: var(--textStrong); }
+    .brand .sub{
+      font-size: 12px; color: var(--muted); font-weight: 800; line-height: 1.35;
+    }
+
+    .nav{ display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; align-items:center; }
+
+    .nav button{
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.07);
+      color: var(--textStrong);
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-weight: 900;
+      cursor:pointer;
+      transition: transform .05s ease, background .15s ease, border-color .15s ease;
+      white-space:nowrap;
+      font-size: 13px;
+    }
+    .nav button:hover{ background: rgba(255,255,255,.10); border-color: rgba(255,255,255,.22); }
+    .nav button:active{ transform: translateY(1px); }
+
+    .nav button.primary{
+      background: var(--accent);
+      border-color: rgba(255,255,255,.26);
+      box-shadow: 0 10px 25px rgba(0,0,0,.25);
+      position: relative;
+      overflow: hidden;
+    }
+    .nav button.primary.is-open::before{
+      content:"";
+      position:absolute;
+      inset:-40%;
+      background: conic-gradient(from 0deg, rgba(255,255,255,.0), rgba(255,255,255,.28), rgba(255,255,255,.0));
+      animation: spinGlow 1.4s linear infinite;
+      filter: blur(1px);
+    }
+    .nav button.primary.is-open span{ position: relative; z-index: 1; }
+    @keyframes spinGlow { to { transform: rotate(360deg); } }
+
+    main{
+      margin-top: 14px;
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(15, 23, 51, .50);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:hidden;
+    }
+    .page{ padding: 18px 16px; }
+
+    .card{
+      background: rgba(12, 19, 48, .68);
+      border: 1px solid rgba(255,255,255,.09);
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+    h2{ margin: 0 0 10px; font-size: 18px; font-weight: 950; color: var(--textStrong); }
+    p{ margin: 8px 0; color: var(--text); line-height: 1.55; }
+    .muted{ color: var(--muted); font-weight: 800; font-size: 13px; }
+
+    .grid{ display:grid; grid-template-columns: repeat(12, 1fr); gap: 12px; margin-top: 12px; }
+    .col-12{ grid-column: span 12; }
+    @media (max-width: 860px){
+      header{ flex-direction: column; align-items: stretch; }
+      .nav{ justify-content:flex-start; }
+      .brandRow{ justify-content:flex-start; }
+    }
+
+    /* Dashboard-specific UI */
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+    input,select,textarea{
+      padding:10px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.06);
+      color: var(--textStrong);
+      min-width:220px;
+      flex:1;
+      font-weight:900;
+      outline:none;
+    }
+    input::placeholder, textarea::placeholder{ color: rgba(183,195,255,.65); font-weight:800; }
+    textarea{min-height:84px;resize:vertical}
+
+    .btn{
+      padding:10px 12px;border:none;border-radius:14px;font-weight:950;cursor:pointer;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.09);
+      color: var(--textStrong);
+      transition: transform .05s ease, background .15s ease, border-color .15s ease;
+    }
+    .btn:hover{ background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.20); }
+    .btn:active{ transform: translateY(1px); }
+
+    .bBlue{ background: rgba(77,212,255,.16); border:1px solid rgba(77,212,255,.28); }
+    .bGreen{ background: rgba(124,255,107,.16); border:1px solid rgba(124,255,107,.28); }
+    .bRed{ background: rgba(255,77,109,.18); border:1px solid rgba(255,77,109,.33); }
+    .bYellow{ background: rgba(255,204,0,.14); border:1px solid rgba(255,204,0,.26); }
+
+    .mini{font-size:12px;opacity:.95;font-weight:850;color:var(--muted);}
+    .hide{display:none;}
+    .msg{font-weight:950;margin-top:8px;}
+    .pill{
+      display:inline-block;
+      padding:6px 10px;
+      border-radius:999px;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12);
+      font-weight:950;
+      font-size:12px;
+      color: var(--text);
+      white-space:nowrap;
+    }
+
+    table{width:100%;border-collapse:collapse;font-size:13px;}
+    th,td{padding:8px;border:1px solid rgba(255,255,255,.10);text-align:left;color: var(--text);}
+    th{background: rgba(255,255,255,.06); color: var(--textStrong);}
+
+    .codeBox{
+      border: 1px dashed rgba(183,195,255,.55);
+      border-radius:14px;
+      padding:10px;
+      font-weight:950;
+      background: rgba(255,255,255,.05);
+      word-break:break-all;
+      color: var(--textStrong);
+    }
+
+    .twoCols{display:grid;grid-template-columns:1fr;gap:12px;}
+    @media (min-width:900px){ .twoCols{grid-template-columns:1fr 1fr;} }
+
+    a{color: var(--textStrong); font-weight:950}
+
+    .banner{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,204,0,.30);
+      background: rgba(255,204,0,.10);
+      color: rgba(255,236,200,.90);
+      font-weight:1000;
+      display:none;
+      line-height:1.4;
+    }
+
+    .steps{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+      color: var(--text);
+      font-weight:900;
+      line-height:1.45;
+      font-size:12.5px;
+    }
+    .steps ol{ margin:8px 0 0 18px; padding:0; font-weight:900; }
+    .steps li{ margin:6px 0; }
+
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    .tab{
+      padding:9px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      font-weight:1000;cursor:pointer;
+      color: var(--textStrong);
+    }
+    .tab.active{background:#0f172a;color:#fff;border-color:#0f172a;}
+    .hint{font-size:12px;font-weight:900;opacity:.95;margin-top:6px;color:var(--muted)}
+    .tiny{font-size:12px;font-weight:900;opacity:.95;color:var(--muted)}
+
+    .langPill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 10px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      font-weight:950;font-size:12px;color: var(--text);
+    }
+
+    button:focus, input:focus, select:focus, textarea:focus{
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    /* =============================
+       ✅ Eye-care panel
+       ============================= */
+    .eyePanel{
+      margin-bottom:12px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.16);
+      border-radius:16px;
+      padding:12px;
+    }
+    .eyeRow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;}
+    .eyeTitle{font-weight:1000;color:var(--textStrong)}
+    .eyeHint{font-size:12px;color:var(--muted);font-weight:850;margin-top:6px;line-height:1.35}
+    .eyeBtns{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+    .eyeTag{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:6px 10px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      font-weight:950;font-size:12px;color: var(--text);
+      white-space:nowrap;
+    }
+
+    /* =============================
+       ✅ Local Maps styles (embedded)
+       ============================= */
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      font-weight:950; font-size:12px; color: var(--text);
+      white-space:nowrap;
+    }
+
+    /* SMALL MAP by default */
+    #kbMap{
+      width:100%;
+      height: 260px; /* SMALL BOX */
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.10);
+      overflow:hidden;
+      background: rgba(255,255,255,.05);
+    }
+    /* Expanded map */
+    .kbMapExpanded #kbMap{
+      height: 520px;
+    }
+
+    /* Eye-care also dims tiles a bit */
+    html.kb-eye-on .leaflet-tile{
+      filter: brightness(.78) contrast(.95);
+    }
+
+    .list{
+      margin-top:10px;
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:14px;
+      background: rgba(255,255,255,.05);
+      overflow:hidden;
+    }
+    .item{
+      padding:10px 12px;
+      border-top:1px solid rgba(255,255,255,.08);
+      cursor:pointer;
+      color: var(--textStrong);
+    }
+    .item:first-child{ border-top:0; }
+    .item:hover{ background: rgba(255,255,255,.06); }
+    .itemTitle{ font-weight:1000; }
+    .itemSub{ margin-top:2px; font-size:12px; color: var(--text); font-weight:850; }
+
+    .sr-only{
+      position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden;
+      clip:rect(0,0,0,0); white-space:nowrap; border:0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brandRow">
+        <img class="logo" src="/logo.jpg" alt="Kido & Babo Hub logo" />
+        <div class="brand">
+          <div class="title">Kido &amp; Babo Hub</div>
+          <div class="sub">Students Dashboard • Homes • Schools • RBI • Students • Reports • GPS</div>
+        </div>
+      </div>
+
+      <div class="nav" aria-label="Top navigation">
+        <button onclick="goPage('index.html')">🏠 Home</button>
+        <button onclick="goPage('tracker.html')">📍 Tracker</button>
+        <button onclick="goPage('translator.html')">🌍 Translator</button>
+        <button onclick="goPage('help.html')">🆘 Help</button>
+        <button onclick="goPage('pay.html')">🎁 Free Trial</button>
+
+        <button class="primary" id="dashToolsBtn" onclick="toggleTools()" aria-controls="toolsPanel" aria-expanded="false">
+          <span>🧰 Tools</span>
+        </button>
+
+        <!-- ✅ Eye Care toggle visible in header -->
+        <button id="eyeBtn" onclick="kbEyeToggle()" title="Eye-care mode on/off">👁️ Eye-Care: OFF</button>
+
+        <span class="langPill" id="langPill">🌐 Language: EN</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="page">
+
+        <!-- ✅ Eye-care panel (always visible, small) -->
+        <div class="eyePanel" id="eyePanel">
+          <div class="eyeRow">
+            <div>
+              <div class="eyeTitle">👁️ Eye-Care Mode</div>
+              <div class="eyeHint">
+                Reduces bright whites, softens contrast, and slightly warms colors for comfortable reading (good for kids & night use).
+              </div>
+            </div>
+            <div class="eyeBtns">
+              <span class="eyeTag" id="eyeStateTag">Status: OFF</span>
+              <button class="btn" onclick="kbEyeToggle()">Toggle</button>
+              <button class="btn" onclick="kbEyeSet(true)">Turn ON</button>
+              <button class="btn" onclick="kbEyeSet(false)">Turn OFF</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TOOLS PANEL -->
+        <div id="toolsPanel" class="card hide" style="margin-bottom:12px;">
+          <div class="row" style="justify-content:space-between;">
+            <div style="font-weight:950;font-size:16px;color:var(--textStrong);">🧰 Dashboard Tools</div>
+            <div class="mini">Quick shortcuts</div>
+          </div>
+          <div class="row" style="margin-top:10px;">
+            <button class="btn bBlue" onclick="scrollToId('authCard')">🔐 Login</button>
+            <button class="btn bGreen" onclick="scrollToId('setupArea')">🏫 Setup / Join</button>
+            <button class="btn bYellow" onclick="scrollToId('adminTeacherArea')">📍 Tracking + Reports</button>
+            <button class="btn" onclick="scrollToId('kbLocalMapsCard')">🗺️ Local Maps</button>
+            <button class="btn" onclick="scrollToId('helpAnchor')">🆘 Help</button>
+          </div>
+          <div class="hint">Tip: Language is selected on Home page and applies here automatically.</div>
+        </div>
+
+        <!-- AUTH -->
+        <div id="authCard" class="card">
+          <div class="row" style="justify-content:space-between;">
+            <div style="font-weight:950;font-size:16px;color:var(--textStrong);">🔐 Login / Create Account</div>
+            <div class="mini">Email + Password</div>
+          </div>
+
+          <div class="row" style="margin-top:10px;">
+            <input id="email" type="email" placeholder="Email" />
+            <input id="password" type="password" placeholder="Password" />
+            <button class="btn bBlue" id="btnLogin">Login</button>
+            <button class="btn bGreen" id="btnSignup">Create Account</button>
+          </div>
+
+          <div class="row" style="margin-top:8px;">
+            <button class="btn bYellow" id="btnReset">Send password reset</button>
+            <div class="mini">If login fails, reset password.</div>
+          </div>
+
+          <div id="authMsg" class="msg"></div>
+        </div>
+
+        <!-- CODES PANEL -->
+        <div id="codesCard" class="card hide" style="margin-top:12px;">
+          <div class="row" style="justify-content:space-between;">
+            <div style="font-weight:950;font-size:16px;color:var(--textStrong);">🧾 Codes</div>
+            <div class="mini">Saved on this device ✅</div>
+          </div>
+
+          <div class="twoCols" style="margin-top:10px;">
+            <div>
+              <div class="mini">Last Join Code</div>
+              <div class="codeBox" id="lastJoinCode">-</div>
+              <div class="row" style="margin-top:8px;">
+                <button class="btn bYellow" id="btnCopyJoin">Copy</button>
+                <button class="btn bRed" id="btnClearJoin">Clear</button>
+              </div>
+            </div>
+            <div>
+              <div class="mini">Last Child Code</div>
+              <div class="codeBox" id="lastChildCode">-</div>
+              <div class="row" style="margin-top:8px;">
+                <button class="btn bYellow" id="btnCopyChild">Copy</button>
+                <button class="btn bRed" id="btnClearChild">Clear</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SETUP -->
+        <div id="setupArea" class="grid hide">
+          <div class="col-12" style="display:grid;grid-template-columns:repeat(12,1fr);gap:12px;">
+            <div class="card" style="grid-column: span 12;">
+              <div style="font-weight:950;font-size:16px;color:var(--textStrong);">👤 Admin Setup</div>
+              <div class="mini" style="margin-top:6px;">Create Home/School/RBI and get Join Code.</div>
+              <div class="row" style="margin-top:10px;">
+                <input id="adminName" placeholder="Admin name" />
+                <input id="orgName" placeholder="Home / School / RBI name" />
+              </div>
+              <div class="row" style="margin-top:10px;">
+                <button class="btn bGreen" id="btnCreateOrg">✅ Create &amp; Get Join Code</button>
+                <span class="pill">Auto</span>
+              </div>
+              <div id="orgResult" class="msg"></div>
+            </div>
+
+            <div class="card" style="grid-column: span 12;">
+              <div style="font-weight:950;font-size:16px;color:var(--textStrong);">👩‍🏫👨‍👩‍👧 Teacher / Parent Join</div>
+              <div class="mini" style="margin-top:6px;">Join using the Admin Join Code.</div>
+              <div class="row" style="margin-top:10px;">
+                <input id="joinName" placeholder="Your name" />
+                <select id="joinRole">
+                  <option value="teacher">Teacher</option>
+                  <option value="parent">Parent</option>
+                </select>
+                <input id="joinCode" placeholder="Join code (e.g., A2B3C4)" />
+              </div>
+              <div class="row" style="margin-top:10px;">
+                <button class="btn bBlue" id="btnJoinOrg">🔗 Join with Code</button>
+              </div>
+              <div id="joinMsg" class="msg"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DASHBOARD APP -->
+        <div id="app" class="hide">
+          <div class="card" style="margin-top:12px;">
+            <div class="row" style="justify-content:space-between;">
+              <div>
+                <div style="font-weight:950;font-size:16px;color:var(--textStrong);">✅ Dashboard</div>
+                <div class="mini">
+                  Signed in: <span id="who"></span> • Role: <span id="role"></span> • Org: <span id="org"></span>
+                </div>
+                <div id="subBanner" class="banner"></div>
+              </div>
+              <div class="row">
+                <button class="btn" onclick="goPage('index.html')">🏠 Home</button>
+                <button class="btn bRed" id="btnLogout">Logout</button>
+              </div>
+            </div>
+            <div id="appMsg" class="msg"></div>
+          </div>
+
+          <!-- ✅ LOCAL MAPS (EMBEDDED HERE) -->
+          <div id="kbLocalMapsCard" class="card" style="margin-top:12px;">
+            <div class="row" style="justify-content:space-between;">
+              <div>
+                <div style="font-weight:950;font-size:16px;color:var(--textStrong);">🗺️ Local Maps</div>
+                <div class="mini">Search places • Drop pin • Save Home/School/Work/Field • Nearby suggestions • Directions</div>
+                <div class="tiny">Map is small by default to reduce clutter. Tap “Expand Map” when needed.</div>
+              </div>
+              <div class="row">
+                <span class="badge" id="kbNetBadge">📶 Checking…</span>
+                <button class="btn bBlue" onclick="kbLocateMe()">📍 My Location</button>
+                <button class="btn bGreen" onclick="kbToggleVoice()">🔊 Voice: <span id="kbVoiceState">ON</span></button>
+                <button class="btn" id="kbExpandBtn" onclick="kbToggleMapSize()">🧩 Expand Map</button>
+              </div>
+            </div>
+
+            <div class="row" style="margin-top:10px;">
+              <input id="kbQ" placeholder="Search a place… e.g., Nairobi Hospital" />
+              <button class="btn bBlue" onclick="kbSearchPlace()">🔎 Search</button>
+              <button class="btn" onclick="kbSpeak('Type a place name then tap search. Or tap the map to drop a pin.')">🗣 Help</button>
+            </div>
+
+            <div id="kbLocalMapsWrap">
+              <div id="kbMap" aria-label="Map"></div>
+            </div>
+
+            <div class="row" style="margin-top:10px;">
+              <button class="btn bYellow" onclick="kbSaveAs('home')">🏠 Save as Home</button>
+              <button class="btn bYellow" onclick="kbSaveAs('school')">🏫 Save as School</button>
+              <button class="btn bYellow" onclick="kbSaveAs('work')">💼 Save as Work</button>
+              <button class="btn bYellow" onclick="kbSaveAs('field')">🌾 Save as Field</button>
+              <button class="btn bRed" onclick="kbClearPin()">🧹 Clear Pin</button>
+            </div>
+
+            <div class="row" style="justify-content:space-between; margin-top:10px;">
+              <div class="tiny" id="kbPinInfo">No pin yet. Tap the map to place one.</div>
+              <div class="row">
+                <button class="btn" onclick="kbOpenDirections()">🧭 Directions</button>
+                <button class="btn" onclick="kbCopyCoords()">📋 Copy coords</button>
+              </div>
+            </div>
+
+            <div class="twoCols" style="margin-top:12px;">
+              <div>
+                <div class="row" style="justify-content:space-between;">
+                  <div style="font-weight:950;color:var(--textStrong);">Saved locations</div>
+                  <button class="btn bRed" onclick="kbResetSaved()">🧹 Reset</button>
+                </div>
+                <div class="mini" style="margin-top:6px;">Tap a saved location to jump there.</div>
+                <div class="list" id="kbSavedList"></div>
+              </div>
+
+              <div>
+                <div class="row" style="justify-content:space-between;">
+                  <div style="font-weight:950;color:var(--textStrong);">Nearby suggestions</div>
+                  <button class="btn bBlue" onclick="kbLoadNearby()">✨ Load</button>
+                </div>
+                <div class="mini" style="margin-top:6px;">Shows useful places around the pin (or your location).</div>
+
+                <div class="row" style="margin-top:8px;">
+                  <select id="kbNearType" aria-label="Nearby type">
+                    <option value="school">🏫 Schools</option>
+                    <option value="hospital">🏥 Hospitals</option>
+                    <option value="police">🚓 Police</option>
+                    <option value="pharmacy">💊 Pharmacy</option>
+                    <option value="supermarket">🛒 Supermarket</option>
+                    <option value="park">🌳 Parks</option>
+                  </select>
+                  <select id="kbNearRadius" aria-label="Nearby radius">
+                    <option value="800">800 m</option>
+                    <option value="1500" selected>1.5 km</option>
+                    <option value="3000">3 km</option>
+                    <option value="5000">5 km</option>
+                  </select>
+                </div>
+
+                <div class="list" id="kbNearList" style="margin-top:10px;">
+                  <div class="item">
+                    <div class="itemTitle">Tap “✨ Load”</div>
+                    <div class="itemSub">We will suggest nearby places around your pin.</div>
+                  </div>
+                </div>
+
+                <div class="tiny" style="margin-top:10px;">
+                  Note: Search + suggestions need internet (OpenStreetMap services). Offline, the map may still load if cached.
+                </div>
+              </div>
+            </div>
+
+            <div class="sr-only" aria-live="polite" id="kbSrLive"></div>
+          </div>
+
+          <div id="tracking"></div>
+
+          <!-- Admin/Teacher -->
+          <div id="adminTeacherArea" class="grid hide">
+
+            <div class="col-12">
+              <div class="card">
+                <div class="row" style="justify-content:space-between;">
+                  <div style="font-weight:950;font-size:16px;color:var(--textStrong);">👧🧒 Create Student</div>
+                  <div class="mini">Generates Child Code</div>
+                </div>
+
+                <div class="row" style="margin-top:10px;">
+                  <input id="stName" placeholder="Student name" />
+                  <select id="stClass">
+                    <option value="PP1">PP1</option><option value="PP2">PP2</option>
+                    <option value="Grade 1">Grade 1</option><option value="Grade 2">Grade 2</option>
+                    <option value="Grade 3">Grade 3</option><option value="Grade 4">Grade 4</option>
+                    <option value="Grade 5">Grade 5</option><option value="Grade 6">Grade 6</option>
+                  </select>
+                  <select id="stAge">
+                    <option value="4">Age 4</option><option value="5">Age 5</option><option value="6">Age 6</option>
+                    <option value="7">Age 7</option><option value="8">Age 8</option><option value="9">Age 9</option>
+                    <option value="10">Age 10</option>
+                  </select>
+                </div>
+
+                <div class="row" style="margin-top:10px;">
+                  <button class="btn bGreen" id="btnCreateStudent">➕ Create + Code</button>
+                  <button class="btn bYellow" id="btnRefreshStudents">🔄 Refresh Students</button>
+                </div>
+
+                <div id="studentMsg" class="msg"></div>
+              </div>
+            </div>
+
+            <!-- GPS -->
+            <div class="col-12">
+              <div class="card">
+                <div class="row" style="justify-content:space-between;">
+                  <div style="font-weight:950;font-size:16px;color:var(--textStrong);">📍 GPS Tracking Link</div>
+                  <div class="mini">Create trackerUrl for child phone</div>
+                </div>
+
+                <div class="steps">
+                  <div>Do this now (Admin/Teacher):</div>
+                  <ol>
+                    <li>Login to <b>/studentsdashboard.html</b></li>
+                    <li>Go to <b>GPS Tracking Link</b></li>
+                    <li>Select the student</li>
+                    <li>Click <b>Create trackerUrl</b></li>
+                    <li>Copy or share the link shown in the trackerUrl box</li>
+                    <li>Send that link to the child phone (WhatsApp/SMS)</li>
+                  </ol>
+                  ✅ When the child opens it, the tracker will connect automatically.
+                </div>
+
+                <div class="row" style="margin-top:10px;">
+                  <input id="trackSearch" placeholder="Search student name..." list="trackDatalist" />
+                  <datalist id="trackDatalist"></datalist>
+                </div>
+
+                <div class="row" style="margin-top:10px;">
+                  <select id="trackStudent"></select>
+                  <button class="btn bBlue" id="btnCreateTrackLink">Create trackerUrl</button>
+                </div>
+
+                <div style="margin-top:10px;">
+                  <div class="mini">Share this link to the child phone below:</div>
+                  <div class="codeBox" id="trackerUrlBox">-</div>
+
+                  <div class="row" style="margin-top:8px;">
+                    <button class="btn bYellow" id="btnCopyTrackerUrl">Copy link</button>
+                    <button class="btn bGreen" id="btnShareTrackerUrl">Share link here / Child phone</button>
+                    <a class="pill" href="/tracker.html" target="_blank" rel="noopener">Tracker page</a>
+                  </div>
+                </div>
+
+                <div id="trackMsg" class="msg"></div>
+              </div>
+            </div>
+
+            <!-- QUICK REPORTS -->
+            <div class="col-12">
+              <div class="card">
+                <div class="row" style="justify-content:space-between;">
+                  <div style="font-weight:950;font-size:16px;color:var(--textStrong);">📝 Quick Reports (Offline)</div>
+                  <div class="mini">Saved locally on this device ✅</div>
+                </div>
+
+                <div class="hint">Pick student + write short notes. Export CSV anytime.</div>
+
+                <div class="row" style="margin-top:10px;">
+                  <input id="repSearch" placeholder="Search student..." list="repDatalist" />
+                  <datalist id="repDatalist"></datalist>
+
+                  <select id="repStudent"></select>
+
+                  <input id="repDate" type="date" />
+                </div>
+
+                <div class="tabs" id="repTabs">
+                  <div class="tab active" data-tab="attendance">Attendance</div>
+                  <div class="tab" data-tab="talent">Talent</div>
+                  <div class="tab" data-tab="activity">Activity</div>
+                  <div class="tab" data-tab="notes">Notes</div>
+                </div>
+
+                <div style="margin-top:10px;">
+                  <textarea id="repText" placeholder="Type report note here..."></textarea>
+                  <div class="tiny">Tip: keep it short &amp; clear. Works even on low devices.</div>
+                </div>
+
+                <div class="row" style="margin-top:10px;">
+                  <button class="btn bGreen" id="btnSaveReport">✅ Save</button>
+                  <button class="btn bYellow" id="btnExportCSV">⬇️ Export CSV</button>
+                  <button class="btn bRed" id="btnClearReports">🧹 Clear saved (this device)</button>
+                  <span class="pill" id="repCountPill">0 saved</span>
+                </div>
+
+                <div id="repMsg" class="msg"></div>
+
+                <div style="margin-top:10px; max-height:240px; overflow:auto;">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Student</th>
+                        <th>Type</th>
+                        <th>Note</th>
+                      </tr>
+                    </thead>
+                    <tbody id="repTable"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div id="helpAnchor" style="height:1px;"></div>
+        </div>
+
+        <div class="card" style="margin-top:12px;">
+          <div class="mini">Tip: Eye-Care mode is global on this page. You can copy the same Eye-Care block into other pages for consistent comfort.</div>
+        </div>
+
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Simple nav helpers
+    function goPage(file){ window.location.href = file; }
+
+    function scrollToId(id){
+      const el = document.getElementById(id);
+      if(el) el.scrollIntoView({behavior:"smooth", block:"start"});
+      toggleTools(false);
+
+      // if scrolling to map, make sure Leaflet sizes correctly
+      if(id === "kbLocalMapsCard"){
+        setTimeout(() => {
+          try{ if(window.kbInvalidateMapSize) window.kbInvalidateMapSize(); }catch(e){}
+        }, 350);
+      }
+    }
+
+    function toggleTools(force){
+      const p = document.getElementById("toolsPanel");
+      const b = document.getElementById("dashToolsBtn");
+      if(!p || !b) return;
+
+      const opening = (typeof force === "boolean") ? force : (p.classList.contains("hide"));
+      p.classList.toggle("hide", !opening);
+      b.classList.toggle("is-open", opening);
+      b.setAttribute("aria-expanded", opening ? "true" : "false");
+    }
+
+    // Show language selected on home page (site-wide storage)
+    (function(){
+      const mode = localStorage.getItem("kb_siteLangMode") || "offline";
+      const code = localStorage.getItem("kb_siteLangCode") || "en";
+      const pill = document.getElementById("langPill");
+      if(pill){
+        pill.textContent = `🌐 Language: ${String(code).toUpperCase()} • ${mode}`;
+      }
+      const voice = localStorage.getItem("kb_siteVoiceLang") || "en";
+      document.documentElement.lang = voice;
+    })();
+
+    // =============================
+    // ✅ Eye-Care (Built-in, no external files)
+    // =============================
+    (function(){
+      const LS_EYE = "kb_eyeCareOn_v1";
+
+      function applyEye(on){
+        document.documentElement.classList.toggle("kb-eye-on", !!on);
+
+        const btn = document.getElementById("eyeBtn");
+        const tag = document.getElementById("eyeStateTag");
+        if(btn) btn.textContent = `👁️ Eye-Care: ${on ? "ON" : "OFF"}`;
+        if(tag) tag.textContent = `Status: ${on ? "ON" : "OFF"}`;
+
+        localStorage.setItem(LS_EYE, on ? "1" : "0");
+
+        // reflow map tiles after filter changes
+        setTimeout(() => {
+          try{ if(window.kbInvalidateMapSize) window.kbInvalidateMapSize(); }catch(e){}
+        }, 100);
+      }
+
+      window.kbEyeSet = function(on){ applyEye(!!on); };
+      window.kbEyeToggle = function(){
+        const current = localStorage.getItem(LS_EYE) === "1";
+        applyEye(!current);
+      };
+
+      // init
+      const saved = localStorage.getItem(LS_EYE);
+      applyEye(saved === "1");
+    })();
+  </script>
+
+  <!-- ✅ Local Maps (embedded JS) -->
+  <script>
+    (function(){
+      // ----- Voice -----
+      const LS_VOICE = "kb_voiceOn";
+      let kbVoiceOn = (localStorage.getItem(LS_VOICE) !== "0"); // default ON
+
+      function kbHasTTS(){
+        return typeof window.speechSynthesis !== "undefined" && typeof SpeechSynthesisUtterance !== "undefined";
+      }
+      function kbSetVoiceUI(){
+        const s = document.getElementById("kbVoiceState");
+        if(s) s.textContent = kbVoiceOn ? "ON" : "OFF";
+      }
+      window.kbToggleVoice = function(){
+        kbVoiceOn = !kbVoiceOn;
+        localStorage.setItem(LS_VOICE, kbVoiceOn ? "1" : "0");
+        kbSetVoiceUI();
+        kbSpeak(kbVoiceOn ? "Voice is on." : "Voice is off.");
+      };
+      window.kbSpeak = function(text){
+        try{
+          if(!kbVoiceOn) return;
+          if(!kbHasTTS()) return;
+          const t = String(text||"").trim();
+          if(!t) return;
+          const u = new SpeechSynthesisUtterance(t);
+          u.lang = localStorage.getItem("kb_siteVoiceLang") || document.documentElement.lang || navigator.language || "en";
+          u.rate = 0.98;
+          u.pitch = 1.2;
+          speechSynthesis.speak(u);
+        }catch(e){}
+      };
+      function kbAnnounce(m){
+        const sr = document.getElementById("kbSrLive");
+        if(sr) sr.textContent = m;
+      }
+      kbSetVoiceUI();
+
+      // ----- Online badge -----
+      function kbRefreshNetBadge(){
+        const b = document.getElementById("kbNetBadge");
+        if(!b) return;
+        const on = navigator.onLine === true;
+        b.textContent = on ? "📶 Online" : "📴 Offline";
+      }
+      window.addEventListener("online", kbRefreshNetBadge);
+      window.addEventListener("offline", kbRefreshNetBadge);
+      kbRefreshNetBadge();
+
+      // ----- Map size toggle (small/expanded) -----
+      let kbExpanded = false;
+      window.kbToggleMapSize = function(){
+        kbExpanded = !kbExpanded;
+        const wrap = document.getElementById("kbLocalMapsWrap");
+        const btn = document.getElementById("kbExpandBtn");
+        if(wrap) wrap.classList.toggle("kbMapExpanded", kbExpanded);
+        if(btn) btn.textContent = kbExpanded ? "🧩 Collapse Map" : "🧩 Expand Map";
+
+        setTimeout(()=>{ try{ if(window.kbInvalidateMapSize) window.kbInvalidateMapSize(); }catch(e){} }, 250);
+      };
+
+      // ----- LocalStorage keys for saved pins -----
+      const LS_SAVED = "kb_localmaps_saved_v1"; // {home:{lat,lng,name}, ...}
+      function kbLoadSaved(){
+        try{
+          const obj = JSON.parse(localStorage.getItem(LS_SAVED) || "{}");
+          return obj && typeof obj === "object" ? obj : {};
+        }catch(_){ return {}; }
+      }
+      function kbSaveSaved(obj){
+        localStorage.setItem(LS_SAVED, JSON.stringify(obj || {}));
+      }
+
+      // ----- Leaflet map -----
+      let kbMap = null, kbPinMarker = null, kbPin = null;
+      let kbNearbyMarkers = [];
+      let kbMapInited = false;
+
+      const DEFAULT_CENTER = { lat: -1.286389, lng: 36.817223 }; // Nairobi
+      const DEFAULT_ZOOM = 12;
+
+      function kbInitMap(){
+        if(kbMapInited) return;
+        const mapEl = document.getElementById("kbMap");
+        if(!mapEl) return;
+
+        kbMap = L.map("kbMap", { zoomControl:true }).setView([DEFAULT_CENTER.lat, DEFAULT_CENTER.lng], DEFAULT_ZOOM);
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 19,
+          attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(kbMap);
+
+        kbMap.on("click", (e)=>{
+          kbSetPin(e.latlng.lat, e.latlng.lng, "Dropped pin");
+          kbSpeak("Pin placed.");
+        });
+
+        kbRenderSavedList();
+        kbUpdatePinInfo();
+
+        kbMapInited = true;
+
+        // important: if map is in a hidden container initially
+        setTimeout(()=>{ try{ kbMap.invalidateSize(true); }catch(e){} }, 350);
+      }
+
+      window.kbInvalidateMapSize = function(){
+        try{
+          if(kbMap) kbMap.invalidateSize(true);
+        }catch(e){}
+      };
+
+      function kbSetPin(lat, lng, name){
+        if(!kbMap){ kbInitMap(); }
+        if(!kbMap) return;
+
+        kbPin = { lat: +lat, lng: +lng, name: name || "Selected place" };
+        if(kbPinMarker){
+          kbPinMarker.setLatLng([kbPin.lat, kbPin.lng]);
+        }else{
+          kbPinMarker = L.marker([kbPin.lat, kbPin.lng], { draggable:true }).addTo(kbMap);
+          kbPinMarker.on("dragend", ()=>{
+            const p = kbPinMarker.getLatLng();
+            kbPin.lat = p.lat;
+            kbPin.lng = p.lng;
+            kbPin.name = "Moved pin";
+            kbUpdatePinInfo();
+            kbSpeak("Pin moved.");
+          });
+        }
+        kbMap.setView([kbPin.lat, kbPin.lng], Math.max(kbMap.getZoom(), 14));
+        kbUpdatePinInfo();
+      }
+
+      window.kbClearPin = function(){
+        if(!kbMap) return;
+        if(kbPinMarker){
+          kbMap.removeLayer(kbPinMarker);
+          kbPinMarker = null;
+        }
+        kbPin = null;
+        kbUpdatePinInfo();
+        kbSpeak("Pin cleared.");
+      };
+
+      function kbUpdatePinInfo(){
+        const el = document.getElementById("kbPinInfo");
+        if(!el) return;
+        if(!kbPin){
+          el.textContent = "No pin yet. Tap the map to place one.";
+          return;
+        }
+        el.textContent = `Pin: ${kbPin.name} • ${kbPin.lat.toFixed(6)}, ${kbPin.lng.toFixed(6)}`;
+      }
+
+      // ----- My location (geolocation) -----
+      window.kbLocateMe = async function(){
+        kbInitMap();
+        if(!navigator.geolocation){
+          kbSpeak("Geolocation is not available on this device.");
+          return;
+        }
+        kbSpeak("Getting your location.");
+        navigator.geolocation.getCurrentPosition(
+          (pos)=>{
+            kbSetPin(pos.coords.latitude, pos.coords.longitude, "My location");
+          },
+          (_err)=>{
+            kbSpeak("I could not get your location. Please allow location permission.");
+          },
+          { enableHighAccuracy:true, timeout: 10000, maximumAge: 30000 }
+        );
+      };
+
+      // ----- Search (Nominatim) -----
+      window.kbSearchPlace = async function(){
+        kbInitMap();
+        const qEl = document.getElementById("kbQ");
+        const q = (qEl ? qEl.value : "").trim();
+        if(!q){
+          kbSpeak("Type a place name first.");
+          return;
+        }
+        if(navigator.onLine !== true){
+          kbSpeak("You are offline. Search needs internet.");
+          return;
+        }
+
+        kbSpeak("Searching.");
+        kbAnnounce("Searching");
+
+        try{
+          const acceptLang = localStorage.getItem("kb_siteLangCode") || "en";
+          const url = "https://nominatim.openstreetmap.org/search?format=json&limit=6&q=" + encodeURIComponent(q);
+
+          const res = await fetch(url, {
+            headers: {
+              "Accept-Language": acceptLang,
+              "User-Agent": "kidobabohub.studentsdashboard.localmaps/1.0"
+            }
+          });
+
+          const arr = await res.json();
+          if(!Array.isArray(arr) || !arr.length){
+            kbSpeak("No results found.");
+            return;
+          }
+
+          const first = arr[0];
+          const name = first.display_name ? String(first.display_name).split(",").slice(0,3).join(", ") : q;
+          kbSetPin(parseFloat(first.lat), parseFloat(first.lon), name);
+          kbSpeak("Found. Pin updated.");
+
+          const nearList = document.getElementById("kbNearList");
+          if(nearList){
+            nearList.innerHTML = arr.map((x, idx)=>{
+              const title = (x.display_name || q);
+              const short = String(title).split(",").slice(0,3).join(", ");
+              return `
+                <div class="item" onclick="kbJumpTo(${parseFloat(x.lat)}, ${parseFloat(x.lon)}, ${kbEscapeJS(short)})">
+                  <div class="itemTitle">🔎 ${idx+1}. ${kbEscapeHtml(short)}</div>
+                  <div class="itemSub">Tap to place pin here</div>
+                </div>
+              `;
+            }).join("");
+          }
+
+          setTimeout(()=>{ try{ if(kbMap) kbMap.invalidateSize(true); }catch(e){} }, 120);
+        }catch(e){
+          kbSpeak("Search failed. Please try again.");
+        }
+      };
+
+      window.kbJumpTo = function(lat, lng, name){
+        kbSetPin(lat, lng, name);
+        kbSpeak("Pin moved to " + name + ".");
+      };
+
+      // ----- Save as Home/School/Work/Field -----
+      function kbLabelFor(kind){
+        return ({home:"Home", school:"School", work:"Work", field:"Field"})[kind] || "Place";
+      }
+      function kbIconFor(k){
+        return ({home:"🏠", school:"🏫", work:"💼", field:"🌾"})[k] || "📍";
+      }
+      function kbTrimName(s){
+        const t = String(s||"");
+        return t.length > 46 ? (t.slice(0,46) + "…") : t;
+      }
+
+      window.kbSaveAs = function(kind){
+        if(!kbPin){
+          kbSpeak("Place a pin first.");
+          return;
+        }
+        const saved = kbLoadSaved();
+        saved[kind] = { lat: kbPin.lat, lng: kbPin.lng, name: kbPin.name || kbLabelFor(kind) };
+        kbSaveSaved(saved);
+        kbRenderSavedList();
+        kbSpeak(kbLabelFor(kind) + " saved.");
+        kbAnnounce(kbLabelFor(kind) + " saved");
+      };
+
+      window.kbResetSaved = function(){
+        if(!confirm("Reset saved locations?")) return;
+        localStorage.removeItem(LS_SAVED);
+        kbRenderSavedList();
+        kbSpeak("Saved locations reset.");
+      };
+
+      function kbRenderSavedList(){
+        const list = document.getElementById("kbSavedList");
+        if(!list) return;
+
+        const saved = kbLoadSaved();
+        const keys = ["home","school","work","field"];
+        const any = keys.some(k => saved[k]);
+
+        if(!any){
+          list.innerHTML = `
+            <div class="item">
+              <div class="itemTitle">No saved locations yet</div>
+              <div class="itemSub">Drop a pin, then tap “Save as Home/School/Work/Field”.</div>
+            </div>
+          `;
+          return;
+        }
+
+        list.innerHTML = keys.map(k=>{
+          const s = saved[k];
+          if(!s) return "";
+          const title = kbLabelFor(k);
+          const name = s.name || title;
+          return `
+            <div class="item" onclick="kbJumpTo(${+s.lat}, ${+s.lng}, ${kbEscapeJS(name)})">
+              <div class="itemTitle">${kbIconFor(k)} ${kbEscapeHtml(title)}: ${kbEscapeHtml(kbTrimName(name))}</div>
+              <div class="itemSub">${(+s.lat).toFixed(6)}, ${(+s.lng).toFixed(6)} • Tap to open</div>
+            </div>
+          `;
+        }).join("");
+      }
+
+      // ----- Directions + copy coords -----
+      window.kbOpenDirections = function(){
+        if(!kbPin){
+          kbSpeak("Place a pin first.");
+          return;
+        }
+        const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(kbPin.lat + "," + kbPin.lng)}`;
+        window.open(url, "_blank", "noopener");
+        kbSpeak("Opening directions.");
+      };
+
+      window.kbCopyCoords = async function(){
+        if(!kbPin){
+          kbSpeak("Place a pin first.");
+          return;
+        }
+        const text = `${kbPin.lat},${kbPin.lng}`;
+        try{
+          await navigator.clipboard.writeText(text);
+          kbSpeak("Copied coordinates.");
+        }catch(e){
+          try{
+            const ta = document.createElement("textarea");
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand("copy");
+            document.body.removeChild(ta);
+            kbSpeak("Copied coordinates.");
+          }catch(_){
+            kbSpeak("Could not copy. The coordinates are " + text);
+          }
+        }
+      };
+
+      // ----- Nearby suggestions (Overpass API) -----
+      function kbClearNearbyMarkers(){
+        kbNearbyMarkers.forEach(m => { try{ kbMap.removeLayer(m); }catch(e){} });
+        kbNearbyMarkers = [];
+      }
+
+      function kbOverpassFilter(type){
+        switch(type){
+          case "school": return 'node["amenity"="school"]';
+          case "hospital": return 'node["amenity"="hospital"]';
+          case "police": return 'node["amenity"="police"]';
+          case "pharmacy": return 'node["amenity"="pharmacy"]';
+          case "supermarket": return 'node["shop"="supermarket"]';
+          case "park": return 'node["leisure"="park"]';
+          default: return 'node["amenity"="school"]';
+        }
+      }
+
+      window.kbLoadNearby = async function(){
+        kbInitMap();
+        const list = document.getElementById("kbNearList");
+        if(!list) return;
+
+        if(navigator.onLine !== true){
+          list.innerHTML = `
+            <div class="item">
+              <div class="itemTitle">You are offline</div>
+              <div class="itemSub">Nearby suggestions need internet.</div>
+            </div>
+          `;
+          kbSpeak("You are offline. Nearby suggestions need internet.");
+          return;
+        }
+
+        let center = kbPin;
+        if(!center){
+          center = await new Promise((resolve)=>{
+            if(!navigator.geolocation) return resolve(null);
+            navigator.geolocation.getCurrentPosition(
+              (pos)=>resolve({lat:pos.coords.latitude, lng:pos.coords.longitude, name:"My location"}),
+              ()=>resolve(null),
+              { enableHighAccuracy:false, timeout: 6000, maximumAge: 60000 }
+            );
+          });
+        }
+        if(!center){
+          kbSpeak("Place a pin first, or allow location.");
+          list.innerHTML = `
+            <div class="item">
+              <div class="itemTitle">Place a pin first</div>
+              <div class="itemSub">Tap the map, then tap “✨ Load”.</div>
+            </div>
+          `;
+          return;
+        }
+
+        const type = document.getElementById("kbNearType").value;
+        const radius = parseInt(document.getElementById("kbNearRadius").value || "1500", 10);
+
+        kbSpeak("Loading nearby " + type + ".");
+        kbAnnounce("Loading nearby");
+
+        const q = `
+          [out:json][timeout:25];
+          ${kbOverpassFilter(type)}(around:${radius},${center.lat},${center.lng});
+          out 20;
+        `;
+
+        try{
+          const res = await fetch("https://overpass-api.de/api/interpreter", {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=UTF-8" },
+            body: q
+          });
+
+          const data = await res.json();
+          const els = (data && data.elements && Array.isArray(data.elements)) ? data.elements : [];
+
+          kbClearNearbyMarkers();
+
+          if(!els.length){
+            list.innerHTML = `
+              <div class="item">
+                <div class="itemTitle">No nearby results</div>
+                <div class="itemSub">Try a bigger radius.</div>
+              </div>
+            `;
+            kbSpeak("No nearby results. Try a bigger radius.");
+            return;
+          }
+
+          list.innerHTML = els.map((e, idx)=>{
+            const name = (e.tags && (e.tags.name || e.tags["name:en"])) ? (e.tags.name || e.tags["name:en"]) : (type + " " + (idx+1));
+            const lat = e.lat, lon = e.lon;
+            const short = kbTrimName(name);
+
+            const m = L.marker([lat, lon]).addTo(kbMap).bindPopup(kbEscapeHtml(short));
+            kbNearbyMarkers.push(m);
+
+            return `
+              <div class="item" onclick="kbJumpTo(${lat}, ${lon}, ${kbEscapeJS(short)})">
+                <div class="itemTitle">✨ ${idx+1}. ${kbEscapeHtml(short)}</div>
+                <div class="itemSub">${lat.toFixed(6)}, ${lon.toFixed(6)} • Tap to place pin</div>
+              </div>
+            `;
+          }).join("");
+
+          try{
+            const group = L.featureGroup([...(kbNearbyMarkers || []), ...(kbPinMarker ? [kbPinMarker] : [])]);
+            kbMap.fitBounds(group.getBounds().pad(0.25));
+          }catch(_){}
+
+          kbSpeak("Loaded " + els.length + " places.");
+          setTimeout(()=>{ try{ if(kbMap) kbMap.invalidateSize(true); }catch(e){} }, 120);
+        }catch(e){
+          list.innerHTML = `
+            <div class="item">
+              <div class="itemTitle">Nearby load failed</div>
+              <div class="itemSub">Try again in a moment.</div>
+            </div>
+          `;
+          kbSpeak("Nearby load failed. Please try again.");
+        }
+      };
+
+      // ----- Helpers -----
+      function kbEscapeHtml(str){
+        return String(str||"").replace(/[&<>"']/g, (m)=>({
+          "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+        }[m]));
+      }
+      window.kbEscapeHtml = kbEscapeHtml;
+
+      window.kbEscapeJS = function(str){
+        return JSON.stringify(String(str||""));
+      };
+
+      // Init map ONLY when dashboard becomes visible (Leaflet hates hidden containers)
+      window.kbStartMapsIfNeeded = function(){
+        try{ kbInitMap(); }catch(e){}
+      };
+    })();
+  </script>
+
+  <script type="module">
+    const firebaseConfig = {
+      apiKey: "AIzaSyB-J4lBtuV-Rzv6OeqlaUSzop1TrLCbHfI",
+      authDomain: "kidobabohub.firebaseapp.com",
+      projectId: "kidobabohub",
+      storageBucket: "kidobabohub.firebasestorage.app",
+      messagingSenderId: "507888952977",
+      appId: "1:507888952977:web:5e30e63f9786b867c0c130"
+    };
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import {
+      getAuth, onAuthStateChanged, signOut,
+      signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const fn = getFunctions(app, "europe-west1");
+
+    const $ = (id)=>document.getElementById(id);
+    function on(id, event, fn){
+      const el = $(id);
+      if(!el) { console.warn("Missing element:", id); return; }
+      el.addEventListener(event, fn);
+    }
+    const show = (id, on)=> $(id).classList.toggle("hide", !on);
+    const msg = (id, text, ok=true)=>{
+      const el = $(id);
+      if(!el) return;
+      el.textContent = text || "";
+      el.style.color = ok ? "#7CFF6B" : "#ff4d6d";
+    };
+
+    const createOrgAndAdmin     = httpsCallable(fn, "createOrgAndAdmin");
+    const joinOrgWithCode       = httpsCallable(fn, "joinOrgWithCode");
+    const createStudent         = httpsCallable(fn, "createStudent");
+    const listStudents          = httpsCallable(fn, "listStudents");
+    const createTrackingSession = httpsCallable(fn, "createTrackingSession");
+    const ensureTrial           = httpsCallable(fn, "ensureTrial");
+
+    const LS_JOIN  = "kido_lastJoinCode";
+    const LS_CHILD = "kido_lastChildCode";
+    const LS_TRACK = "kido_lastTrackerUrl";
+
+    const LS_REPORTS = "kido_quick_reports_v1";
+    let REPORT_TAB = "attendance";
+    let CACHED_STUDENTS = [];
+
+    function setCodePanel(){
+      $("lastJoinCode").textContent = localStorage.getItem(LS_JOIN) || "-";
+      $("lastChildCode").textContent = localStorage.getItem(LS_CHILD) || "-";
+      show("codesCard", true);
+    }
+
+    async function copyText(t){
+      if(!t) return false;
+      try{ await navigator.clipboard.writeText(t); return true; }catch(_){ return false; }
+    }
+
+    $("btnCopyJoin").onclick = async ()=>{
+      const t = (localStorage.getItem(LS_JOIN)||"").trim();
+      if(!t) return;
+      const ok = await copyText(t);
+      msg("appMsg", ok ? "✅ Join code copied." : "⚠️ Copy failed.", ok);
+    };
+    $("btnCopyChild").onclick = async ()=>{
+      const t = (localStorage.getItem(LS_CHILD)||"").trim();
+      if(!t) return;
+      const ok = await copyText(t);
+      msg("appMsg", ok ? "✅ Child code copied." : "⚠️ Copy failed.", ok);
+    };
+    $("btnClearJoin").onclick = ()=>{ localStorage.removeItem(LS_JOIN); setCodePanel(); };
+    $("btnClearChild").onclick = ()=>{ localStorage.removeItem(LS_CHILD); setCodePanel(); };
+
+    on("btnLogin","click", async ()=>{
+      msg("authMsg","");
+      try{
+        await signInWithEmailAndPassword(auth, $("email").value.trim(), $("password").value);
+      }catch(e){
+        msg("authMsg", e?.message || String(e), false);
+      }
+    });
+
+    $("btnSignup").onclick = async ()=>{
+      msg("authMsg","");
+      try{
+        await createUserWithEmailAndPassword(auth, $("email").value.trim(), $("password").value);
+        msg("authMsg","✅ Account created. Now create/join org.");
+      }catch(e){ msg("authMsg", e?.message || String(e), false); }
+    };
+
+    $("btnReset").onclick = async ()=>{
+      msg("authMsg","");
+      try{
+        await sendPasswordResetEmail(auth, $("email").value.trim());
+        msg("authMsg","✅ Password reset email sent.");
+      }catch(e){ msg("authMsg", e?.message || String(e), false); }
+    };
+
+    $("btnLogout").onclick = async ()=>{ await signOut(auth); };
+
+    async function loadProfile(uid){
+      const ref = doc(db,"users",uid);
+      try{
+        const snap = await getDoc(ref, { source: "server" });
+        return snap.exists() ? snap.data() : null;
+      }catch(_){
+        const snap = await getDoc(ref);
+        return snap.exists() ? snap.data() : null;
+      }
+    }
+
+    function toMillis(ts){
+      try{
+        if(!ts) return 0;
+        if(ts.toMillis) return ts.toMillis();
+        if(ts.seconds) return ts.seconds * 1000;
+        if(ts._seconds) return ts._seconds * 1000;
+      }catch(_){}
+      return 0;
+    }
+
+    function computeAccess(u){
+      const now = Date.now();
+      const status = (u?.status || "").toString();
+
+      const subEnds = toMillis(u?.subscriptionEndsAt);
+      const trialEnds = toMillis(u?.trialEndsAt);
+
+      const isLifetime = (status === "active" && u?.subscriptionEndsAt === null);
+      const subActive = isLifetime || (subEnds && now < subEnds);
+      const trialActive = (status === "trial" && trialEnds && now < trialEnds);
+
+      const ok = (status === "active" && subActive) || trialActive;
+
+      let label = "";
+      if(trialActive){
+        const daysLeft = Math.max(0, Math.ceil((trialEnds - now) / (24*60*60*1000)));
+        label = `🌱 Trial active • ${daysLeft} day(s) left`;
+      } else if(status === "active"){
+        if(isLifetime) label = "🥇 Lifetime access active";
+        else {
+          const daysLeft = Math.max(0, Math.ceil((subEnds - now) / (24*60*60*1000)));
+          label = `✅ Subscription active • ${daysLeft} day(s) left`;
+        }
+      } else if(status === "expired"){
+        label = "⏳ Access expired • Please upgrade";
+      } else {
+        label = "🔒 Access inactive • Please upgrade";
+      }
+
+      return { ok, label };
+    }
+
+    $("btnCreateOrg").onclick = async ()=>{
+      msg("orgResult","");
+      try{
+        const res = await createOrgAndAdmin({
+          orgName: ($("orgName").value||"").trim(),
+          name: ($("adminName").value||"").trim()
+        });
+        const joinCode = (res?.data?.joinCode || "").trim();
+        localStorage.setItem(LS_JOIN, joinCode);
+        setCodePanel();
+        msg("orgResult", `✅ Created! Join code: ${joinCode}`);
+      }catch(e){ msg("orgResult", e?.message || String(e), false); }
+    };
+
+    $("btnJoinOrg").onclick = async ()=>{
+      msg("joinMsg","");
+      try{
+        await joinOrgWithCode({
+          joinCode: ($("joinCode").value||"").trim(),
+          role: $("joinRole").value,
+          name: ($("joinName").value||"").trim()
+        });
+        msg("joinMsg", `✅ Joined. Reloading...`);
+        location.reload();
+      }catch(e){ msg("joinMsg", e?.message || String(e), false); }
+    };
+
+    function fillStudentSelectors(students){
+      CACHED_STUDENTS = students.slice();
+
+      const selT = $("trackStudent");
+      selT.innerHTML = "<option value=''>Select student...</option>";
+      students.forEach(s=>{
+        const o=document.createElement("option");
+        o.value = s.studentId || "";
+        o.textContent = `${s.name||"Student"} (${s.className||"-"}) • ${s.studentCode||""}`;
+        selT.appendChild(o);
+      });
+
+      const dlT = $("trackDatalist");
+      dlT.innerHTML = "";
+      students.forEach(s=>{
+        const opt=document.createElement("option");
+        opt.value = s.name || "";
+        dlT.appendChild(opt);
+      });
+
+      const selR = $("repStudent");
+      selR.innerHTML = "<option value=''>Select student...</option>";
+      students.forEach(s=>{
+        const o=document.createElement("option");
+        o.value = s.studentId || "";
+        o.textContent = `${s.name||"Student"} (${s.className||"-"})`;
+        selR.appendChild(o);
+      });
+
+      const dlR = $("repDatalist");
+      dlR.innerHTML = "";
+      students.forEach(s=>{
+        const opt=document.createElement("option");
+        opt.value = s.name || "";
+        dlR.appendChild(opt);
+      });
+    }
+
+    async function refreshStudentsForTracking(){
+      try{
+        const res = await listStudents({});
+        const students = res?.data?.students || [];
+        fillStudentSelectors(students);
+      }catch(e){
+        console.warn("refreshStudentsForTracking failed:", e);
+      }
+    }
+
+    on("trackSearch","input", ()=>{
+      const q = ($("trackSearch").value||"").trim().toLowerCase();
+      if(!q) return;
+      const match = CACHED_STUDENTS.find(s => String(s.name||"").toLowerCase().includes(q));
+      if(match && match.studentId){
+        $("trackStudent").value = match.studentId;
+      }
+    });
+
+    on("repSearch","input", ()=>{
+      const q = ($("repSearch").value||"").trim().toLowerCase();
+      if(!q) return;
+      const match = CACHED_STUDENTS.find(s => String(s.name||"").toLowerCase().includes(q));
+      if(match && match.studentId){
+        $("repStudent").value = match.studentId;
+      }
+    });
+
+    $("btnCreateTrackLink").onclick = async ()=>{
+      msg("trackMsg","");
+      const studentId = ($("trackStudent").value||"").trim();
+      if(!studentId){ msg("trackMsg","Select a student first.", false); return; }
+      try{
+        const res = await createTrackingSession({ studentId });
+        const url = res?.data?.trackerUrl || "";
+        if(!url){ msg("trackMsg","No trackerUrl returned.", false); return; }
+        $("trackerUrlBox").textContent = url;
+        localStorage.setItem(LS_TRACK, url);
+        msg("trackMsg","✅ trackerUrl created. Now share it to the child phone.");
+      }catch(e){
+        msg("trackMsg", e?.message || String(e), false);
+      }
+    };
+
+    $("btnCopyTrackerUrl").onclick = async ()=>{
+      const t = ($("trackerUrlBox").textContent||"").trim();
+      if(!t || t==="-") return;
+      const ok = await copyText(t);
+      msg("trackMsg", ok ? "✅ Link copied." : "⚠️ Copy failed.", ok);
+    };
+
+    $("btnShareTrackerUrl").onclick = async ()=>{
+      const t = ($("trackerUrlBox").textContent||"").trim();
+      if(!t || t==="-"){
+        msg("trackMsg","Create trackerUrl first, then share it.", false);
+        return;
+      }
+      const shareText = `Child GPS Tracker Link:\n${t}\n\nOpen it on the child phone and allow Location.`;
+
+      if(navigator.share){
+        try{
+          await navigator.share({ title: "Kido & Babo Tracker Link", text: shareText });
+          msg("trackMsg","✅ Sharing opened. Send to the child phone.");
+          return;
+        }catch(_){}
+      }
+
+      const copied = await copyText(shareText);
+      if(copied){
+        msg("trackMsg","✅ Link copied. Now paste it to WhatsApp/SMS and send to the child phone.");
+      } else {
+        msg("trackMsg","⚠️ Share not supported here. Please copy the link manually.", false);
+      }
+    };
+
+    // ---------- Quick Reports (LocalStorage) ----------
+    function todayISO(){
+      const d = new Date();
+      const off = d.getTimezoneOffset();
+      const local = new Date(d.getTime() - off*60*1000);
+      return local.toISOString().slice(0,10);
+    }
+
+    function repKey(orgId){
+      return `${LS_REPORTS}::${orgId||"noorg"}`;
+    }
+
+    function readReports(orgId){
+      try{
+        const raw = localStorage.getItem(repKey(orgId));
+        const arr = raw ? JSON.parse(raw) : [];
+        return Array.isArray(arr) ? arr : [];
+      }catch(_){ return []; }
+    }
+
+    function writeReports(orgId, arr){
+      localStorage.setItem(repKey(orgId), JSON.stringify(arr||[]));
+    }
+
+    function studentNameById(studentId){
+      const s = CACHED_STUDENTS.find(x => String(x.studentId||"") === String(studentId||""));
+      return s?.name || "";
+    }
+
+    function renderReports(orgId){
+      const rows = readReports(orgId);
+      $("repCountPill").textContent = `${rows.length} saved`;
+
+      const tb = $("repTable");
+      tb.innerHTML = "";
+      const view = rows.slice().sort((a,b)=> (b.date||"").localeCompare(a.date||""));
+
+      view.slice(0, 120).forEach(r=>{
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${(r.date||"")}</td>
+          <td>${(r.studentName||"")}</td>
+          <td>${(r.type||"")}</td>
+          <td>${String(r.note||"").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</td>
+        `;
+        tb.appendChild(tr);
+      });
+    }
+
+    function csvEscape(s){
+      const t = String(s ?? "");
+      if(/[",\n]/.test(t)) return `"${t.replace(/"/g,'""')}"`;
+      return t;
+    }
+
+    function downloadTextFile(filename, text){
+      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function setReportTab(tab){
+      REPORT_TAB = tab;
+      document.querySelectorAll("#repTabs .tab").forEach(t=>{
+        t.classList.toggle("active", t.dataset.tab === tab);
+      });
+    }
+
+    document.getElementById("repTabs").addEventListener("click", (e)=>{
+      const t = e.target.closest(".tab");
+      if(!t) return;
+      setReportTab(t.dataset.tab);
+    });
+
+    $("btnSaveReport").onclick = ()=>{
+      msg("repMsg","");
+      const orgId = ($("org").textContent||"").trim();
+      const studentId = ($("repStudent").value||"").trim();
+      const date = ($("repDate").value||"").trim() || todayISO();
+      const note = ($("repText").value||"").trim();
+
+      if(!orgId){ msg("repMsg","Org missing. Login first.", false); return; }
+      if(!studentId){ msg("repMsg","Select student first.", false); return; }
+      if(!note){ msg("repMsg","Type a note first.", false); return; }
+
+      const rows = readReports(orgId);
+      rows.push({
+        date,
+        studentId,
+        studentName: studentNameById(studentId),
+        type: REPORT_TAB,
+        note,
+        createdAt: Date.now()
+      });
+      writeReports(orgId, rows);
+
+      $("repText").value = "";
+      $("repDate").value = date;
+      msg("repMsg","✅ Saved (offline).");
+      renderReports(orgId);
+    };
+
+    $("btnExportCSV").onclick = ()=>{
+      msg("repMsg","");
+      const orgId = ($("org").textContent||"").trim();
+      if(!orgId){ msg("repMsg","Org missing. Login first.", false); return; }
+
+      const rows = readReports(orgId);
+      if(!rows.length){ msg("repMsg","No saved reports yet.", false); return; }
+
+      let csv = "date,studentId,studentName,type,note\n";
+      rows.forEach(r=>{
+        csv += [
+          csvEscape(r.date),
+          csvEscape(r.studentId),
+          csvEscape(r.studentName),
+          csvEscape(r.type),
+          csvEscape(r.note)
+        ].join(",") + "\n";
+      });
+
+      downloadTextFile(`kido_reports_${orgId}_${todayISO()}.csv`, csv);
+      msg("repMsg","✅ CSV exported.");
+    };
+
+    $("btnClearReports").onclick = ()=>{
+      const orgId = ($("org").textContent||"").trim();
+      if(!orgId) return;
+      if(!confirm("Clear saved reports on this device?")) return;
+      writeReports(orgId, []);
+      renderReports(orgId);
+      msg("repMsg","🧹 Cleared.");
+    };
+
+    function setAuthedUI(on){
+      show("authCard", !on);
+      show("app", on);
+      show("setupArea", false);
+      show("adminTeacherArea", false);
+      if(on) setCodePanel();
+
+      // ✅ start Leaflet map only when app is visible
+      if(on){
+        setTimeout(()=>{ try{ if(window.kbStartMapsIfNeeded) window.kbStartMapsIfNeeded(); }catch(e){} }, 350);
+      }
+    }
+
+    $("btnCreateStudent").onclick = async ()=>{
+      msg("studentMsg","");
+      try{
+        const name = ($("stName").value||"").trim();
+        const className = ($("stClass").value||"PP1").trim();
+        const age = Number(($("stAge").value||"4"));
+        if(!name){ msg("studentMsg","Student name required.", false); return; }
+
+        const res = await createStudent({ name, className, age });
+        const code = (res?.data?.studentCode || "").trim();
+        if(code) localStorage.setItem(LS_CHILD, code);
+        setCodePanel();
+        msg("studentMsg", code ? `✅ Created. Child code: ${code}` : "✅ Created.");
+        $("stName").value = "";
+        await refreshStudentsForTracking();
+      }catch(e){
+        msg("studentMsg", e?.message || String(e), false);
+      }
+    };
+
+    $("btnRefreshStudents").onclick = async ()=>{
+      await refreshStudentsForTracking();
+      msg("studentMsg","✅ Students refreshed.");
+    };
+
+    onAuthStateChanged(auth, async (user)=>{
+      if(!user){ setAuthedUI(false); return; }
+      setAuthedUI(true);
+
+      $("who").textContent = user.email || user.uid;
+
+      try { await ensureTrial({}); } catch(e) {}
+
+      const prof = await loadProfile(user.uid);
+
+      const access = computeAccess(prof);
+      const b = $("subBanner");
+      b.style.display = "block";
+      b.textContent = access.label;
+
+      if(!access.ok){
+        location.href = `/pay.html?next=${encodeURIComponent("/studentsdashboard.html")}`;
+        return;
+      }
+
+      if(!prof?.orgId){
+        $("role").textContent = "not set";
+        $("org").textContent = "-";
+        show("setupArea", true);
+        msg("appMsg","Create org (admin) or join with code (teacher/parent).");
+        return;
+      }
+
+      $("role").textContent = prof.role || "unknown";
+      $("org").textContent = prof.orgId || "-";
+
+      const role = prof.role || "";
+      if(role === "admin" || role === "teacher"){
+        show("adminTeacherArea", true);
+        await refreshStudentsForTracking();
+        const last = localStorage.getItem(LS_TRACK)||"";
+        if(last) $("trackerUrlBox").textContent = last;
+
+        $("repDate").value = todayISO();
+        setReportTab("attendance");
+        renderReports(prof.orgId);
+      } else {
+        show("adminTeacherArea", false);
+        msg("appMsg","Parents use home buttons. Admin/Teacher manages tracking links.");
+      }
+
+      if((location.hash||"") === "#tracking"){
+        const t = $("tracking");
+        if(t) t.scrollIntoView({ behavior:"smooth", block:"start" });
+      }
+    });
+  </script>
+
+  <!-- Keep your lang.js hook -->
+  <script>
+    (function(){
+      var s=document.createElement("script");
+      s.src="/lang.js";
+      s.defer=true;
+      s.onerror=function(){};
+      document.head.appendChild(s);
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+[
+  {
+    "id": "dontletokapi",
+    "title": "Don’t Let Okapi Play Basketball",
+    "file": "/storybooks.pdf/dontletokapiplaybasketball.pdf"
+  },
+  {
+    "id": "fixitfriends",
+    "title": "The Fix-It Friends",
+    "file": "/storybooks.pdf/thefixitfriends.pdf"
+  },
+  {
+    "id": "mysteryriver",
+    "title": "The Mystery of the Magical River",
+    "file": "/storybooks.pdf/themysteryriver.pdf"
+  },
+  {
+    "id": "peggy",
+    "title": "Peggy and the Miracle of Saving",
+    "file": "/storybooks.pdf/peggyandthemiracleofsaving.pdf"
+  },
+  {
+    "id": "yolakora",
+    "title": "Saving Villages from Calamities",
+    "file": "/storybooks.pdf/savingvillagesfromcalamities.pdf"
+  },
+  {
+    "id": "farley",
+    "title": "Farley Skunk the Fire Maker",
+    "file": "/storybooks.pdf/farleyskunkthefiremaker.pdf"
+  },
+  {
+    "id": "pavo",
+    "title": "Pavo and The Hen",
+    "file": "/storybooks.pdf/pavoandthehen.pdf"
+  }
+]

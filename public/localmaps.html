@@ -1,0 +1,842 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Local Maps — Kido &amp; Babo Hub</title>
+
+  <meta name="description" content="Local Maps for kids, parents, and schools: search places, set Home/School/Work/Field, get nearby suggestions, voice guidance, and site language support."/>
+  <meta name="theme-color" content="#173db3"/>
+  <link rel="icon" href="/logo.jpg"/>
+
+  <!-- Leaflet (OpenStreetMap) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
+
+  <style>
+    :root{
+      --bg:#0b1020;
+      --text:#eaf0ff;
+      --muted:#b7c3ff;
+      --line:rgba(255,255,255,.12);
+      --shadow:0 18px 60px rgba(0,0,0,.45);
+      --radius:18px;
+      --accent: linear-gradient(90deg,#006600,#bb0000,#000000);
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1100px 560px at 10% 10%, #23316e 0%, transparent 50%),
+                  radial-gradient(900px 520px at 90% 10%, #7a1b1b 0%, transparent 55%),
+                  radial-gradient(800px 520px at 50% 100%, #0e5b2f 0%, transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      min-height:100vh;
+    }
+    .wrap{ max-width: 1100px; margin: 0 auto; padding: 18px 14px 60px; }
+
+    header{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding: 14px 14px 10px;
+      border:1px solid var(--line);
+      background: rgba(15, 23, 51, .55);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+    .brandRow{ display:flex; align-items:center; gap:12px; }
+    .logo{
+      width:44px; height:44px; border-radius: 14px;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.08);
+      object-fit: cover;
+      box-shadow: 0 8px 22px rgba(0,0,0,.25);
+      flex: 0 0 auto;
+    }
+    .brand{ display:flex; flex-direction:column; gap:4px; padding: 2px 6px; }
+    .brand .title{ font-weight: 900; font-size: 18px; letter-spacing: .2px; line-height: 1.1; }
+    .brand .sub{ font-size: 12px; color: var(--muted); font-weight: 700; line-height: 1.35; }
+
+    .nav{ display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; align-items:center; }
+    .nav button{
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-weight: 900;
+      cursor:pointer;
+      transition: transform .05s ease, background .15s ease, border-color .15s ease;
+      white-space:nowrap;
+      font-size: 13px;
+    }
+    .nav button:hover{ background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.24); }
+    .nav button:active{ transform: translateY(1px); }
+    .nav button.primary{
+      background: var(--accent);
+      border-color: rgba(255,255,255,.30);
+      box-shadow: 0 10px 25px rgba(0,0,0,.25);
+    }
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 10px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.07);
+      font-weight:950;font-size:12px;color: rgba(234,240,255,.92);
+      white-space:nowrap;
+    }
+
+    main{
+      margin-top: 14px;
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(15, 23, 51, .55);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:hidden;
+    }
+
+    .page{ padding: 14px; }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 12px;
+      align-items: start;
+    }
+    @media (max-width: 980px){
+      header{ flex-direction: column; align-items: stretch; }
+      .nav{ justify-content:flex-start; }
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      background: rgba(12, 19, 48, .72);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 16px;
+      padding: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+
+    h1{ margin:0; font-size:18px; font-weight:1000; }
+    h2{ margin:0 0 8px; font-size:15px; font-weight:1000; }
+    p{ margin: 8px 0; color: rgba(234,240,255,.92); line-height: 1.55; font-weight:800; font-size:13px; }
+    .muted{ color: var(--muted); font-weight: 800; font-size: 13px; }
+    .tiny{ font-size:12px; font-weight:900; color: rgba(234,240,255,.86); line-height:1.45; }
+
+    .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .rowBetween{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
+
+    input, select{
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      font-weight:900;
+      outline:none;
+      min-width: 220px;
+      flex:1;
+    }
+    input::placeholder{ color: rgba(234,240,255,.60); font-weight:800; }
+
+    .btn{
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.10);
+      color: var(--text);
+      padding: 11px 12px;
+      border-radius: 14px;
+      font-weight: 1000;
+      cursor:pointer;
+      transition: transform .05s ease, background .15s ease, border-color .15s ease;
+      white-space:nowrap;
+      font-size: 13px;
+    }
+    .btn:hover{ background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.24); }
+    .btn:active{ transform: translateY(1px); }
+
+    .btnBlue{ background: rgba(77,212,255,.20); border-color: rgba(77,212,255,.35); }
+    .btnGreen{ background: rgba(124,255,107,.20); border-color: rgba(124,255,107,.35); }
+    .btnGold{ background: rgba(255,204,0,.18); border-color: rgba(255,204,0,.35); }
+    .btnRed{ background: rgba(255,77,109,.22); border-color: rgba(255,77,109,.45); }
+
+    #map{
+      width:100%;
+      height: 520px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      overflow:hidden;
+      background: rgba(255,255,255,.06);
+    }
+    @media (max-width: 980px){
+      #map{ height: 460px; }
+    }
+
+    .list{
+      margin-top:10px;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:14px;
+      background: rgba(255,255,255,.06);
+      overflow:hidden;
+    }
+    .item{
+      padding:10px 12px;
+      border-top:1px solid rgba(255,255,255,.10);
+      cursor:pointer;
+    }
+    .item:first-child{ border-top:0; }
+    .item:hover{ background: rgba(255,255,255,.07); }
+    .itemTitle{ font-weight:1000; }
+    .itemSub{ margin-top:2px; font-size:12px; color: rgba(234,240,255,.86); font-weight:850; }
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.07);
+      font-weight:900; font-size:12px; color: rgba(234,240,255,.92);
+    }
+
+    .footer{
+      margin-top: 14px;
+      padding: 14px 16px;
+      border-top: 1px solid rgba(255,255,255,.12);
+      color: rgba(234,240,255,.88);
+      font-weight: 800;
+      font-size: 12px;
+      text-align:center;
+      background: rgba(0,0,0,.12);
+    }
+
+    button:focus, input:focus, select:focus{
+      outline: 3px solid rgba(183,195,255,.85);
+      outline-offset: 2px;
+    }
+    .sr-only{
+      position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden;
+      clip:rect(0,0,0,0); white-space:nowrap; border:0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brandRow">
+        <img class="logo" src="/logo.jpg" alt="Kido & Babo Hub logo" />
+        <div class="brand">
+          <div class="title">🗺️ Local Maps</div>
+          <div class="sub">Search places • Save Home/School/Work/Field • Nearby suggestions • Voice • Site language</div>
+        </div>
+      </div>
+
+      <div class="nav" aria-label="Top navigation">
+        <button onclick="goPage('index.html')">🏠 Home</button>
+        <button class="primary" onclick="locateMe()">📍 My Location</button>
+        <button class="btnGreen" onclick="toggleVoice()">🔊 Voice: <span id="voiceState">ON</span></button>
+        <span class="pill" id="langPill">🌐 Language: EN</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="page">
+        <div class="grid">
+          <!-- MAP SIDE -->
+          <div class="card">
+            <div class="rowBetween">
+              <div>
+                <h1>Map</h1>
+                <p class="muted">Tip: tap the map to drop a pin. Then save it as Home/School/Work/Field.</p>
+              </div>
+              <span class="badge" id="netBadge">📶 Checking…</span>
+            </div>
+
+            <div class="row" style="margin-top:10px;">
+              <input id="q" placeholder="Search a place… e.g., Nairobi Hospital" />
+              <button class="btn btnBlue" onclick="searchPlace()">🔎 Search</button>
+              <button class="btn" onclick="speakText('Type a place name then tap search. Or tap the map to drop a pin.')">🗣 Help</button>
+            </div>
+
+            <div id="map" aria-label="Map"></div>
+
+            <div class="row" style="margin-top:10px;">
+              <button class="btn btnGold" onclick="saveAs('home')">🏠 Save as Home</button>
+              <button class="btn btnGold" onclick="saveAs('school')">🏫 Save as School</button>
+              <button class="btn btnGold" onclick="saveAs('work')">💼 Save as Work</button>
+              <button class="btn btnGold" onclick="saveAs('field')">🌾 Save as Field</button>
+              <button class="btn btnRed" onclick="clearPin()">🧹 Clear Pin</button>
+            </div>
+
+            <div class="rowBetween" style="margin-top:10px;">
+              <div class="tiny" id="pinInfo">No pin yet. Tap the map to place one.</div>
+              <div class="row">
+                <button class="btn" onclick="openDirections()">🧭 Directions</button>
+                <button class="btn" onclick="copyCoords()">📋 Copy coords</button>
+              </div>
+            </div>
+
+            <div class="sr-only" aria-live="polite" id="srLive"></div>
+          </div>
+
+          <!-- TOOLS SIDE -->
+          <div class="card">
+            <div class="rowBetween">
+              <h2>Saved locations</h2>
+              <button class="btn btnRed" onclick="resetSaved()">🧹 Reset</button>
+            </div>
+            <p class="muted">Tap a saved location to jump there.</p>
+
+            <div class="list" id="savedList"></div>
+
+            <div style="margin-top:12px;">
+              <div class="rowBetween">
+                <h2>Nearby suggestions</h2>
+                <button class="btn btnBlue" onclick="loadNearby()">✨ Load</button>
+              </div>
+              <p class="muted">Shows useful places around the pin (or your location).</p>
+
+              <div class="row" style="margin-top:8px;">
+                <select id="nearType" aria-label="Nearby type">
+                  <option value="school">🏫 Schools</option>
+                  <option value="hospital">🏥 Hospitals</option>
+                  <option value="police">🚓 Police</option>
+                  <option value="pharmacy">💊 Pharmacy</option>
+                  <option value="supermarket">🛒 Supermarket</option>
+                  <option value="park">🌳 Parks</option>
+                </select>
+                <select id="nearRadius" aria-label="Nearby radius">
+                  <option value="800">800 m</option>
+                  <option value="1500" selected>1.5 km</option>
+                  <option value="3000">3 km</option>
+                  <option value="5000">5 km</option>
+                </select>
+              </div>
+
+              <div class="list" id="nearList" style="margin-top:10px;">
+                <div class="item">
+                  <div class="itemTitle">Tap “✨ Load”</div>
+                  <div class="itemSub">We will suggest nearby places around your pin.</div>
+                </div>
+              </div>
+
+              <div class="tiny" style="margin-top:10px;">
+                Note: Search + suggestions need internet (OpenStreetMap services). Offline, the map may still load if cached, but search/suggestions may not work.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer">
+          kidobabohub.web.app • Est. 2026 • © Copyright
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // =============================
+    // Navigation (fast, no blocking)
+    // =============================
+    function goPage(file){
+      window.location.href = file;
+      try{ setTimeout(() => speakText("Opening page."), 50); }catch(e){}
+    }
+
+    // =============================
+    // Site language pill (shared with your site)
+    // =============================
+    (function(){
+      const mode = localStorage.getItem("kb_siteLangMode") || "offline";
+      const code = localStorage.getItem("kb_siteLangCode") || "en";
+      const pill = document.getElementById("langPill");
+      if(pill) pill.textContent = `🌐 Language: ${String(code).toUpperCase()} • ${mode}`;
+      const voice = localStorage.getItem("kb_siteVoiceLang") || "en";
+      document.documentElement.lang = voice;
+    })();
+
+    // =============================
+    // Voice (simple, safe)
+    // =============================
+    const LS_VOICE = "kb_voiceOn";
+    let voiceOn = (localStorage.getItem(LS_VOICE) !== "0"); // default ON
+
+    function hasTTS(){
+      return typeof window.speechSynthesis !== "undefined" && typeof SpeechSynthesisUtterance !== "undefined";
+    }
+    function setVoiceUI(){
+      const s = document.getElementById("voiceState");
+      if(s) s.textContent = voiceOn ? "ON" : "OFF";
+    }
+    function toggleVoice(){
+      voiceOn = !voiceOn;
+      localStorage.setItem(LS_VOICE, voiceOn ? "1" : "0");
+      setVoiceUI();
+      speakText(voiceOn ? "Voice is on." : "Voice is off.");
+    }
+    function speakText(text){
+      try{
+        if(!voiceOn) return;
+        if(!hasTTS()) return;
+        const t = String(text||"").trim();
+        if(!t) return;
+
+        const u = new SpeechSynthesisUtterance(t);
+        u.lang = localStorage.getItem("kb_siteVoiceLang") || document.documentElement.lang || navigator.language || "en";
+        u.rate = 0.98;
+        u.pitch = 1.2;
+        speechSynthesis.speak(u);
+      }catch(e){}
+    }
+    function announce(m){
+      const sr = document.getElementById("srLive");
+      if(sr) sr.textContent = m;
+    }
+    setVoiceUI();
+
+    // =============================
+    // Online badge
+    // =============================
+    function refreshNetBadge(){
+      const b = document.getElementById("netBadge");
+      if(!b) return;
+      const on = navigator.onLine === true;
+      b.textContent = on ? "📶 Online" : "📴 Offline";
+    }
+    window.addEventListener("online", refreshNetBadge);
+    window.addEventListener("offline", refreshNetBadge);
+    refreshNetBadge();
+
+    // =============================
+    // LocalStorage keys
+    // =============================
+    const LS_SAVED = "kb_localmaps_saved_v1"; // {home:{lat,lng,name}, ...}
+    function loadSaved(){
+      try{
+        const obj = JSON.parse(localStorage.getItem(LS_SAVED) || "{}");
+        return obj && typeof obj === "object" ? obj : {};
+      }catch(_){ return {}; }
+    }
+    function saveSaved(obj){
+      localStorage.setItem(LS_SAVED, JSON.stringify(obj || {}));
+    }
+
+    // =============================
+    // Leaflet map
+    // =============================
+    let map, pinMarker = null, pin = null; // pin: {lat,lng,name}
+    let nearbyMarkers = [];
+
+    const DEFAULT_CENTER = { lat: -1.286389, lng: 36.817223 }; // Nairobi
+    const DEFAULT_ZOOM = 12;
+
+    function initMap(){
+      map = L.map("map", { zoomControl:true }).setView([DEFAULT_CENTER.lat, DEFAULT_CENTER.lng], DEFAULT_ZOOM);
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+
+      map.on("click", (e)=>{
+        setPin(e.latlng.lat, e.latlng.lng, "Dropped pin");
+        speakText("Pin placed.");
+      });
+
+      renderSavedList();
+    }
+
+    function setPin(lat, lng, name){
+      pin = { lat: +lat, lng: +lng, name: name || "Selected place" };
+      if(pinMarker){
+        pinMarker.setLatLng([pin.lat, pin.lng]);
+      }else{
+        pinMarker = L.marker([pin.lat, pin.lng], { draggable:true }).addTo(map);
+        pinMarker.on("dragend", ()=>{
+          const p = pinMarker.getLatLng();
+          pin.lat = p.lat;
+          pin.lng = p.lng;
+          pin.name = "Moved pin";
+          updatePinInfo();
+          speakText("Pin moved.");
+        });
+      }
+      map.setView([pin.lat, pin.lng], Math.max(map.getZoom(), 14));
+      updatePinInfo();
+    }
+
+    function clearPin(){
+      if(pinMarker){
+        map.removeLayer(pinMarker);
+        pinMarker = null;
+      }
+      pin = null;
+      updatePinInfo();
+      speakText("Pin cleared.");
+    }
+
+    function updatePinInfo(){
+      const el = document.getElementById("pinInfo");
+      if(!el) return;
+      if(!pin){
+        el.textContent = "No pin yet. Tap the map to place one.";
+        return;
+      }
+      el.textContent = `Pin: ${pin.name} • ${pin.lat.toFixed(6)}, ${pin.lng.toFixed(6)}`;
+    }
+
+    // =============================
+    // My location (geolocation)
+    // =============================
+    async function locateMe(){
+      if(!navigator.geolocation){
+        speakText("Geolocation is not available on this device.");
+        return;
+      }
+      speakText("Getting your location.");
+      navigator.geolocation.getCurrentPosition(
+        (pos)=>{
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          setPin(lat, lng, "My location");
+        },
+        (_err)=>{
+          speakText("I could not get your location. Please allow location permission.");
+        },
+        { enableHighAccuracy:true, timeout: 10000, maximumAge: 30000 }
+      );
+    }
+    window.locateMe = locateMe;
+
+    // =============================
+    // Search (Nominatim)
+    // =============================
+    async function searchPlace(){
+      const q = (document.getElementById("q").value || "").trim();
+      if(!q){
+        speakText("Type a place name first.");
+        return;
+      }
+      if(navigator.onLine !== true){
+        speakText("You are offline. Search needs internet.");
+        return;
+      }
+
+      speakText("Searching.");
+      announce("Searching");
+
+      try{
+        // Use chosen site language when possible for results
+        const acceptLang = localStorage.getItem("kb_siteLangCode") || "en";
+        const url =
+          "https://nominatim.openstreetmap.org/search?format=json&limit=6&q=" +
+          encodeURIComponent(q);
+
+        const res = await fetch(url, {
+          headers: {
+            "Accept-Language": acceptLang,
+            "User-Agent": "kidobabohub.localmaps/1.0"
+          }
+        });
+
+        const arr = await res.json();
+        if(!Array.isArray(arr) || !arr.length){
+          speakText("No results found.");
+          return;
+        }
+
+        // Pick first result as pin, and show the rest in nearby list for quick taps
+        const first = arr[0];
+        const name = first.display_name ? String(first.display_name).split(",").slice(0,3).join(", ") : q;
+        setPin(parseFloat(first.lat), parseFloat(first.lon), name);
+        speakText("Found. Pin updated.");
+
+        // Show results as list in nearby section (quick reuse)
+        const nearList = document.getElementById("nearList");
+        if(nearList){
+          nearList.innerHTML = arr.map((x, idx)=>{
+            const title = (x.display_name || q);
+            const short = String(title).split(",").slice(0,3).join(", ");
+            return `
+              <div class="item" onclick="jumpTo(${parseFloat(x.lat)}, ${parseFloat(x.lon)}, ${escapeJS(short)})">
+                <div class="itemTitle">🔎 ${idx+1}. ${escapeHtml(short)}</div>
+                <div class="itemSub">Tap to place pin here</div>
+              </div>
+            `;
+          }).join("");
+        }
+      }catch(e){
+        speakText("Search failed. Please try again.");
+      }
+    }
+    window.searchPlace = searchPlace;
+
+    function jumpTo(lat, lng, name){
+      setPin(lat, lng, name);
+      speakText("Pin moved to " + name + ".");
+    }
+    window.jumpTo = jumpTo;
+
+    // =============================
+    // Save as Home/School/Work/Field
+    // =============================
+    function labelFor(kind){
+      return ({home:"Home", school:"School", work:"Work", field:"Field"})[kind] || "Place";
+    }
+
+    function saveAs(kind){
+      if(!pin){
+        speakText("Place a pin first.");
+        return;
+      }
+      const saved = loadSaved();
+      saved[kind] = { lat: pin.lat, lng: pin.lng, name: pin.name || labelFor(kind) };
+      saveSaved(saved);
+      renderSavedList();
+      speakText(labelFor(kind) + " saved.");
+      announce(labelFor(kind) + " saved");
+    }
+    window.saveAs = saveAs;
+
+    function resetSaved(){
+      if(!confirm("Reset saved locations?")) return;
+      localStorage.removeItem(LS_SAVED);
+      renderSavedList();
+      speakText("Saved locations reset.");
+    }
+    window.resetSaved = resetSaved;
+
+    function renderSavedList(){
+      const list = document.getElementById("savedList");
+      if(!list) return;
+
+      const saved = loadSaved();
+      const keys = ["home","school","work","field"];
+      const any = keys.some(k => saved[k]);
+
+      if(!any){
+        list.innerHTML = `
+          <div class="item">
+            <div class="itemTitle">No saved locations yet</div>
+            <div class="itemSub">Drop a pin, then tap “Save as Home/School/Work/Field”.</div>
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = keys.map(k=>{
+        const s = saved[k];
+        if(!s) return "";
+        const title = labelFor(k);
+        const name = s.name || title;
+        return `
+          <div class="item" onclick="jumpTo(${+s.lat}, ${+s.lng}, ${escapeJS(name)})">
+            <div class="itemTitle">${iconFor(k)} ${escapeHtml(title)}: ${escapeHtml(trimName(name))}</div>
+            <div class="itemSub">${(+s.lat).toFixed(6)}, ${(+s.lng).toFixed(6)} • Tap to open</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function iconFor(k){
+      return ({home:"🏠", school:"🏫", work:"💼", field:"🌾"})[k] || "📍";
+    }
+    function trimName(s){
+      const t = String(s||"");
+      return t.length > 46 ? (t.slice(0,46) + "…") : t;
+    }
+
+    // =============================
+    // Directions + copy coords
+    // =============================
+    function openDirections(){
+      if(!pin){
+        speakText("Place a pin first.");
+        return;
+      }
+      // Use Google Maps for directions (simple and reliable)
+      const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(pin.lat + "," + pin.lng)}`;
+      window.open(url, "_blank", "noopener");
+      speakText("Opening directions.");
+    }
+    window.openDirections = openDirections;
+
+    async function copyCoords(){
+      if(!pin){
+        speakText("Place a pin first.");
+        return;
+      }
+      const text = `${pin.lat},${pin.lng}`;
+      try{
+        await navigator.clipboard.writeText(text);
+        speakText("Copied coordinates.");
+      }catch(e){
+        // fallback
+        try{
+          const ta = document.createElement("textarea");
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          document.body.removeChild(ta);
+          speakText("Copied coordinates.");
+        }catch(_){
+          speakText("Could not copy. The coordinates are " + text);
+        }
+      }
+    }
+    window.copyCoords = copyCoords;
+
+    // =============================
+    // Nearby suggestions (Overpass API)
+    // =============================
+    function clearNearbyMarkers(){
+      nearbyMarkers.forEach(m => { try{ map.removeLayer(m); }catch(e){} });
+      nearbyMarkers = [];
+    }
+
+    function overpassFilter(type){
+      // Keep it simple: one main tag per type
+      switch(type){
+        case "school": return 'node["amenity"="school"]';
+        case "hospital": return 'node["amenity"="hospital"]';
+        case "police": return 'node["amenity"="police"]';
+        case "pharmacy": return 'node["amenity"="pharmacy"]';
+        case "supermarket": return 'node["shop"="supermarket"]';
+        case "park": return 'node["leisure"="park"]';
+        default: return 'node["amenity"="school"]';
+      }
+    }
+
+    async function loadNearby(){
+      const list = document.getElementById("nearList");
+      if(!list) return;
+
+      if(navigator.onLine !== true){
+        list.innerHTML = `
+          <div class="item">
+            <div class="itemTitle">You are offline</div>
+            <div class="itemSub">Nearby suggestions need internet.</div>
+          </div>
+        `;
+        speakText("You are offline. Nearby suggestions need internet.");
+        return;
+      }
+
+      // center: pin or last known location
+      let center = pin;
+      if(!center){
+        // try geolocation quickly
+        center = await new Promise((resolve)=>{
+          if(!navigator.geolocation) return resolve(null);
+          navigator.geolocation.getCurrentPosition(
+            (pos)=>resolve({lat:pos.coords.latitude, lng:pos.coords.longitude, name:"My location"}),
+            ()=>resolve(null),
+            { enableHighAccuracy:false, timeout: 6000, maximumAge: 60000 }
+          );
+        });
+      }
+      if(!center){
+        speakText("Place a pin first, or allow location.");
+        list.innerHTML = `
+          <div class="item">
+            <div class="itemTitle">Place a pin first</div>
+            <div class="itemSub">Tap the map, then tap “✨ Load”.</div>
+          </div>
+        `;
+        return;
+      }
+
+      const type = document.getElementById("nearType").value;
+      const radius = parseInt(document.getElementById("nearRadius").value || "1500", 10);
+
+      speakText("Loading nearby " + type + ".");
+      announce("Loading nearby");
+
+      const q = `
+        [out:json][timeout:25];
+        ${overpassFilter(type)}(around:${radius},${center.lat},${center.lng});
+        out 20;
+      `;
+
+      try{
+        const res = await fetch("https://overpass-api.de/api/interpreter", {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=UTF-8" },
+          body: q
+        });
+
+        const data = await res.json();
+        const els = (data && data.elements && Array.isArray(data.elements)) ? data.elements : [];
+
+        clearNearbyMarkers();
+
+        if(!els.length){
+          list.innerHTML = `
+            <div class="item">
+              <div class="itemTitle">No nearby results</div>
+              <div class="itemSub">Try a bigger radius.</div>
+            </div>
+          `;
+          speakText("No nearby results. Try a bigger radius.");
+          return;
+        }
+
+        // Render list + markers
+        list.innerHTML = els.map((e, idx)=>{
+          const name = (e.tags && (e.tags.name || e.tags["name:en"])) ? (e.tags.name || e.tags["name:en"]) : (type + " " + (idx+1));
+          const lat = e.lat, lon = e.lon;
+          const short = trimName(name);
+
+          const m = L.marker([lat, lon]).addTo(map).bindPopup(escapeHtml(short));
+          nearbyMarkers.push(m);
+
+          return `
+            <div class="item" onclick="jumpTo(${lat}, ${lon}, ${escapeJS(short)})">
+              <div class="itemTitle">✨ ${idx+1}. ${escapeHtml(short)}</div>
+              <div class="itemSub">${lat.toFixed(6)}, ${lon.toFixed(6)} • Tap to place pin</div>
+            </div>
+          `;
+        }).join("");
+
+        // Fit bounds (optional)
+        try{
+          const group = L.featureGroup([...(nearbyMarkers || []), ...(pinMarker ? [pinMarker] : [])]);
+          map.fitBounds(group.getBounds().pad(0.25));
+        }catch(_){}
+
+        speakText("Loaded " + els.length + " places.");
+      }catch(e){
+        list.innerHTML = `
+          <div class="item">
+            <div class="itemTitle">Nearby load failed</div>
+            <div class="itemSub">Try again in a moment.</div>
+          </div>
+        `;
+        speakText("Nearby load failed. Please try again.");
+      }
+    }
+    window.loadNearby = loadNearby;
+
+    // =============================
+    // Helpers
+    // =============================
+    function escapeHtml(str){
+      return String(str||"").replace(/[&<>"']/g, (m)=>({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[m]));
+    }
+    function escapeJS(str){
+      // safe inline string for onclick
+      const s = String(str||"");
+      return JSON.stringify(s);
+    }
+
+    // Init
+    initMap();
+    updatePinInfo();
+  </script>
+
+  <!-- Your site translator / language system -->
+  <script src="/lang.js" defer></script>
+</body>
+</html>

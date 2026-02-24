@@ -1,0 +1,880 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Free Trial & Payment — Kido &amp; Babo Hub</title>
+  <meta name="description" content="Start your 7-day free trial and activate your Kido & Babo Hub subscription. Pay using the same email you used to register." />
+
+  <style>
+    :root{
+      --bg:#0b1020;
+      --card:#0f1733;
+      --card2:#0c1330;
+
+      /* ✅ Dim bright white text to softer grey */
+      --text: rgba(234,240,255,.86);
+      --muted:#b7c3ff;
+
+      --line:rgba(255,255,255,.12);
+      --shadow:0 18px 60px rgba(0,0,0,.45);
+      --radius:18px;
+
+      --good:#16a34a;
+      --warn:#f59e0b;
+      --bad:#bb0000;
+      --btn:#ffffff14;
+      --btnb:#ffffff2a;
+
+      /* ✅ Eye-care variables (saved via localStorage) */
+      --kbBrightness: 1;     /* 0.65 - 1 */
+      --kbTextScale: 1;      /* 0.9 - 1.25 */
+      --kbSoftContrast: 0;   /* 0/1 */
+      --kbBlue: 0;           /* 0 - 0.6 */
+      --kbBlueHue: 35;
+      --kbBlueSat: 100%;
+      --kbBlueLum: 55%;
+    }
+
+    *{ box-sizing:border-box; }
+
+    html{
+      font-size: calc(16px * var(--kbTextScale));
+    }
+
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+
+      /* ✅ Eye-care dim */
+      filter: brightness(var(--kbBrightness));
+
+      background: radial-gradient(1100px 560px at 10% 10%, #23316e 0%, transparent 50%),
+                  radial-gradient(900px 520px at 90% 10%, #7a1b1b 0%, transparent 55%),
+                  radial-gradient(800px 520px at 50% 100%, #0e5b2f 0%, transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      min-height:100vh;
+
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    /* ✅ Blue-light overlay layer */
+    #kbBlueOverlay{
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 999999;
+      background: hsl(var(--kbBlueHue) var(--kbBlueSat) var(--kbBlueLum));
+      opacity: var(--kbBlue);
+      mix-blend-mode: multiply;
+    }
+
+    /* ✅ Soft contrast mode */
+    .kb-soft header,
+    .kb-soft main,
+    .kb-soft .card,
+    .kb-soft footer{
+      border-color: rgba(255,255,255,.08) !important;
+    }
+    .kb-soft .nav a,
+    .kb-soft .btn{
+      background: rgba(255,255,255,.06) !important;
+      border-color: rgba(255,255,255,.10) !important;
+    }
+    .kb-soft .nav a:hover,
+    .kb-soft .btn:hover{
+      background: rgba(255,255,255,.09) !important;
+      border-color: rgba(255,255,255,.14) !important;
+    }
+    .kb-soft p{ color: rgba(234,240,255,.78); }
+
+    /* ✅ Reduce motion mode */
+    .kb-reduce-motion *{
+      animation: none !important;
+      transition: none !important;
+      scroll-behavior: auto !important;
+    }
+
+    .wrap{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 18px 14px 60px;
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding: 14px 14px 10px;
+      border:1px solid var(--line);
+      background: rgba(15, 23, 51, .55);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .brand{
+      display:flex; flex-direction:column; gap:4px;
+      padding: 2px 6px;
+    }
+    .brand .title{
+      font-weight: 1000;
+      font-size: 18px;
+      letter-spacing: .2px;
+      line-height: 1.1;
+    }
+    .brand .sub{
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .nav{
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      gap:8px;
+      align-items:center;
+    }
+
+    .nav a, .nav button{
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-weight: 950;
+      cursor:pointer;
+      text-decoration:none;
+      white-space:nowrap;
+      font-size: 13px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      transition: transform .05s ease, background .15s ease, border-color .15s ease;
+    }
+    .nav a:hover, .nav button:hover{
+      background: rgba(255,255,255,.12);
+      border-color: rgba(255,255,255,.24);
+    }
+    .nav a:active, .nav button:active{ transform: translateY(1px); }
+
+    /* ✅ Eye-care button (matches nav style) */
+    .nav button.kb-eyeBtn{
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      color: rgba(234,240,255,.86);
+      font-weight: 950;
+    }
+
+    main{
+      margin-top: 14px;
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(15, 23, 51, .55);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:hidden;
+    }
+
+    .section{ padding: 18px 16px; }
+
+    .card{
+      background: rgba(12, 19, 48, .72);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      margin-bottom:12px;
+    }
+
+    h1{
+      margin:0 0 8px;
+      font-size: 18px;
+      font-weight: 1000;
+    }
+    h2{
+      margin: 0 0 10px;
+      font-size: 16px;
+      font-weight: 1000;
+    }
+
+    /* ✅ slightly dimmer p */
+    p{ margin: 8px 0; color: rgba(234,240,255,.82); line-height: 1.5; }
+
+    .muted{ color: var(--muted); font-weight: 800; font-size: 13px; }
+
+    .pill{
+      display:inline-block;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      font-weight: 950;
+      font-size: 12px;
+      color: rgba(234,240,255,.86);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .col-12{ grid-column: span 12; }
+    .col-7{ grid-column: span 7; }
+    .col-5{ grid-column: span 5; }
+    @media (max-width: 860px){
+      .col-7,.col-5{ grid-column: span 12; }
+      header{ flex-direction: column; align-items: stretch; }
+      .nav{ justify-content:flex-start; }
+    }
+
+    .btn{
+      border:1px solid rgba(255,255,255,.16);
+      background: var(--btn);
+      color: rgba(234,240,255,.86);
+      padding: 11px 12px;
+      border-radius: 14px;
+      font-weight: 1000;
+      cursor:pointer;
+      transition: background .15s ease, border-color .15s ease, transform .05s ease;
+      white-space:nowrap;
+      font-size: 13px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      margin-right:8px;
+      margin-top:8px;
+    }
+    .btn:hover{ background: var(--btnb); border-color: rgba(255,255,255,.28); }
+    .btn:active{ transform: translateY(1px); }
+    .btn.primary{
+      background: linear-gradient(90deg,#006600,#bb0000,#000000);
+      border-color: rgba(255,255,255,.30);
+      box-shadow: 0 10px 25px rgba(0,0,0,.25);
+    }
+    .btn.good{ background: rgba(22,163,74,.18); border-color: rgba(22,163,74,.45); }
+    .btn.warn{ background: rgba(245,158,11,.18); border-color: rgba(245,158,11,.45); }
+    .btn.bad{ background: rgba(187,0,0,.18); border-color: rgba(187,0,0,.45); }
+
+    .note{
+      border:1px solid rgba(245,158,11,.35);
+      background: rgba(245,158,11,.12);
+      border-radius: 16px;
+      padding: 12px;
+      font-weight: 900;
+      line-height:1.45;
+      color: rgba(234,240,255,.84);
+    }
+    .note b{ font-weight:1000; }
+
+    .small{
+      font-size:12.5px;
+      font-weight:900;
+      opacity:.95;
+
+      /* ✅ slightly dimmer small text */
+      color: rgba(234,240,255,.82);
+    }
+
+    .line{
+      height:1px;
+      background: rgba(255,255,255,.10);
+      margin: 12px 0;
+    }
+
+    /* Voice controls (simple + safe) */
+    .voiceRow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      margin-top:10px;
+    }
+    .select{
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.20);
+      background: rgba(255,255,255,.08);
+      color: rgba(234,240,255,.86);
+      font-weight:900;
+      min-width:240px;
+    }
+    .sr-only{
+      position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden;
+      clip:rect(0,0,0,0); white-space:nowrap; border:0;
+    }
+
+    /* ✅ dimmer footer text + mini */
+    footer{
+      margin-top: 14px;
+      padding: 14px 14px;
+      border:1px solid var(--line);
+      background: rgba(15, 23, 51, .55);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      color: rgba(234,240,255,.78);
+    }
+    footer .row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      justify-content:space-between;
+      align-items:center;
+    }
+    footer a{ color: rgba(234,240,255,.86); font-weight:900; text-decoration:none; }
+    footer a:hover{ text-decoration:underline; }
+    footer .mini{ font-size:12px; color: rgba(183,195,255,.92); font-weight:800; }
+
+    /* ✅ Eye-care panel UI (same style as homepage) */
+    .kb-panel{
+      margin-top: 12px;
+      margin-bottom: 12px;
+      border-radius: 16px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      padding: 12px;
+    }
+    .kb-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      margin-top: 10px;
+    }
+    .kb-row label{
+      font-weight: 900;
+      font-size: 13px;
+      color: rgba(234,240,255,.84);
+    }
+    .kb-inline{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
+      min-width: 280px;
+    }
+    .kb-pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.07);
+      font-weight: 900;
+      font-size: 12px;
+      color: rgba(234,240,255,.84);
+      white-space: nowrap;
+    }
+    .kb-toggle{
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      color: rgba(234,240,255,.86);
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-weight: 950;
+      cursor:pointer;
+      white-space: nowrap;
+      font-size: 13px;
+    }
+    .kb-toggle:hover{ background: rgba(255,255,255,.12); }
+    input[type="range"]{ width: 240px; accent-color: #b7c3ff; }
+
+    button:focus, input:focus, select:focus, a:focus{
+      outline: 3px solid rgba(183,195,255,.85);
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ✅ Blue-light overlay layer -->
+  <div id="kbBlueOverlay" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="title">Kido &amp; Babo Hub</div>
+        <div class="sub">Reading Made Fun • Free Trial &amp; Payment</div>
+      </div>
+
+      <div class="nav">
+        <a href="/index.html">🏠 Home</a>
+        <a href="/studentsdashboard.html#tracking">📍 Tracker GPS</a>
+        <a href="/help.html">🆘 Help/Voice</a>
+
+        <!-- ✅ Global Eye-Care button -->
+        <button class="kb-eyeBtn" id="kbEyeBtn" onclick="kbToggleEyePanel()" aria-expanded="false">👁️ Eye-Care</button>
+      </div>
+    </header>
+
+    <main>
+      <div class="section">
+
+        <!-- ✅ Global Eye-Care panel -->
+        <div class="kb-panel" id="kbEyePanel" style="display:none;" aria-label="Eye-care settings panel">
+          <div class="kb-row" style="margin-top:0;">
+            <div>
+              <div style="font-weight:1000;">👁️ Eye-Care Settings</div>
+              <div class="muted">Protect your eyes. Settings are saved automatically.</div>
+            </div>
+            <span class="kb-pill" id="kbAutoPill">Auto Night: ON</span>
+          </div>
+
+          <div class="kb-row">
+            <label for="kbBrightness">🔆 Brightness (dim)</label>
+            <div class="kb-inline">
+              <input id="kbBrightness" type="range" min="0.65" max="1" step="0.01" />
+              <span class="kb-pill" id="kbBrightnessVal">100%</span>
+            </div>
+          </div>
+
+          <div class="kb-row">
+            <label for="kbBlue">🟧 Blue-light filter (warm)</label>
+            <div class="kb-inline">
+              <input id="kbBlue" type="range" min="0" max="0.6" step="0.01" />
+              <span class="kb-pill" id="kbBlueVal">0%</span>
+            </div>
+          </div>
+
+          <div class="kb-row">
+            <label for="kbTextScale">🔎 Text size</label>
+            <div class="kb-inline">
+              <input id="kbTextScale" type="range" min="0.9" max="1.25" step="0.01" />
+              <span class="kb-pill" id="kbTextVal">100%</span>
+            </div>
+          </div>
+
+          <div class="kb-row">
+            <label>🫧 Soft contrast</label>
+            <div class="kb-inline">
+              <button class="kb-toggle" onclick="kbToggleSoftContrast()" id="kbSoftBtn" aria-pressed="false">OFF</button>
+              <span class="muted">Less harsh UI</span>
+            </div>
+          </div>
+
+          <div class="kb-row">
+            <label>🌀 Reduce motion</label>
+            <div class="kb-inline">
+              <button class="kb-toggle" onclick="kbToggleReduceMotion()" id="kbMotionBtn" aria-pressed="false">OFF</button>
+              <span class="muted">Stops animations</span>
+            </div>
+          </div>
+
+          <div class="kb-row">
+            <label>🌙 Auto Night Mode (6pm–6am)</label>
+            <div class="kb-inline">
+              <button class="kb-toggle" onclick="kbToggleAutoNight()" id="kbAutoBtn" aria-pressed="true">ON</button>
+              <span class="muted">Auto protects eyes at night</span>
+            </div>
+          </div>
+
+          <div class="kb-row">
+            <button class="kb-toggle" onclick="kbResetEyeCare()">♻ Reset Eye-Care</button>
+            <span class="muted">Back to safe defaults</span>
+          </div>
+        </div>
+
+        <div class="card" id="payText">
+          <h1>🌱 7-Day Free Trial &amp; Subscription</h1>
+          <p class="muted">
+            If your trial expired, you will be redirected here. After payment, return to the Dashboard and refresh to activate.
+          </p>
+
+          <div class="note">
+            ✅ <b>Important:</b> Pay using the <b>same email</b> you registered with.<br/>
+            ✅ After paying, click <b>Continue</b> below (or open Dashboard again).<br/>
+            🔒 This protects kids: access is tied to account + role permissions.
+          </div>
+
+          <div class="line"></div>
+
+          <div class="grid">
+            <div class="col-7">
+              <div class="card" style="margin:0;">
+                <h2>Step-by-Step</h2>
+                <p class="small">
+                  1) Make sure you are logged in with your correct email.<br/>
+                  2) Pay using Paystack (button below).<br/>
+                  3) Come back and click <b>Continue</b> (or reopen Dashboard).<br/>
+                  4) If still locked, use Help/Voice and send us your Paystack reference + email.
+                </p>
+
+                <button class="btn primary" id="btnPay">💳 Pay Now (Paystack)</button>
+                <button class="btn good" id="btnContinue">✅ Continue</button>
+                <button class="btn warn" id="btnCopyNext">📋 Copy return link</button>
+
+                <div id="payMsg" class="small" style="margin-top:10px;font-weight:1000;"></div>
+              </div>
+            </div>
+
+            <div class="col-5">
+              <div class="card" style="margin:0;">
+                <h2>Voice Assistance</h2>
+                <p class="muted">For parents/teachers and accessibility (blind/low-vision).</p>
+
+                <div class="voiceRow">
+                  <button class="btn" id="btnReadAll">🔊 Read All</button>
+                  <button class="btn" id="btnReadSelected">🖍 Read Selected</button>
+                  <button class="btn bad" id="btnStop">⏹ Stop</button>
+                  <button class="btn good" id="btnVoice">Voice: ON</button>
+
+                  <select id="voiceLang" class="select" aria-label="Voice language">
+                    <option value="">Auto (Device language)</option>
+                    <option value="en-US">English (US)</option>
+                    <option value="en-GB">English (UK)</option>
+                    <option value="en">English (General)</option>
+                    <option value="sw-KE">Kiswahili (Kenya)</option>
+                    <option value="sw">Kiswahili (General)</option>
+                    <option value="fr-FR">French</option>
+                    <option value="es-ES">Spanish</option>
+                    <option value="ar">Arabic</option>
+                  </select>
+                </div>
+
+                <p class="small" style="margin-top:10px;opacity:.92;">
+                  Tip: Highlight text then press <b>Read Selected</b>. Press <b>Esc</b> to stop voice.
+                </p>
+
+                <span class="pill" id="nextPill">Return: -</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:12px;">
+            <h2>Need help?</h2>
+            <p class="muted">Contact Us if you need any assistance or have a question.</p>
+            <p class="small" style="font-weight:1000;">
+              Email: <b>kidobabo3@gmail.com</b> &nbsp;•&nbsp; WhatsApp: <b>+254 725 328 169</b><br/>
+              Tip: When contacting us, send your <b>Paystack reference</b> + the <b>email</b> you used to login.
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="row">
+        <div>
+          <div style="font-weight:1000;">Kido &amp; Babo Hub</div>
+          <div class="mini">Domain: <a href="https://kidobabohub.web.app" target="_blank" rel="noopener">kidobabohub.web.app</a> • Est. 2026</div>
+        </div>
+        <div class="mini">© 2026 Kido &amp; Babo Hub. All rights reserved.</div>
+      </div>
+    </footer>
+  </div>
+
+  <div class="sr-only" aria-live="polite" id="srLive"></div>
+
+  <script>
+    // =========================
+    // ✅ GLOBAL EYE-CARE SYSTEM (same behavior as homepage)
+    // =========================
+    const EC = {
+      LS: "kb_eyeCare_v1",
+      defaults: {
+        brightness: 0.90,
+        blue: 0.12,
+        textScale: 1.00,
+        softContrast: true,
+        reduceMotion: false,
+        autoNight: true
+      }
+    };
+
+    function kbReadEC(){
+      try{
+        const raw = localStorage.getItem(EC.LS);
+        const obj = raw ? JSON.parse(raw) : {};
+        return { ...EC.defaults, ...(obj||{}) };
+      }catch(_){
+        return { ...EC.defaults };
+      }
+    }
+    function kbWriteEC(v){
+      localStorage.setItem(EC.LS, JSON.stringify(v||{}));
+    }
+
+    function kbApplyEC(state){
+      if(state.autoNight){
+        const h = new Date().getHours();
+        const isNight = (h >= 18 || h < 6);
+        const nightBrightness = Math.min(state.brightness, 0.85);
+        const nightBlue = Math.max(state.blue, 0.18);
+
+        document.documentElement.style.setProperty("--kbBrightness", String(isNight ? nightBrightness : state.brightness));
+        document.documentElement.style.setProperty("--kbBlue", String(isNight ? nightBlue : state.blue));
+
+        const ap = document.getElementById("kbAutoPill");
+        if(ap) ap.textContent = "Auto Night: ON";
+      } else {
+        document.documentElement.style.setProperty("--kbBrightness", String(state.brightness));
+        document.documentElement.style.setProperty("--kbBlue", String(state.blue));
+
+        const ap = document.getElementById("kbAutoPill");
+        if(ap) ap.textContent = "Auto Night: OFF";
+      }
+
+      document.documentElement.style.setProperty("--kbTextScale", String(state.textScale));
+
+      document.documentElement.classList.toggle("kb-soft", !!state.softContrast);
+      document.documentElement.classList.toggle("kb-reduce-motion", !!state.reduceMotion);
+
+      const b = document.getElementById("kbBrightness");
+      const bl = document.getElementById("kbBlue");
+      const t = document.getElementById("kbTextScale");
+
+      if(b) b.value = String(state.brightness);
+      if(bl) bl.value = String(state.blue);
+      if(t) t.value = String(state.textScale);
+
+      const bV = document.getElementById("kbBrightnessVal");
+      const blV = document.getElementById("kbBlueVal");
+      const tV = document.getElementById("kbTextVal");
+
+      if(bV) bV.textContent = Math.round(parseFloat(state.brightness) * 100) + "%";
+      if(blV) blV.textContent = Math.round(parseFloat(state.blue) * 100) + "%";
+      if(tV) tV.textContent = Math.round(parseFloat(state.textScale) * 100) + "%";
+
+      const softBtn = document.getElementById("kbSoftBtn");
+      const motionBtn = document.getElementById("kbMotionBtn");
+      const autoBtn = document.getElementById("kbAutoBtn");
+
+      if(softBtn){
+        softBtn.textContent = state.softContrast ? "ON" : "OFF";
+        softBtn.setAttribute("aria-pressed", state.softContrast ? "true" : "false");
+      }
+      if(motionBtn){
+        motionBtn.textContent = state.reduceMotion ? "ON" : "OFF";
+        motionBtn.setAttribute("aria-pressed", state.reduceMotion ? "true" : "false");
+      }
+      if(autoBtn){
+        autoBtn.textContent = state.autoNight ? "ON" : "OFF";
+        autoBtn.setAttribute("aria-pressed", state.autoNight ? "true" : "false");
+      }
+    }
+
+    function kbBindEyeCare(){
+      let st = kbReadEC();
+      kbApplyEC(st);
+
+      const brightness = document.getElementById("kbBrightness");
+      const blue = document.getElementById("kbBlue");
+      const text = document.getElementById("kbTextScale");
+
+      if(brightness){
+        brightness.addEventListener("input", ()=>{
+          st = kbReadEC();
+          st.brightness = parseFloat(brightness.value);
+          kbWriteEC(st);
+          kbApplyEC(st);
+        });
+      }
+      if(blue){
+        blue.addEventListener("input", ()=>{
+          st = kbReadEC();
+          st.blue = parseFloat(blue.value);
+          kbWriteEC(st);
+          kbApplyEC(st);
+        });
+      }
+      if(text){
+        text.addEventListener("input", ()=>{
+          st = kbReadEC();
+          st.textScale = parseFloat(text.value);
+          kbWriteEC(st);
+          kbApplyEC(st);
+        });
+      }
+    }
+
+    function kbToggleEyePanel(){
+      const p = document.getElementById("kbEyePanel");
+      const btn = document.getElementById("kbEyeBtn");
+      if(!p || !btn) return;
+      const open = (p.style.display === "none" || !p.style.display);
+      p.style.display = open ? "block" : "none";
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+    window.kbToggleEyePanel = kbToggleEyePanel;
+
+    window.kbToggleSoftContrast = function(){
+      const st = kbReadEC();
+      st.softContrast = !st.softContrast;
+      kbWriteEC(st);
+      kbApplyEC(st);
+    };
+
+    window.kbToggleReduceMotion = function(){
+      const st = kbReadEC();
+      st.reduceMotion = !st.reduceMotion;
+      kbWriteEC(st);
+      kbApplyEC(st);
+    };
+
+    window.kbToggleAutoNight = function(){
+      const st = kbReadEC();
+      st.autoNight = !st.autoNight;
+      kbWriteEC(st);
+      kbApplyEC(st);
+    };
+
+    window.kbResetEyeCare = function(){
+      kbWriteEC({ ...EC.defaults });
+      kbApplyEC(kbReadEC());
+    };
+
+    // keep auto-night correct
+    setInterval(()=> kbApplyEC(kbReadEC()), 60 * 1000);
+
+    // init eye-care
+    kbBindEyeCare();
+  </script>
+
+  <script>
+    // -------------------------
+    // Next URL handling
+    // -------------------------
+    function getNext(){
+      const u = new URL(location.href);
+      const next = u.searchParams.get("next");
+      return next ? decodeURIComponent(next) : "/studentsdashboard.html#tracking";
+    }
+
+    function setMsg(text, ok=true){
+      const el = document.getElementById("payMsg");
+      el.textContent = text || "";
+      el.style.color = ok ? "#7CFF6B" : "#ff4d6d";
+    }
+
+    const nextUrl = getNext();
+    document.getElementById("nextPill").textContent = "Return: " + nextUrl;
+
+    document.getElementById("btnContinue").onclick = ()=>{
+      location.href = nextUrl;
+    };
+
+    document.getElementById("btnCopyNext").onclick = async ()=>{
+      try{
+        await navigator.clipboard.writeText(location.origin + nextUrl);
+        setMsg("✅ Return link copied.");
+      }catch(_){
+        setMsg("⚠️ Copy failed. You can manually open: " + nextUrl, false);
+      }
+    };
+
+    // -------------------------
+    // Pay button behavior
+    // -------------------------
+    const PAY_URL = ""; // <-- put your paystack payment link here if you have one
+
+    document.getElementById("btnPay").onclick = ()=>{
+      if(PAY_URL && PAY_URL.startsWith("http")){
+        location.href = PAY_URL;
+        return;
+      }
+      if(typeof window.startPayment === "function"){
+        window.startPayment();
+        return;
+      }
+      if(typeof window.payWithPaystack === "function"){
+        window.payWithPaystack();
+        return;
+      }
+      setMsg("⚠️ Pay link not set yet. If you have a Paystack payment link, add it in PAY_URL inside pay.html.", false);
+    };
+
+    // -------------------------
+    // Voice (safe TTS) - remembers ON/OFF + language
+    // -------------------------
+    const VOICE_ON_KEY = "kbh_voice_on";
+    const VOICE_LANG_KEY = "kbh_voice_lang";
+
+    let voiceEnabled = (localStorage.getItem(VOICE_ON_KEY) !== "0"); // default ON
+    const btnReadAll = document.getElementById("btnReadAll");
+    const btnReadSelected = document.getElementById("btnReadSelected");
+    const btnStop = document.getElementById("btnStop");
+    const btnVoice = document.getElementById("btnVoice");
+    const voiceLang = document.getElementById("voiceLang");
+    const srLive = document.getElementById("srLive");
+
+    const savedLang = localStorage.getItem(VOICE_LANG_KEY) || "";
+    if(savedLang) voiceLang.value = savedLang;
+
+    function hasTTS(){
+      return typeof window.speechSynthesis !== "undefined" && typeof SpeechSynthesisUtterance !== "undefined";
+    }
+    function announce(msg){ srLive.textContent = msg; }
+    function stopSpeaking(){
+      if(!hasTTS()) return;
+      try{ window.speechSynthesis.cancel(); }catch(_){}
+    }
+    function speak(text){
+      if(!voiceEnabled) return;
+      if(!hasTTS()){
+        alert("Voice is not supported on this device/browser.");
+        return;
+      }
+      const t=(text||"").trim();
+      if(!t) return;
+      try{
+        stopSpeaking();
+        const u = new SpeechSynthesisUtterance(t);
+        u.lang = voiceLang.value || (navigator.language || "en-US");
+        u.rate = 1;
+        u.pitch = 1;
+        window.speechSynthesis.speak(u);
+      }catch(_){}
+    }
+    function setVoiceButton(){
+      btnVoice.textContent = voiceEnabled ? "Voice: ON" : "Voice: OFF";
+      localStorage.setItem(VOICE_ON_KEY, voiceEnabled ? "1" : "0");
+    }
+    setVoiceButton();
+
+    btnVoice.onclick = ()=>{
+      voiceEnabled = !voiceEnabled;
+      setVoiceButton();
+      if(!voiceEnabled) stopSpeaking();
+      announce(btnVoice.textContent);
+      if(voiceEnabled) speak("Voice is on.");
+    };
+    btnStop.onclick = ()=>{ stopSpeaking(); announce("Stopped."); };
+    btnReadAll.onclick = ()=>{
+      const text = document.getElementById("payText").innerText || "";
+      speak(text);
+      announce("Reading pay page.");
+    };
+    function readSelected(){
+      const sel = (window.getSelection && window.getSelection().toString()) ? window.getSelection().toString() : "";
+      if(!sel.trim()){ speak("Please highlight the text you want me to read."); return; }
+      speak(sel);
+      announce("Reading selected text.");
+    }
+    btnReadSelected.onclick = readSelected;
+
+    voiceLang.addEventListener("change", ()=>{
+      localStorage.setItem(VOICE_LANG_KEY, voiceLang.value || "");
+      if(voiceEnabled) speak("Language set.");
+    });
+
+    document.addEventListener("keydown", (e)=>{
+      if(e.key === "Escape"){ stopSpeaking(); return; }
+      if(e.ctrlKey && e.shiftKey && (e.key === "S" || e.key === "s")){
+        e.preventDefault();
+        readSelected();
+      }
+    });
+  </script>
+
+  <!-- If you already have subscription helper, keep it -->
+  <script src="/subscription.js" defer></script>
+  <script src="/lang.js" defer></script>
+</body>
+</html>

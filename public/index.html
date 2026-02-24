@@ -1,0 +1,1176 @@
+<!doctype html> 
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+  <title>Kido &amp; Babo Hub</title>
+  <meta name="description" content="Kido &amp; Babo Hub — Universally intelligent secure for Homes • Schools • Religious Institutions • Parents • Children • Admins • All Devices • Online/Offline" />
+  <meta name="theme-color" content="#111827" />
+
+  <link rel="canonical" href="https://kidobabohub.web.app/" />
+  <link rel="icon" href="/logo.jpg" />
+
+  <style>
+    /* =========================================================
+       🌙 FULL EYE-CARE SYSTEM (GLOBAL)
+       ========================================================= */
+
+    :root{
+      /* Base */
+      --bg:#0f1115;
+      --panel: rgba(15, 23, 51, .55);
+      --card: rgba(12, 19, 48, .72);
+
+      /* Text */
+      --text:#eaf0ff;
+      --muted:#b7c3ff;
+
+      --line:rgba(255,255,255,.12);
+      --shadow:0 18px 60px rgba(0,0,0,.45);
+      --radius:18px;
+
+      /* ✅ Joyful + smart + calm buttons (NOT bright, NOT rainbow/flag) */
+      --btnBg: rgba(165, 243, 252, .10);     /* soft teal tint */
+      --btnBorder: rgba(165, 243, 252, .22);
+      --btnHoverBg: rgba(165, 243, 252, .15);
+      --btnHoverBorder: rgba(165, 243, 252, .30);
+
+      /* ✅ Strong but calm primary (deep teal) */
+      --primaryBg: rgba(56, 189, 248, .18);
+      --primaryBorder: rgba(56, 189, 248, .38);
+
+      /* ✅ Soft help color (violet) */
+      --helpBg: rgba(167, 139, 250, .14);
+      --helpBorder: rgba(167, 139, 250, .34);
+
+      /* ✅ Home (neutral) */
+      --homeBg: rgba(255,255,255,.07);
+      --homeBorder: rgba(255,255,255,.16);
+
+      /* Accent (kept; only used on EdukidGPT primary button you already had) */
+      --accent: linear-gradient(90deg,#006600,#bb0000,#000000);
+
+      /* ✅ NEW: maroon ring for button visibility */
+      --ring: rgba(128, 0, 0, .78);
+
+      /* Eye-care controls (driven by JS) */
+      --kbBrightness: 1;     /* 0.65 - 1 */
+      --kbTextScale: 1;      /* 0.9 - 1.25 */
+      --kbSoftContrast: 0;   /* 0/1 */
+      --kbBlue: 0;           /* 0 - 0.6 */
+      --kbBlueHue: 35;       /* warm hue */
+      --kbBlueSat: 100%;
+      --kbBlueLum: 55%;
+    }
+
+    *{ box-sizing:border-box; }
+
+    html{
+      font-size: calc(16px * var(--kbTextScale));
+    }
+
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+
+      /* Eye-care dim (safe approach) */
+      filter: brightness(var(--kbBrightness));
+
+      background:
+        radial-gradient(1100px 560px at 10% 10%, #23316e 0%, transparent 50%),
+        radial-gradient(900px 520px at 90% 10%, #7a1b1b 0%, transparent 55%),
+        radial-gradient(800px 520px at 50% 100%, #0e5b2f 0%, transparent 55%),
+        var(--bg);
+
+      color:var(--text);
+      min-height:100vh;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    /* Blue light overlay layer (warm tint) */
+    #kbBlueOverlay{
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 999999;
+      background: hsl(var(--kbBlueHue) var(--kbBlueSat) var(--kbBlueLum));
+      opacity: var(--kbBlue);
+      mix-blend-mode: multiply;
+    }
+
+    /* Soft contrast mode: reduce harsh white borders/highlights */
+    .kb-soft .card,
+    .kb-soft header,
+    .kb-soft main{
+      border-color: rgba(255,255,255,.08) !important;
+    }
+    .kb-soft .nav button{
+      background: rgba(255,255,255,.06) !important;
+      border-color: rgba(255,255,255,.10) !important;
+    }
+    .kb-soft .nav button:hover{
+      background: rgba(255,255,255,.09) !important;
+      border-color: rgba(255,255,255,.14) !important;
+    }
+    .kb-soft p{ color: rgba(234,240,255,.85); }
+
+    /* Reduce motion mode */
+    .kb-reduce-motion *{
+      animation: none !important;
+      transition: none !important;
+      scroll-behavior: auto !important;
+    }
+
+    .wrap{ max-width: 980px; margin: 0 auto; padding: 18px 14px 60px; }
+
+    header{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding: 14px 14px 10px;
+      border:1px solid var(--line);
+      background: var(--panel);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .brandRow{ display:flex; align-items:center; gap:12px; }
+    .logo{
+      width:44px; height:44px; border-radius: 14px;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.08);
+      object-fit: cover;
+      box-shadow: 0 8px 22px rgba(0,0,0,.25);
+      flex: 0 0 auto;
+    }
+
+    .brand{ display:flex; flex-direction:column; gap:4px; padding: 2px 6px; }
+    .brand .title{ font-weight: 900; font-size: 18px; letter-spacing: .2px; line-height: 1.1; }
+    .brand .sub{
+      font-size: 12px; color: var(--muted); font-weight: 700; line-height: 1.35;
+    }
+
+    .nav{ display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; align-items:center; }
+
+    /* ✅ Welcome text above the buttons */
+    .navWelcome{
+      width:100%;
+      text-align:right;
+      font-weight: 950;
+      font-size: 13px;
+      color: rgba(234,240,255,.95);
+      margin-bottom: 4px;
+      letter-spacing: .2px;
+    }
+    @media (max-width: 860px){
+      .navWelcome{ text-align:left; }
+    }
+
+    /* ✅ Buttons with maroon ring */
+    .nav button{
+      border:1px solid var(--btnBorder);
+      background: var(--btnBg);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-weight: 900;
+      cursor:pointer;
+      transition: transform .05s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
+      white-space:nowrap;
+      font-size: 13px;
+      box-shadow:
+        0 0 0 2px var(--ring),
+        0 10px 24px rgba(0,0,0,.25);
+    }
+    .nav button:hover{
+      background: var(--btnHoverBg);
+      border-color: var(--btnHoverBorder);
+      box-shadow:
+        0 0 0 2px var(--ring),
+        0 12px 28px rgba(0,0,0,.32);
+    }
+    .nav button:active{ transform: translateY(1px); }
+
+    /* ✅ Order + calm color roles */
+    .nav button.kb-free{
+      background: var(--primaryBg);
+      border-color: var(--primaryBorder);
+    }
+    .nav button.kb-students{
+      background: rgba(124,255,107,.14);
+      border-color: rgba(124,255,107,.30);
+    }
+    .nav button.kb-help{
+      background: var(--helpBg);
+      border-color: var(--helpBorder);
+    }
+    .nav button.kb-home{
+      background: var(--homeBg);
+      border-color: var(--homeBorder);
+    }
+
+    /* Keep your special primary gradient for EdukidGPT (unchanged) */
+    .nav button.primary{
+      background: var(--accent);
+      border-color: rgba(255,255,255,.30);
+      position: relative;
+      overflow: hidden;
+      box-shadow:
+        0 0 0 2px var(--ring),
+        0 10px 25px rgba(0,0,0,.25);
+    }
+
+    main{
+      margin-top: 14px;
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:hidden;
+    }
+
+    .page{ padding: 18px 16px; }
+
+    .card{
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+
+    h2{ margin: 0 0 10px; font-size: 18px; font-weight: 950; }
+    p{ margin: 8px 0; color: rgba(234,240,255,.92); line-height: 1.55; }
+    .muted{ color: var(--muted); font-weight: 700; font-size: 13px; }
+
+    .grid{ display:grid; grid-template-columns: repeat(12, 1fr); gap: 12px; margin-top: 12px; }
+    .col-12{ grid-column: span 12; }
+    @media (max-width: 860px){
+      header{ flex-direction: column; align-items: stretch; }
+      .nav{ justify-content:flex-start; }
+      .brandRow{ justify-content:flex-start; }
+    }
+
+    .footer{
+      margin-top: 14px;
+      padding: 14px 16px;
+      border-top: 1px solid rgba(255,255,255,.12);
+      color: rgba(234,240,255,.88);
+      font-weight: 800;
+      font-size: 12px;
+      text-align:center;
+      background: rgba(0,0,0,.12);
+    }
+
+    /* =========================================================
+       Eye-care panel UI
+       ========================================================= */
+    .kb-panel{
+      margin-top: 12px;
+      border-radius: 16px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      padding: 12px;
+    }
+    .kb-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      margin-top: 10px;
+    }
+    .kb-row label{
+      font-weight: 900;
+      font-size: 13px;
+      color: rgba(234,240,255,.92);
+    }
+    .kb-inline{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
+      min-width: 280px;
+    }
+    .kb-pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.07);
+      font-weight: 900;
+      font-size: 12px;
+      color: rgba(234,240,255,.92);
+      white-space: nowrap;
+    }
+    .kb-toggle{
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-weight: 950;
+      cursor:pointer;
+    }
+    .kb-toggle:hover{ background: rgba(255,255,255,.12); }
+
+    input[type="range"]{
+      width: 240px;
+      accent-color: #b7c3ff;
+    }
+
+    button:focus, input:focus, select:focus{
+      outline: 3px solid rgba(183,195,255,.85);
+      outline-offset: 2px;
+    }
+
+    /* Small toast */
+    .kb-toast{
+      position: fixed;
+      left: 14px;
+      right: 14px;
+      bottom: 16px;
+      max-width: 980px;
+      margin: 0 auto;
+      z-index: 1000000;
+      display:none;
+    }
+    .kb-toast .box{
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(15, 23, 51, .82);
+      box-shadow: 0 18px 60px rgba(0,0,0,.55);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 12px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      font-weight: 900;
+    }
+
+    /* =========================================================
+       ✅ Language panel UI
+       ========================================================= */
+    .langGrid{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .langCol{
+      grid-column: span 12;
+    }
+    @media(min-width: 860px){
+      .langCol.split{ grid-column: span 6; }
+    }
+    .fieldRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-top:10px;
+    }
+    select, input[type="text"]{
+      padding:10px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      font-weight: 900;
+      min-width: 220px;
+      flex: 1;
+      outline:none;
+    }
+    .tiny{
+      font-size: 12px;
+      font-weight: 850;
+      color: rgba(234,240,255,.84);
+      opacity: .95;
+      line-height: 1.35;
+      margin-top: 6px;
+    }
+
+    /* =========================================================
+       ✅ SMALL STATS TOOLBAR (GLOBAL)
+       ========================================================= */
+    .miniBar{
+      margin-top: 10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+    }
+
+    /* =========================================================
+       ✅ Header dropdown panels (Language + Eye-care)
+       ========================================================= */
+    .headerPanels{
+      margin-top: 10px;
+      border-radius: var(--radius);
+      border:1px solid var(--line);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      padding: 10px 12px;
+      display:none;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="kbBlueOverlay" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <header>
+      <div class="brandRow">
+        <img class="logo" src="/logo.jpg" alt="Kido & Babo Hub logo" />
+        <div class="brand">
+          <div class="title">Kido &amp; Babo Hub</div>
+          <div class="sub">
+            Universally intelligent secure for Homes • Schools • Religious Institutions • Parents • Children • Admins • All Devices • Online/Offline
+          </div>
+        </div>
+      </div>
+
+      <div class="nav" id="nav" aria-label="Top navigation">
+        <div class="navWelcome">Welcome! 👋</div>
+
+        <button class="kb-free" onclick="goPage('pay.html')">🎁 Free Trial</button>
+        <button class="kb-students" onclick="goPage('studentsdashboard.html')">📊 Students Dashboard</button>
+
+        <button onclick="goPage('tracker.html')">📍 Tracker</button>
+        <button onclick="goPage('translator.html')">🌍 Translator</button>
+        <button onclick="goPage('readaloud.html')">🔊 Read Aloud</button>
+        <button onclick="goPage('safetysongs.html')">🎶 Safety Songs</button>
+
+        <button class="primary" onclick="goPage('edukidgpt.html')">
+          <span>🎓 EdukidGPT</span>
+        </button>
+
+        <button class="kb-toggle" id="kbLangBtn" onclick="kbToggleLangPanel()" aria-expanded="false">🌐 Language</button>
+        <button class="kb-toggle" id="kbEyeBtn" onclick="kbToggleEyePanel()" aria-expanded="false">👁️ Eye-Care</button>
+
+        <button id="voiceToggle" onclick="toggleVoice()" title="Voice assistance on/off" aria-pressed="true">🔊 Voice: ON</button>
+
+        <button class="kb-help" onclick="goPage('help.html')">🆘 Help</button>
+        <button class="kb-home" onclick="goPage('index.html')">🏠 Home</button>
+      </div>
+    </header>
+
+    <!-- ✅ TOP PANELS (Language + Eye-care) -->
+    <div class="headerPanels" id="kbLangPanel" aria-label="Language selection panel">
+      <div style="font-weight:1000;">🌐 Language Selection</div>
+      <div class="muted">Choose translation + voice language. Saved for all pages.</div>
+
+      <div class="langGrid">
+        <div class="langCol split">
+          <div class="fieldRow">
+            <label class="kb-pill" style="cursor:default;">Mode</label>
+            <select id="kbLangMode">
+              <option value="offline">offline</option>
+              <option value="online">online</option>
+            </select>
+          </div>
+          <div class="tiny">
+            Offline = uses your built-in language packs (if your lang.js supports it). Online = can fetch more translations (if enabled).
+          </div>
+        </div>
+
+        <div class="langCol split">
+          <div class="fieldRow">
+            <label class="kb-pill" style="cursor:default;">Translation</label>
+            <select id="kbLangCode">
+              <option value="en">English (EN)</option>
+              <option value="sw">Swahili (SW)</option>
+              <option value="fr">French (FR)</option>
+              <option value="es">Spanish (ES)</option>
+              <option value="ar">Arabic (AR)</option>
+              <option value="pt">Portuguese (PT)</option>
+              <option value="hi">Hindi (HI)</option>
+              <option value="zh">Chinese (ZH)</option>
+              <option value="de">German (DE)</option>
+              <option value="it">Italian (IT)</option>
+              <option value="ru">Russian (RU)</option>
+            </select>
+          </div>
+          <div class="tiny">
+            This saves to <b>kb_siteLangCode</b> and is used by <b>/lang.js</b>.
+          </div>
+        </div>
+
+        <div class="langCol split">
+          <div class="fieldRow">
+            <label class="kb-pill" style="cursor:default;">Voice</label>
+            <select id="kbVoiceLang">
+              <option value="en">English</option>
+              <option value="sw">Swahili</option>
+              <option value="fr">French</option>
+              <option value="es">Spanish</option>
+              <option value="ar">Arabic</option>
+              <option value="pt">Portuguese</option>
+              <option value="hi">Hindi</option>
+              <option value="zh">Chinese</option>
+              <option value="de">German</option>
+              <option value="it">Italian</option>
+              <option value="ru">Russian</option>
+            </select>
+          </div>
+          <div class="tiny">
+            This saves to <b>kb_siteVoiceLang</b> and controls speech.
+          </div>
+        </div>
+
+        <div class="langCol split">
+          <div class="fieldRow">
+            <button class="kb-toggle" onclick="kbSaveLanguage()">✅ Save Language</button>
+            <button class="kb-toggle" onclick="kbResetLanguage()">♻ Reset</button>
+          </div>
+          <div class="tiny">
+            Tip: After saving, open any page — settings will stay.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="headerPanels" id="kbEyePanel" style="display:none" aria-label="Eye-care settings panel">
+      <div class="kb-row" style="margin-top:0;">
+        <div>
+          <div style="font-weight:1000;">👁️ Eye-Care Settings</div>
+          <div class="muted">Protect your eyes on all devices. Settings are saved automatically.</div>
+        </div>
+        <span class="kb-pill" id="kbAutoPill">Auto Night: ON</span>
+      </div>
+
+      <div class="kb-row">
+        <label for="kbBrightness">🔆 Brightness (dim)</label>
+        <div class="kb-inline">
+          <input id="kbBrightness" type="range" min="0.65" max="1" step="0.01" />
+          <span class="kb-pill" id="kbBrightnessVal">100%</span>
+        </div>
+      </div>
+
+      <div class="kb-row">
+        <label for="kbBlue">🟧 Blue-light filter (warm)</label>
+        <div class="kb-inline">
+          <input id="kbBlue" type="range" min="0" max="0.6" step="0.01" />
+          <span class="kb-pill" id="kbBlueVal">0%</span>
+        </div>
+      </div>
+
+      <div class="kb-row">
+        <label for="kbTextScale">🔎 Text size</label>
+        <div class="kb-inline">
+          <input id="kbTextScale" type="range" min="0.9" max="1.25" step="0.01" />
+          <span class="kb-pill" id="kbTextVal">100%</span>
+        </div>
+      </div>
+
+      <div class="kb-row">
+        <label>🫧 Soft contrast (reduce harsh white)</label>
+        <div class="kb-inline">
+          <button class="kb-toggle" onclick="kbToggleSoftContrast()" id="kbSoftBtn" aria-pressed="false">OFF</button>
+          <span class="muted">Recommended for long use</span>
+        </div>
+      </div>
+
+      <div class="kb-row">
+        <label>🌀 Reduce motion</label>
+        <div class="kb-inline">
+          <button class="kb-toggle" onclick="kbToggleReduceMotion()" id="kbMotionBtn" aria-pressed="false">OFF</button>
+          <span class="muted">Stops animations</span>
+        </div>
+      </div>
+
+      <div class="kb-row">
+        <label>🌙 Auto Night Mode (6pm–6am)</label>
+        <div class="kb-inline">
+          <button class="kb-toggle" onclick="kbToggleAutoNight()" id="kbAutoBtn" aria-pressed="true">ON</button>
+          <span class="muted">Auto protects eyes at night</span>
+        </div>
+      </div>
+
+      <div class="kb-row">
+        <label>⏱ Eye-Rest reminders (every 20 minutes)</label>
+        <div class="kb-inline">
+          <button class="kb-toggle" onclick="kbToggleReminders()" id="kbRemBtn" aria-pressed="false">OFF</button>
+          <span class="muted">20-20-20 rule</span>
+        </div>
+      </div>
+
+      <div class="kb-row">
+        <button class="kb-toggle" onclick="kbResetEyeCare()">♻ Reset Eye-Care</button>
+        <span class="muted">Back to safe defaults</span>
+      </div>
+    </div>
+
+    <main>
+      <section class="page" id="home">
+        <div class="grid">
+          <div class="col-12">
+            <div class="card">
+              <!-- ✅ GLOBAL stats (Firestore) -->
+              <div class="miniBar" aria-label="Quick stats">
+                <span class="kb-pill" id="kbVisitors" title="Visitors">👥 --</span>
+                <span class="kb-pill" id="kbReviews" title="Reviews">📝 --</span>
+                <span class="kb-pill" id="kbDownloads" title="Downloads">⬇️ --</span>
+                <span class="kb-pill" id="kbRating" title="Rating">⭐ --</span>
+              </div>
+
+              <div class="tiny" style="margin-top:10px; opacity:.9;">
+                Stats are global and update for all visitors.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer">
+          kidobabohub.web.app • Est. 2026 • © Copyright
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Toast -->
+  <div class="kb-toast" id="kbToast" aria-live="polite">
+    <div class="box">
+      <div id="kbToastText">Take a short eye break.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <button class="kb-toggle" onclick="kbToastHide()">OK</button>
+        <button class="kb-toggle" onclick="kbSnooze()">Snooze 5 min</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =============================
+    // 1) Multi-page navigation
+    // =============================
+    function goPage(file){
+      window.location.href = file;
+      try{
+        setTimeout(() => {
+          speakKid("Opening " + prettyName(file) + ".");
+        }, 50);
+      }catch(e){}
+    }
+
+    function prettyName(file){
+      const map = {
+        "index.html": "Home",
+        "studentsdashboard.html": "Students Dashboard",
+        "help.html": "Help",
+        "pay.html": "Free Trial",
+        "tracker.html": "Tracker",
+        "translator.html": "Translator",
+        "readaloud.html": "Read Aloud",
+        "safetysongs.html": "Safety Songs",
+        "edukidgpt.html": "Edukid GPT"
+      };
+      return map[file] || "page";
+    }
+
+    // =============================
+    // 2) Voice (kept from your original)
+    // =============================
+    let voiceOn = true;
+    let kidVoice = null;
+
+    function loadVoiceSetting(){
+      const saved = localStorage.getItem("kb_voiceOn");
+      voiceOn = (saved === null) ? true : (saved === "1");
+      updateVoiceButton();
+    }
+    function updateVoiceButton(){
+      const btn = document.getElementById("voiceToggle");
+      if(!btn) return;
+      btn.textContent = voiceOn ? "🔊 Voice: ON" : "🔇 Voice: OFF";
+      btn.setAttribute("aria-pressed", voiceOn ? "true" : "false");
+    }
+    function toggleVoice(){
+      voiceOn = !voiceOn;
+      localStorage.setItem("kb_voiceOn", voiceOn ? "1" : "0");
+      updateVoiceButton();
+      speakKid(voiceOn ? "Voice is on." : "Voice is off.");
+    }
+
+    function pickKidVoice(){
+      const voices = window.speechSynthesis ? speechSynthesis.getVoices() : [];
+      if(!voices || !voices.length) return null;
+
+      const preferred = voices
+        .filter(v => /en|sw|fr|es|ar|pt|hi|zh|de|it|ru/i.test(v.lang || ""))
+        .sort((a,b) => scoreVoice(b) - scoreVoice(a));
+
+      return preferred[0] || voices[0] || null;
+
+      function scoreVoice(v){
+        const n = (v.name || "").toLowerCase();
+        let s = 0;
+        if(n.includes("natural")) s += 6;
+        if(n.includes("neural")) s += 6;
+        if(n.includes("google")) s += 5;
+        if(n.includes("microsoft")) s += 4;
+        if(n.includes("aria")) s += 3;
+        if(n.includes("jenny")) s += 3;
+        if(n.includes("zira")) s += 2;
+        if(n.includes("robot")) s -= 10;
+        return s;
+      }
+    }
+
+    function initVoices(){
+      kidVoice = pickKidVoice();
+      if(!kidVoice && 'speechSynthesis' in window){
+        speechSynthesis.onvoiceschanged = () => { kidVoice = pickKidVoice(); };
+      }
+    }
+
+    function speakKid(text){
+      try{
+        if(!voiceOn) return;
+        if(!('speechSynthesis' in window)) return;
+
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = localStorage.getItem("kb_siteVoiceLang") || "en";
+        u.rate = 0.98;
+        u.pitch = 1.25;
+        if(kidVoice) u.voice = kidVoice;
+        speechSynthesis.speak(u);
+      }catch(e){}
+    }
+
+    // =========================================================
+    // ✅ 3) FULL EYE-CARE SYSTEM
+    // =========================================================
+    const EC = {
+      LS: "kb_eyeCare_v1",
+      defaults: {
+        brightness: 0.90,
+        blue: 0.12,
+        textScale: 1.00,
+        softContrast: true,
+        reduceMotion: false,
+        autoNight: true,
+        reminders: false,
+        remindEveryMin: 20,
+        snoozeUntil: 0
+      }
+    };
+
+    function kbReadEC(){
+      try{
+        const raw = localStorage.getItem(EC.LS);
+        const obj = raw ? JSON.parse(raw) : {};
+        return { ...EC.defaults, ...(obj||{}) };
+      }catch(_){
+        return { ...EC.defaults };
+      }
+    }
+    function kbWriteEC(v){
+      localStorage.setItem(EC.LS, JSON.stringify(v||{}));
+    }
+
+    function kbApplyEC(state){
+      if(state.autoNight){
+        const h = new Date().getHours();
+        const isNight = (h >= 18 || h < 6);
+        const nightBrightness = Math.min(state.brightness, 0.85);
+        const nightBlue = Math.max(state.blue, 0.18);
+
+        document.documentElement.style.setProperty("--kbBrightness", String(isNight ? nightBrightness : state.brightness));
+        document.documentElement.style.setProperty("--kbBlue", String(isNight ? nightBlue : state.blue));
+        const ap = document.getElementById("kbAutoPill");
+        if(ap) ap.textContent = "Auto Night: ON";
+      } else {
+        document.documentElement.style.setProperty("--kbBrightness", String(state.brightness));
+        document.documentElement.style.setProperty("--kbBlue", String(state.blue));
+        const ap = document.getElementById("kbAutoPill");
+        if(ap) ap.textContent = "Auto Night: OFF";
+      }
+
+      document.documentElement.style.setProperty("--kbTextScale", String(state.textScale));
+
+      document.documentElement.classList.toggle("kb-soft", !!state.softContrast);
+      document.documentElement.classList.toggle("kb-reduce-motion", !!state.reduceMotion);
+
+      const b = document.getElementById("kbBrightness");
+      const bl = document.getElementById("kbBlue");
+      const t = document.getElementById("kbTextScale");
+
+      if(b) b.value = String(state.brightness);
+      if(bl) bl.value = String(state.blue);
+      if(t) t.value = String(state.textScale);
+
+      const bV = document.getElementById("kbBrightnessVal");
+      const blV = document.getElementById("kbBlueVal");
+      const tV = document.getElementById("kbTextVal");
+
+      if(bV) bV.textContent = Math.round(parseFloat(state.brightness) * 100) + "%";
+      if(blV) blV.textContent = Math.round(parseFloat(state.blue) * 100) + "%";
+      if(tV) tV.textContent = Math.round(parseFloat(state.textScale) * 100) + "%";
+
+      const softBtn = document.getElementById("kbSoftBtn");
+      const motionBtn = document.getElementById("kbMotionBtn");
+      const autoBtn = document.getElementById("kbAutoBtn");
+      const remBtn = document.getElementById("kbRemBtn");
+
+      if(softBtn){
+        softBtn.textContent = state.softContrast ? "ON" : "OFF";
+        softBtn.setAttribute("aria-pressed", state.softContrast ? "true" : "false");
+      }
+      if(motionBtn){
+        motionBtn.textContent = state.reduceMotion ? "ON" : "OFF";
+        motionBtn.setAttribute("aria-pressed", state.reduceMotion ? "true" : "false");
+      }
+      if(autoBtn){
+        autoBtn.textContent = state.autoNight ? "ON" : "OFF";
+        autoBtn.setAttribute("aria-pressed", state.autoNight ? "true" : "false");
+      }
+      if(remBtn){
+        remBtn.textContent = state.reminders ? "ON" : "OFF";
+        remBtn.setAttribute("aria-pressed", state.reminders ? "true" : "false");
+      }
+    }
+
+    function kbToggleEyePanel(){
+      const p = document.getElementById("kbEyePanel");
+      const btn = document.getElementById("kbEyeBtn");
+      if(!p || !btn) return;
+
+      const lp = document.getElementById("kbLangPanel");
+      const lb = document.getElementById("kbLangBtn");
+      if(lp && lp.style.display === "block"){
+        lp.style.display = "none";
+        if(lb) lb.setAttribute("aria-expanded","false");
+      }
+
+      const open = (p.style.display === "none" || !p.style.display);
+      p.style.display = open ? "block" : "none";
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+      if(open) speakKid("Eye care settings opened.");
+    }
+    window.kbToggleEyePanel = kbToggleEyePanel;
+
+    function kbBindEyeCare(){
+      let st = kbReadEC();
+      kbApplyEC(st);
+
+      const brightness = document.getElementById("kbBrightness");
+      const blue = document.getElementById("kbBlue");
+      const text = document.getElementById("kbTextScale");
+
+      if(brightness){
+        brightness.addEventListener("input", ()=>{
+          st = kbReadEC();
+          st.brightness = parseFloat(brightness.value);
+          kbWriteEC(st);
+          kbApplyEC(st);
+        });
+      }
+      if(blue){
+        blue.addEventListener("input", ()=>{
+          st = kbReadEC();
+          st.blue = parseFloat(blue.value);
+          kbWriteEC(st);
+          kbApplyEC(st);
+        });
+      }
+      if(text){
+        text.addEventListener("input", ()=>{
+          st = kbReadEC();
+          st.textScale = parseFloat(text.value);
+          kbWriteEC(st);
+          kbApplyEC(st);
+        });
+      }
+
+      try{
+        const mq = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)");
+        if(mq && mq.matches){
+          const cur = kbReadEC();
+          if(cur.reduceMotion === false){
+            cur.reduceMotion = true;
+            kbWriteEC(cur);
+            kbApplyEC(cur);
+          }
+        }
+      }catch(_){}
+    }
+
+    window.kbToggleSoftContrast = function(){
+      const st = kbReadEC();
+      st.softContrast = !st.softContrast;
+      kbWriteEC(st);
+      kbApplyEC(st);
+      speakKid(st.softContrast ? "Soft contrast on." : "Soft contrast off.");
+    };
+
+    window.kbToggleReduceMotion = function(){
+      const st = kbReadEC();
+      st.reduceMotion = !st.reduceMotion;
+      kbWriteEC(st);
+      kbApplyEC(st);
+      speakKid(st.reduceMotion ? "Reduce motion on." : "Reduce motion off.");
+    };
+
+    window.kbToggleAutoNight = function(){
+      const st = kbReadEC();
+      st.autoNight = !st.autoNight;
+      kbWriteEC(st);
+      kbApplyEC(st);
+      speakKid(st.autoNight ? "Auto night mode on." : "Auto night mode off.");
+    };
+
+    // ====== Eye rest reminders (20-20-20) ======
+    let kbRemTimer = null;
+
+    function kbToastShow(text){
+      const t = document.getElementById("kbToast");
+      const tx = document.getElementById("kbToastText");
+      if(tx) tx.textContent = text || "Take a short eye break.";
+      if(t) t.style.display = "block";
+      try{ speakKid("Time for an eye break. Look far away for twenty seconds."); }catch(_){}
+    }
+    function kbToastHide(){
+      const t = document.getElementById("kbToast");
+      if(t) t.style.display = "none";
+    }
+    window.kbToastHide = kbToastHide;
+
+    window.kbSnooze = function(){
+      const st = kbReadEC();
+      st.snoozeUntil = Date.now() + 5*60*1000;
+      kbWriteEC(st);
+      kbToastHide();
+    };
+
+    function kbStartReminders(){
+      if(kbRemTimer) clearInterval(kbRemTimer);
+      kbRemTimer = setInterval(()=>{
+        const st = kbReadEC();
+        if(!st.reminders) return;
+        if(st.snoozeUntil && Date.now() < st.snoozeUntil) return;
+        kbToastShow("👁️ Eye Break: Look 20 feet away for 20 seconds (20-20-20 rule).");
+      }, 20 * 60 * 1000);
+    }
+
+    window.kbToggleReminders = function(){
+      const st = kbReadEC();
+      st.reminders = !st.reminders;
+      st.snoozeUntil = 0;
+      kbWriteEC(st);
+      kbApplyEC(st);
+      if(st.reminders){
+        kbStartReminders();
+        speakKid("Eye rest reminders on.");
+      }else{
+        if(kbRemTimer) clearInterval(kbRemTimer);
+        kbToastHide();
+        speakKid("Eye rest reminders off.");
+      }
+    };
+
+    window.kbResetEyeCare = function(){
+      kbWriteEC({ ...EC.defaults });
+      const st = kbReadEC();
+      kbApplyEC(st);
+      if(kbRemTimer) clearInterval(kbRemTimer);
+      kbToastHide();
+      speakKid("Eye care reset.");
+    };
+
+    setInterval(()=>{
+      const st = kbReadEC();
+      kbApplyEC(st);
+    }, 60 * 1000);
+
+    // =========================================================
+    // ✅ 4) LANGUAGE SYSTEM
+    // =========================================================
+    function kbReadLang(){
+      return {
+        mode: localStorage.getItem("kb_siteLangMode") || "offline",
+        code: localStorage.getItem("kb_siteLangCode") || "en",
+        voice: localStorage.getItem("kb_siteVoiceLang") || "en"
+      };
+    }
+
+    function kbWriteLang(v){
+      localStorage.setItem("kb_siteLangMode", v.mode);
+      localStorage.setItem("kb_siteLangCode", v.code);
+      localStorage.setItem("kb_siteVoiceLang", v.voice);
+    }
+
+    function kbUpdateLangUI(){
+      const st = kbReadLang();
+
+      const mode = document.getElementById("kbLangMode");
+      const code = document.getElementById("kbLangCode");
+      const voice = document.getElementById("kbVoiceLang");
+
+      if(mode) mode.value = st.mode;
+      if(code) code.value = st.code;
+      if(voice) voice.value = st.voice;
+
+      document.documentElement.lang = st.voice || st.code || "en";
+    }
+
+    function kbSaveLanguage(){
+      const mode = (document.getElementById("kbLangMode")?.value || "offline").trim();
+      const code = (document.getElementById("kbLangCode")?.value || "en").trim();
+      const voice = (document.getElementById("kbVoiceLang")?.value || code || "en").trim();
+
+      kbWriteLang({ mode, code, voice });
+      kbUpdateLangUI();
+
+      speakKid("Language saved.");
+    }
+    window.kbSaveLanguage = kbSaveLanguage;
+
+    function kbResetLanguage(){
+      kbWriteLang({ mode:"offline", code:"en", voice:"en" });
+      kbUpdateLangUI();
+      speakKid("Language reset to English.");
+    }
+    window.kbResetLanguage = kbResetLanguage;
+
+    // ✅ Language panel toggle (top button)
+    function kbToggleLangPanel(){
+      const p = document.getElementById("kbLangPanel");
+      const btn = document.getElementById("kbLangBtn");
+      if(!p || !btn) return;
+
+      // close eye panel if open
+      const ep = document.getElementById("kbEyePanel");
+      const eb = document.getElementById("kbEyeBtn");
+      if(ep && ep.style.display === "block"){
+        ep.style.display = "none";
+        if(eb) eb.setAttribute("aria-expanded","false");
+      }
+
+      const open = (p.style.display === "none" || !p.style.display);
+      p.style.display = open ? "block" : "none";
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+      if(open) speakKid("Language settings opened.");
+    }
+    window.kbToggleLangPanel = kbToggleLangPanel;
+
+    // Close panels when clicking outside (simple)
+    document.addEventListener("click", (e)=>{
+      const langPanel = document.getElementById("kbLangPanel");
+      const eyePanel  = document.getElementById("kbEyePanel");
+      const langBtn   = document.getElementById("kbLangBtn");
+      const eyeBtn    = document.getElementById("kbEyeBtn");
+
+      const t = e.target;
+
+      const insideLang = langPanel && (langPanel.contains(t) || (langBtn && langBtn.contains(t)));
+      const insideEye  = eyePanel  && (eyePanel.contains(t)  || (eyeBtn  && eyeBtn.contains(t)));
+
+      if(!insideLang && langPanel && langPanel.style.display === "block"){
+        langPanel.style.display = "none";
+        if(langBtn) langBtn.setAttribute("aria-expanded","false");
+      }
+      if(!insideEye && eyePanel && eyePanel.style.display === "block"){
+        eyePanel.style.display = "none";
+        if(eyeBtn) eyeBtn.setAttribute("aria-expanded","false");
+      }
+    });
+
+    // =============================
+    // Start
+    // =============================
+    (function init(){
+      loadVoiceSetting();
+      initVoices();
+
+      // Language
+      kbUpdateLangUI();
+
+      // Eye care
+      kbBindEyeCare();
+      const st = kbReadEC();
+      if(st.reminders) kbStartReminders();
+
+      if(!localStorage.getItem("kb_greeted")){
+        localStorage.setItem("kb_greeted","1");
+        setTimeout(() => speakKid("Welcome to Kido and Babo Hub."), 700);
+      }
+    })();
+  </script>
+
+  <!-- ✅ Firebase (modular) for global stats -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, doc, getDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    // 🔥 IMPORTANT: Paste your Firebase web app config here (from Firebase Console)
+    const firebaseConfig = {
+      // apiKey: "xxxx",
+      // authDomain: "xxxx.firebaseapp.com",
+      // projectId: "xxxx",
+      // storageBucket: "xxxx.appspot.com",
+      // messagingSenderId: "xxxx",
+      // appId: "xxxx"
+    };
+
+    function hasRealConfig(cfg){
+      return cfg && typeof cfg === "object" && Object.keys(cfg).length >= 4;
+    }
+
+    async function loadGlobalStats(){
+      if(!hasRealConfig(firebaseConfig)){
+        return;
+      }
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+      const ref = doc(db, "stats", "global");
+
+      // visitors++ (global)
+      // downloads++ (global)
+      await runTransaction(db, async (tx) => {
+        const snap = await tx.get(ref);
+        if(!snap.exists()){
+          tx.set(ref, { visitors: 1, downloads: 1, reviewsCount: 0, ratingAvg: 0 });
+          return;
+        }
+        const cur = snap.data() || {};
+        tx.update(ref, {
+          visitors: (cur.visitors || 0) + 1,
+          downloads: (cur.downloads || 0) + 1
+        });
+      });
+
+      // read latest stats
+      const snap2 = await getDoc(ref);
+      const data = snap2.exists() ? (snap2.data() || {}) : {};
+
+      const visitors = data.visitors || 0;
+      const downloads = data.downloads || 0;
+      const reviewsCount = data.reviewsCount || 0;
+      const ratingAvg = data.ratingAvg || 0;
+
+      const v = document.getElementById("kbVisitors");
+      const d = document.getElementById("kbDownloads");
+      const r = document.getElementById("kbReviews");
+      const ra = document.getElementById("kbRating");
+
+      if(v) v.textContent = "👥 " + (new Intl.NumberFormat().format(visitors));
+      if(d) d.textContent = "⬇️ " + (new Intl.NumberFormat().format(downloads));
+      if(r) r.textContent = "📝 " + (new Intl.NumberFormat().format(reviewsCount));
+      if(ra) ra.textContent = "⭐ " + (ratingAvg ? Number(ratingAvg).toFixed(1) : "0.0");
+    }
+
+    loadGlobalStats().catch(()=>{});
+  </script>
+
+  <!-- Keep your site translator / language system -->
+  <script src="/lang.js" defer></script>
+</body>
+</html>

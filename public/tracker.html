@@ -1,0 +1,1215 @@
+<!-- public/tracker.html ✅ HOME-STYLE LAYOUT + CLEAR MESSAGE + VOICE + ACCESSIBLE + EYE-CARE -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Tracker • Kido &amp; Babo Hub</title>
+
+  <meta name="theme-color" content="#16a34a" />
+  <link rel="icon" href="/logo.jpg" />
+
+  <style>
+    :root{
+      --bg:#0b1020;
+
+      /* ✅ Dim bright white to softer grey */
+      --text: rgba(234,240,255,.86);
+      --muted:#b7c3ff;
+
+      --line:rgba(255,255,255,.12);
+      --shadow:0 18px 60px rgba(0,0,0,.45);
+      --radius:18px;
+      --accent: linear-gradient(90deg,#006600,#bb0000,#000000);
+
+      /* ✅ Eye-care controls (same system as homepage) */
+      --kbBrightness: 1;     /* 0.65 - 1 */
+      --kbTextScale: 1;      /* 0.9 - 1.25 */
+      --kbSoftContrast: 0;   /* 0/1 */
+      --kbBlue: 0;           /* 0 - 0.6 */
+      --kbBlueHue: 35;
+      --kbBlueSat: 100%;
+      --kbBlueLum: 55%;
+    }
+
+    *{ box-sizing:border-box; }
+
+    html{
+      font-size: calc(16px * var(--kbTextScale));
+    }
+
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+
+      /* ✅ Eye-care dim */
+      filter: brightness(var(--kbBrightness));
+
+      background: radial-gradient(1100px 560px at 10% 10%, #23316e 0%, transparent 50%),
+                  radial-gradient(900px 520px at 90% 10%, #7a1b1b 0%, transparent 55%),
+                  radial-gradient(800px 520px at 50% 100%, #0e5b2f 0%, transparent 55%),
+                  var(--bg);
+
+      color:var(--text);
+      min-height:100vh;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    /* ✅ Blue light overlay layer */
+    #kbBlueOverlay{
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 999999;
+      background: hsl(var(--kbBlueHue) var(--kbBlueSat) var(--kbBlueLum));
+      opacity: var(--kbBlue);
+      mix-blend-mode: multiply;
+    }
+
+    /* ✅ Soft contrast mode */
+    .kb-soft .card,
+    .kb-soft header,
+    .kb-soft main{
+      border-color: rgba(255,255,255,.08) !important;
+    }
+    .kb-soft .nav button{
+      background: rgba(255,255,255,.06) !important;
+      border-color: rgba(255,255,255,.10) !important;
+    }
+    .kb-soft .nav button:hover{
+      background: rgba(255,255,255,.09) !important;
+      border-color: rgba(255,255,255,.14) !important;
+    }
+    .kb-soft p{ color: rgba(234,240,255,.78); }
+
+    /* ✅ Reduce motion mode */
+    .kb-reduce-motion *{
+      animation: none !important;
+      transition: none !important;
+      scroll-behavior: auto !important;
+    }
+
+    .wrap{ max-width: 980px; margin: 0 auto; padding: 18px 14px 60px; }
+
+    header{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding: 14px 14px 10px;
+      border:1px solid var(--line);
+      background: rgba(15, 23, 51, .55);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .brandRow{ display:flex; align-items:center; gap:12px; }
+    .logo{
+      width:44px; height:44px; border-radius: 14px;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.08);
+      object-fit: cover;
+      box-shadow: 0 8px 22px rgba(0,0,0,.25);
+      flex: 0 0 auto;
+    }
+
+    .brand{ display:flex; flex-direction:column; gap:4px; padding: 2px 6px; }
+    .brand .title{ font-weight: 900; font-size: 18px; letter-spacing: .2px; line-height: 1.1; }
+    .brand .sub{
+      font-size: 12px; color: var(--muted); font-weight: 700; line-height: 1.35;
+    }
+
+    .nav{ display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; align-items:center; }
+    .nav button{
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-weight: 900;
+      cursor:pointer;
+      transition: transform .05s ease, background .15s ease, border-color .15s ease;
+      white-space:nowrap;
+      font-size: 13px;
+    }
+    .nav button:hover{ background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.24); }
+    .nav button:active{ transform: translateY(1px); }
+
+    .nav button.primary{
+      background: var(--accent);
+      border-color: rgba(255,255,255,.30);
+      box-shadow: 0 10px 25px rgba(0,0,0,.25);
+      position: relative;
+      overflow: hidden;
+    }
+    .nav button.primary.is-open::before{
+      content:"";
+      position:absolute;
+      inset:-40%;
+      background: conic-gradient(from 0deg, rgba(255,255,255,.0), rgba(255,255,255,.35), rgba(255,255,255,.0));
+      animation: spinGlow 1.4s linear infinite;
+      filter: blur(1px);
+    }
+    .nav button.primary.is-open span{ position: relative; z-index: 1; }
+    @keyframes spinGlow { to { transform: rotate(360deg); } }
+
+    .langPill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 10px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.07);
+      font-weight:950;font-size:12px;color: rgba(234,240,255,.82); /* ✅ dimmer */
+      white-space:nowrap;
+    }
+
+    main{
+      margin-top: 14px;
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(15, 23, 51, .55);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:hidden;
+    }
+    .page{ padding: 18px 16px; }
+
+    .card{
+      background: rgba(12, 19, 48, .72);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+
+    h1 { font-size: 18px; margin: 0 0 8px; font-weight: 1000; }
+    .row { display:flex; gap:10px; flex-wrap: wrap; align-items:center; }
+
+    /* ✅ dimmer */
+    .muted { color: rgba(183,195,255,.90); font-size: 12.5px; line-height:1.45; font-weight:800; }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.12);
+      font-size: 13px;
+      font-weight: 950;
+      color: rgba(234,240,255,.82); /* ✅ dimmer */
+      white-space:nowrap;
+    }
+
+    button{
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 14px;
+      padding: 12px 14px;
+      background: rgba(255,255,255,.10);
+      color: var(--text);
+      font-weight: 1000;
+      cursor:pointer;
+      min-width: 160px;
+      transition: transform .05s ease, background .15s ease, border-color .15s ease;
+    }
+    button:hover{ background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.24); }
+    button:active{ transform: translateY(1px); }
+    button:disabled { opacity:.55; cursor:not-allowed; }
+
+    .btn2 { background: rgba(77,212,255,.20); border-color: rgba(77,212,255,.35); }
+    .btn3 { background: rgba(255,77,109,.22); border-color: rgba(255,77,109,.45); }
+    .btn4 { background: rgba(124,255,107,.20); border-color: rgba(124,255,107,.35); }
+    .btn5 { background: rgba(255,204,0,.18); border-color: rgba(255,204,0,.35); color: rgba(234,240,255,.86); min-width: 170px; } /* ✅ dimmer */
+
+    /* ✅ dimmer box */
+    .box{
+      background: rgba(255,255,255,.06);
+      border:1px dashed rgba(183,195,255,.55);
+      border-radius: 12px;
+      padding: 10px;
+      font-size: 13px;
+      overflow:auto;
+      white-space:pre-wrap;
+      color: rgba(234,240,255,.82);
+    }
+
+    /* ✅ dimmer */
+    .small { font-size: 13px; line-height: 1.45; font-weight:850; color: rgba(234,240,255,.82); }
+    .sep { height: 10px; }
+
+    .notice{
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,204,0,.35);
+      background: rgba(255,204,0,.12);
+      color: rgba(255,236,200,.92);
+      font-weight:1000;
+      line-height:1.45;
+      white-space:pre-wrap;
+    }
+
+    .ok { background: rgba(124,255,107,.20) !important; border-color: rgba(124,255,107,.35) !important; }
+    .bad { background: rgba(255,77,109,.22) !important; border-color: rgba(255,77,109,.45) !important; }
+    .mid { background: rgba(255,255,255,.07) !important; border-color: rgba(255,255,255,.12) !important; }
+
+    .sr-only{
+      position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden;
+      clip:rect(0,0,0,0); white-space:nowrap; border:0;
+    }
+
+    select{
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.18);
+      font-weight:900;
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      min-width: 210px;
+      outline:none;
+    }
+
+    .footer{
+      margin-top: 14px;
+      padding: 14px 16px;
+      border-top: 1px solid rgba(255,255,255,.12);
+      color: rgba(234,240,255,.78); /* ✅ dimmer */
+      font-weight: 800;
+      font-size: 12px;
+      text-align:center;
+      background: rgba(0,0,0,.12);
+    }
+
+    button:focus, select:focus{
+      outline: 3px solid rgba(183,195,255,.85);
+      outline-offset: 2px;
+    }
+
+    @media (max-width:860px){
+      header{ flex-direction:column; align-items:stretch; }
+      .nav{ justify-content:flex-start; }
+      .brandRow{ justify-content:flex-start; }
+      select{ min-width: 100%; }
+      button{ min-width: 140px; }
+    }
+
+    /* ✅ Eye-care panel UI (same as homepage) */
+    .kb-panel{
+      margin-top: 12px;
+      border-radius: 16px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      padding: 12px;
+    }
+    .kb-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      margin-top: 10px;
+    }
+    .kb-row label{
+      font-weight: 900;
+      font-size: 13px;
+      color: rgba(234,240,255,.84);
+    }
+    .kb-inline{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
+      min-width: 280px;
+    }
+    .kb-pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.07);
+      font-weight: 900;
+      font-size: 12px;
+      color: rgba(234,240,255,.84);
+      white-space: nowrap;
+    }
+    .kb-toggle{
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      color: rgba(234,240,255,.86);
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-weight: 950;
+      cursor:pointer;
+      min-width: unset; /* keep nav tidy */
+    }
+    .kb-toggle:hover{ background: rgba(255,255,255,.12); }
+
+    input[type="range"]{
+      width: 240px;
+      accent-color: #b7c3ff;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ✅ Blue-light overlay layer -->
+  <div id="kbBlueOverlay" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <!-- Home-like header -->
+    <header>
+      <div class="brandRow">
+        <img class="logo" src="/logo.jpg" alt="Kido & Babo Hub logo" />
+        <div class="brand">
+          <div class="title">Kido &amp; Babo Hub</div>
+          <div class="sub">Tracker • Keep this page open on the child phone</div>
+        </div>
+      </div>
+
+      <div class="nav" aria-label="Top navigation">
+        <button onclick="goPage('index.html')">🏠 Home</button>
+        <button onclick="goPage('studentsdashboard.html')">📊 Students Dashboard</button>
+        <button onclick="goPage('help.html')">🆘 Help</button>
+        <button onclick="goPage('translator.html')">🌍 Translator</button>
+
+        <button class="primary" id="trackerToolsBtn" onclick="toggleTools()" aria-controls="toolsPanel" aria-expanded="false">
+          <span>🧰 Tracker Tools</span>
+        </button>
+
+        <span class="langPill" id="langPill">🌐 Language: EN</span>
+
+        <!-- ✅ Global Eye-care button -->
+        <button class="kb-toggle" id="kbEyeBtn" onclick="kbToggleEyePanel()" aria-expanded="false">👁️ Eye-Care</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="page">
+
+        <!-- ✅ Global Eye-care panel (same behavior as homepage) -->
+        <div class="kb-panel" id="kbEyePanel" style="display:none;margin-bottom:12px;" aria-label="Eye-care settings panel">
+          <div class="kb-row" style="margin-top:0;">
+            <div>
+              <div style="font-weight:1000;">👁️ Eye-Care Settings</div>
+              <div class="muted">Protect your eyes on all devices. Settings are saved automatically.</div>
+            </div>
+            <span class="kb-pill" id="kbAutoPill">Auto Night: ON</span>
+          </div>
+
+          <div class="kb-row">
+            <label for="kbBrightness">🔆 Brightness (dim)</label>
+            <div class="kb-inline">
+              <input id="kbBrightness" type="range" min="0.65" max="1" step="0.01" />
+              <span class="kb-pill" id="kbBrightnessVal">100%</span>
+            </div>
+          </div>
+
+          <div class="kb-row">
+            <label for="kbBlue">🟧 Blue-light filter (warm)</label>
+            <div class="kb-inline">
+              <input id="kbBlue" type="range" min="0" max="0.6" step="0.01" />
+              <span class="kb-pill" id="kbBlueVal">0%</span>
+            </div>
+          </div>
+
+          <div class="kb-row">
+            <label for="kbTextScale">🔎 Text size</label>
+            <div class="kb-inline">
+              <input id="kbTextScale" type="range" min="0.9" max="1.25" step="0.01" />
+              <span class="kb-pill" id="kbTextVal">100%</span>
+            </div>
+          </div>
+
+          <div class="kb-row">
+            <label>🫧 Soft contrast (reduce harsh white)</label>
+            <div class="kb-inline">
+              <button class="kb-toggle" onclick="kbToggleSoftContrast()" id="kbSoftBtn" aria-pressed="false">OFF</button>
+              <span class="muted">Recommended for long use</span>
+            </div>
+          </div>
+
+          <div class="kb-row">
+            <label>🌀 Reduce motion</label>
+            <div class="kb-inline">
+              <button class="kb-toggle" onclick="kbToggleReduceMotion()" id="kbMotionBtn" aria-pressed="false">OFF</button>
+              <span class="muted">Stops animations</span>
+            </div>
+          </div>
+
+          <div class="kb-row">
+            <label>🌙 Auto Night Mode (6pm–6am)</label>
+            <div class="kb-inline">
+              <button class="kb-toggle" onclick="kbToggleAutoNight()" id="kbAutoBtn" aria-pressed="true">ON</button>
+              <span class="muted">Auto protects eyes at night</span>
+            </div>
+          </div>
+
+          <div class="kb-row">
+            <button class="kb-toggle" onclick="kbResetEyeCare()">♻ Reset Eye-Care</button>
+            <span class="muted">Back to safe defaults</span>
+          </div>
+        </div>
+
+        <!-- Tools panel -->
+        <div id="toolsPanel" class="card" style="display:none;margin-bottom:12px;">
+          <div class="row" style="justify-content:space-between;">
+            <div style="font-weight:1000;font-size:16px;">🧰 Tracker Tools</div>
+            <div class="muted">Voice + status</div>
+          </div>
+
+          <div class="row" style="margin-top:10px;" aria-label="Voice controls">
+            <button id="btnVoice2" class="btn4" aria-label="Toggle voice">🔈 Voice ON/OFF</button>
+            <select id="voiceLangSel2" aria-label="Voice language">
+              <option value="">Auto (device language)</option>
+              <option value="en-US">English</option>
+              <option value="sw-KE">Kiswahili</option>
+              <option value="fr-FR">Français</option>
+              <option value="ar">العربية</option>
+              <option value="es-ES">Español</option>
+            </select>
+            <button id="btnSpeak2" class="btn5" aria-label="Speak status">🗣 Speak status</button>
+          </div>
+
+          <div class="row" style="margin-top:10px;" aria-label="Tracker controls">
+            <button id="btnStart2" class="btn2" disabled aria-label="Start tracking">▶ Start Tracking</button>
+            <button id="btnStop2" class="btn3" disabled aria-label="Stop tracking">⏹ Stop</button>
+            <button id="btnTest2" disabled aria-label="Send test ping">📡 Send Test Ping</button>
+          </div>
+
+          <div class="muted" style="margin-top:10px;">
+            Tip: If it says “not connected”, you must open the special tracker link created in Students Dashboard.
+          </div>
+        </div>
+
+        <div class="card" role="main" aria-label="Kido and Babo GPS Tracker">
+          <h1>📍 Kido &amp; Babo GPS Tracker</h1>
+
+          <div class="row" aria-live="polite">
+            <span class="pill mid" id="statusPill">Starting…</span>
+            <span class="pill">Ping every <b id="pingEvery">10</b>s</span>
+            <span class="pill" id="voicePill">🔈 Voice: ON</span>
+            <span class="pill" id="netPill">🌐 Network: OK</span>
+          </div>
+
+          <div class="sep"></div>
+
+          <div class="small" aria-label="Session info">
+            <div><b>Session:</b> <span id="sidTxt">-</span></div>
+            <div><b>Connection:</b> <span id="tokTxt">-</span></div>
+            <div class="muted">
+              Keep this page open on the child phone. When asked, tap <b>Allow Location</b>.
+              For best results: keep mobile data on and do not close the page.
+            </div>
+          </div>
+
+          <div class="sep"></div>
+
+          <div id="helpBox" class="notice" style="display:none;" role="note"></div>
+
+          <div class="sep"></div>
+
+          <!-- Main controls -->
+          <div class="row" aria-label="Voice controls">
+            <button id="btnVoice" class="btn4" aria-label="Toggle voice">🔈 Voice ON/OFF</button>
+            <select id="voiceLangSel" aria-label="Voice language">
+              <option value="">Auto (device language)</option>
+              <option value="en-US">English</option>
+              <option value="sw-KE">Kiswahili</option>
+              <option value="fr-FR">Français</option>
+              <option value="ar">العربية</option>
+              <option value="es-ES">Español</option>
+            </select>
+            <button id="btnSpeak" class="btn5" aria-label="Speak status">🗣 Speak status</button>
+          </div>
+
+          <div class="sep"></div>
+
+          <div class="row" aria-label="Tracker controls">
+            <button id="btnStart" class="btn2" disabled aria-label="Start tracking">▶ Start Tracking</button>
+            <button id="btnStop" class="btn3" disabled aria-label="Stop tracking">⏹ Stop</button>
+            <button id="btnTest" disabled aria-label="Send test ping">📡 Send Test Ping</button>
+          </div>
+
+          <div class="sep"></div>
+
+          <div class="box" id="logBox" aria-label="Tracking log">Log will appear here…</div>
+
+          <div class="sr-only" aria-live="polite" id="srLive"></div>
+        </div>
+
+        <div class="footer">
+          kidobabohub.web.app • Est. 2026 • © Copyright
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    function goPage(file){ window.location.href = file; }
+
+    function toggleTools(force){
+      const p = document.getElementById("toolsPanel");
+      const b = document.getElementById("trackerToolsBtn");
+      if(!p || !b) return;
+
+      const isOpen = p.style.display !== "none" && p.style.display !== "";
+      const opening = (typeof force === "boolean") ? force : !isOpen;
+
+      p.style.display = opening ? "block" : "none";
+      b.classList.toggle("is-open", opening);
+      b.setAttribute("aria-expanded", opening ? "true" : "false");
+
+      syncSecondaryControls();
+    }
+
+    // ✅ Eye-care panel toggle (global)
+    function kbToggleEyePanel(){
+      const p = document.getElementById("kbEyePanel");
+      const btn = document.getElementById("kbEyeBtn");
+      if(!p || !btn) return;
+      const open = (p.style.display === "none" || !p.style.display);
+      p.style.display = open ? "block" : "none";
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+    window.kbToggleEyePanel = kbToggleEyePanel;
+
+    // Show language selected on home page (site-wide)
+    (function(){
+      const mode = localStorage.getItem("kb_siteLangMode") || "offline";
+      const code = localStorage.getItem("kb_siteLangCode") || "en";
+      const pill = document.getElementById("langPill");
+      if(pill){
+        pill.textContent = `🌐 Language: ${String(code).toUpperCase()} • ${mode}`;
+      }
+      const voice = localStorage.getItem("kb_siteVoiceLang") || "en";
+      document.documentElement.lang = voice;
+    })();
+  </script>
+
+  <script>
+    // =========================
+    // ✅ GLOBAL EYE-CARE SYSTEM (same behavior as homepage)
+    // =========================
+    const EC = {
+      LS: "kb_eyeCare_v1",
+      defaults: {
+        brightness: 0.90,
+        blue: 0.12,
+        textScale: 1.00,
+        softContrast: true,
+        reduceMotion: false,
+        autoNight: true
+      }
+    };
+
+    function kbReadEC(){
+      try{
+        const raw = localStorage.getItem(EC.LS);
+        const obj = raw ? JSON.parse(raw) : {};
+        return { ...EC.defaults, ...(obj||{}) };
+      }catch(_){
+        return { ...EC.defaults };
+      }
+    }
+    function kbWriteEC(v){
+      localStorage.setItem(EC.LS, JSON.stringify(v||{}));
+    }
+
+    function kbApplyEC(state){
+      if(state.autoNight){
+        const h = new Date().getHours();
+        const isNight = (h >= 18 || h < 6);
+        const nightBrightness = Math.min(state.brightness, 0.85);
+        const nightBlue = Math.max(state.blue, 0.18);
+
+        document.documentElement.style.setProperty("--kbBrightness", String(isNight ? nightBrightness : state.brightness));
+        document.documentElement.style.setProperty("--kbBlue", String(isNight ? nightBlue : state.blue));
+        const ap = document.getElementById("kbAutoPill");
+        if(ap) ap.textContent = "Auto Night: ON";
+      } else {
+        document.documentElement.style.setProperty("--kbBrightness", String(state.brightness));
+        document.documentElement.style.setProperty("--kbBlue", String(state.blue));
+        const ap = document.getElementById("kbAutoPill");
+        if(ap) ap.textContent = "Auto Night: OFF";
+      }
+
+      document.documentElement.style.setProperty("--kbTextScale", String(state.textScale));
+
+      document.documentElement.classList.toggle("kb-soft", !!state.softContrast);
+      document.documentElement.classList.toggle("kb-reduce-motion", !!state.reduceMotion);
+
+      const b = document.getElementById("kbBrightness");
+      const bl = document.getElementById("kbBlue");
+      const t = document.getElementById("kbTextScale");
+
+      if(b) b.value = String(state.brightness);
+      if(bl) bl.value = String(state.blue);
+      if(t) t.value = String(state.textScale);
+
+      const bV = document.getElementById("kbBrightnessVal");
+      const blV = document.getElementById("kbBlueVal");
+      const tV = document.getElementById("kbTextVal");
+
+      if(bV) bV.textContent = Math.round(parseFloat(state.brightness) * 100) + "%";
+      if(blV) blV.textContent = Math.round(parseFloat(state.blue) * 100) + "%";
+      if(tV) tV.textContent = Math.round(parseFloat(state.textScale) * 100) + "%";
+
+      const softBtn = document.getElementById("kbSoftBtn");
+      const motionBtn = document.getElementById("kbMotionBtn");
+      const autoBtn = document.getElementById("kbAutoBtn");
+
+      if(softBtn){
+        softBtn.textContent = state.softContrast ? "ON" : "OFF";
+        softBtn.setAttribute("aria-pressed", state.softContrast ? "true" : "false");
+      }
+      if(motionBtn){
+        motionBtn.textContent = state.reduceMotion ? "ON" : "OFF";
+        motionBtn.setAttribute("aria-pressed", state.reduceMotion ? "true" : "false");
+      }
+      if(autoBtn){
+        autoBtn.textContent = state.autoNight ? "ON" : "OFF";
+        autoBtn.setAttribute("aria-pressed", state.autoNight ? "true" : "false");
+      }
+    }
+
+    function kbBindEyeCare(){
+      let st = kbReadEC();
+      kbApplyEC(st);
+
+      const brightness = document.getElementById("kbBrightness");
+      const blue = document.getElementById("kbBlue");
+      const text = document.getElementById("kbTextScale");
+
+      if(brightness){
+        brightness.addEventListener("input", ()=>{
+          st = kbReadEC();
+          st.brightness = parseFloat(brightness.value);
+          kbWriteEC(st);
+          kbApplyEC(st);
+        });
+      }
+      if(blue){
+        blue.addEventListener("input", ()=>{
+          st = kbReadEC();
+          st.blue = parseFloat(blue.value);
+          kbWriteEC(st);
+          kbApplyEC(st);
+        });
+      }
+      if(text){
+        text.addEventListener("input", ()=>{
+          st = kbReadEC();
+          st.textScale = parseFloat(text.value);
+          kbWriteEC(st);
+          kbApplyEC(st);
+        });
+      }
+    }
+
+    window.kbToggleSoftContrast = function(){
+      const st = kbReadEC();
+      st.softContrast = !st.softContrast;
+      kbWriteEC(st);
+      kbApplyEC(st);
+    };
+
+    window.kbToggleReduceMotion = function(){
+      const st = kbReadEC();
+      st.reduceMotion = !st.reduceMotion;
+      kbWriteEC(st);
+      kbApplyEC(st);
+    };
+
+    window.kbToggleAutoNight = function(){
+      const st = kbReadEC();
+      st.autoNight = !st.autoNight;
+      kbWriteEC(st);
+      kbApplyEC(st);
+    };
+
+    window.kbResetEyeCare = function(){
+      kbWriteEC({ ...EC.defaults });
+      kbApplyEC(kbReadEC());
+    };
+
+    // keep auto-night correct
+    setInterval(()=> kbApplyEC(kbReadEC()), 60 * 1000);
+
+    // init eye-care
+    kbBindEyeCare();
+  </script>
+
+  <script>
+    // =========================
+    // CONFIG
+    // =========================
+    const PING_SECONDS   = 10;
+    const MAX_WAIT_MS    = 15000;
+    const HIGH_ACCURACY  = true;
+
+    // ✅ Most reliable for Firebase v2 HTTPS function name "trackPing"
+    const TRACK_PING_URL = "https://europe-west1-kidobabohub.cloudfunctions.net/trackPing";
+
+    // =========================
+    // Storage keys
+    // =========================
+    const LS_VOICE = "kido_tracker_voice_enabled";
+    const LS_VLANG = "kido_tracker_voice_lang";
+
+    // =========================
+    // UI helpers
+    // =========================
+    const $ = (id)=>document.getElementById(id);
+
+    function log(msg){
+      const t = new Date().toLocaleTimeString();
+      $("logBox").textContent = `[${t}] ${msg}\n` + $("logBox").textContent;
+    }
+    function srSay(msg){
+      $("srLive").textContent = msg;
+    }
+    function setStatus(text, ok=null){
+      const pill = $("statusPill");
+      pill.textContent = text;
+      pill.classList.remove("ok","bad","mid");
+      pill.classList.add(ok===true ? "ok" : ok===false ? "bad" : "mid");
+      srSay(text);
+    }
+    function setNet(ok){
+      const p = $("netPill");
+      if(ok){
+        p.textContent = "🌐 Network: OK";
+        p.classList.remove("bad");
+        p.classList.add("ok");
+      } else {
+        p.textContent = "📴 Network: Offline";
+        p.classList.remove("ok");
+        p.classList.add("bad");
+      }
+    }
+    function showHelp(text){
+      const box = $("helpBox");
+      box.style.display = "block";
+      box.textContent = text;
+    }
+    function hideHelp(){
+      $("helpBox").style.display = "none";
+      $("helpBox").textContent = "";
+    }
+
+    // =========================
+    // VOICE (Text-to-Speech)
+    // =========================
+    let voiceEnabled = true;
+
+    // Main + secondary controls (Tools panel)
+    const btnVoice = $("btnVoice");
+    const btnSpeak = $("btnSpeak");
+    const voiceLangSel = $("voiceLangSel");
+
+    const btnVoice2 = $("btnVoice2");
+    const btnSpeak2 = $("btnSpeak2");
+    const voiceLangSel2 = $("voiceLangSel2");
+
+    const btnStart = $("btnStart");
+    const btnStop  = $("btnStop");
+    const btnTest  = $("btnTest");
+
+    const btnStart2 = $("btnStart2");
+    const btnStop2  = $("btnStop2");
+    const btnTest2  = $("btnTest2");
+
+    function hasTTS(){
+      return typeof window.speechSynthesis !== "undefined" && typeof SpeechSynthesisUtterance !== "undefined";
+    }
+
+    function getVoiceLang(){
+      return (voiceLangSel.value || voiceLangSel2.value || "").trim();
+    }
+
+    function speak(text){
+      if(!voiceEnabled) return;
+      if(!hasTTS()) return;
+
+      try{
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+
+        const forced = getVoiceLang();
+        if(forced) u.lang = forced;
+        else u.lang = document.documentElement.lang || navigator.language || "en-US";
+
+        u.rate = 1;
+        u.pitch = 1;
+        window.speechSynthesis.speak(u);
+      }catch(_){}
+    }
+
+    function setVoicePill(){
+      $("voicePill").textContent = voiceEnabled ? "🔈 Voice: ON" : "🔇 Voice: OFF";
+    }
+
+    function loadVoicePrefs(){
+      const ve = localStorage.getItem(LS_VOICE);
+      if(ve === "0") voiceEnabled = false;
+      if(ve === "1") voiceEnabled = true;
+
+      // Default voice language from site-wide preference if user never set tracker language
+      const saved = localStorage.getItem(LS_VLANG);
+      let vl = (saved === null) ? "" : (saved || "");
+      if(!vl){
+        const site = localStorage.getItem("kb_siteVoiceLang") || "";
+        const map = { "en":"en-US", "sw":"sw-KE", "fr":"fr-FR", "ar":"ar", "es":"es-ES" };
+        vl = map[site] || "";
+      }
+
+      voiceLangSel.value = vl;
+      voiceLangSel2.value = vl;
+
+      setVoicePill();
+    }
+
+    function syncSecondaryControls(){
+      // sync voice & lang
+      const label = voiceEnabled ? "🔈 Voice ON/OFF" : "🔇 Voice ON/OFF";
+      btnVoice.textContent = label;
+      btnVoice2.textContent = label;
+
+      const v = voiceLangSel.value;
+      if(voiceLangSel2.value !== v) voiceLangSel2.value = v;
+
+      // sync tracking buttons state
+      btnStart2.disabled = btnStart.disabled;
+      btnStop2.disabled  = btnStop.disabled;
+      btnTest2.disabled  = btnTest.disabled;
+    }
+
+    function toggleVoice(){
+      voiceEnabled = !voiceEnabled;
+      localStorage.setItem(LS_VOICE, voiceEnabled ? "1" : "0");
+      setVoicePill();
+      syncSecondaryControls();
+      log(voiceEnabled ? "Voice enabled." : "Voice disabled.");
+      if(voiceEnabled) speak("Voice enabled.");
+    }
+
+    btnVoice.onclick = toggleVoice;
+    btnVoice2.onclick = toggleVoice;
+
+    voiceLangSel.onchange = ()=>{
+      localStorage.setItem(LS_VLANG, getVoiceLang());
+      voiceLangSel2.value = voiceLangSel.value;
+      log(getVoiceLang() ? `Voice language set: ${getVoiceLang()}` : "Voice language set: Auto");
+      if(voiceEnabled) speak("Voice language updated.");
+    };
+    voiceLangSel2.onchange = ()=>{
+      voiceLangSel.value = voiceLangSel2.value;
+      localStorage.setItem(LS_VLANG, getVoiceLang());
+      log(getVoiceLang() ? `Voice language set: ${getVoiceLang()}` : "Voice language set: Auto");
+      if(voiceEnabled) speak("Voice language updated.");
+    };
+
+    btnSpeak.onclick = ()=>{ speak($("statusPill").textContent || "Tracker status"); };
+    btnSpeak2.onclick = ()=>{ speak($("statusPill").textContent || "Tracker status"); };
+
+    // =========================
+    // Session token from hash
+    // tracker.html#sid=SID_xxx&tok=yyyy
+    // =========================
+    function parseHash(){
+      const h = (location.hash || "").replace(/^#/, "");
+      const params = new URLSearchParams(h);
+      return {
+        sid: (params.get("sid") || "").trim(),
+        tok: (params.get("tok") || "").trim()
+      };
+    }
+
+    const { sid, tok } = parseHash();
+    $("sidTxt").textContent = sid ? sid : "(not connected)";
+    $("tokTxt").textContent = tok ? "✅ connected" : "(not connected)";
+    $("pingEvery").textContent = String(PING_SECONDS);
+
+    loadVoicePrefs();
+    setNet(navigator.onLine);
+
+    window.addEventListener("online",  ()=> setNet(true));
+    window.addEventListener("offline", ()=> setNet(false));
+
+    // =========================
+    // Wake Lock (keep screen awake)
+    // =========================
+    let wakeLock = null;
+    async function requestWakeLock(){
+      try{
+        if(!("wakeLock" in navigator)) return;
+        wakeLock = await navigator.wakeLock.request("screen");
+        log("Screen stay-awake enabled.");
+      }catch(_){}
+    }
+    async function releaseWakeLock(){
+      try{
+        if(wakeLock){
+          await wakeLock.release();
+          wakeLock = null;
+          log("Screen stay-awake disabled.");
+        }
+      }catch(_){}
+    }
+
+    // =========================
+    // Missing session guide (UPDATED wording)
+    // =========================
+    const MISSING_STATUS =
+"Tracker not connected yet — please use the tracker link you created in Students Dashboard to connect.";
+
+    const MISSING_HELP =
+`Tracker not connected yet.
+
+To connect it:
+1) Open Students Dashboard (Admin/Teacher)
+2) Go to GPS Tracking Link
+3) Select the student
+4) Tap Create trackerUrl
+5) Send that tracker link to the child phone (WhatsApp/SMS)
+6) Open the link on the child phone and allow Location
+
+✅ When the child opens the correct link, this Tracker connects automatically.`;
+
+    if(!sid || !tok){
+      setStatus(MISSING_STATUS, false);
+      showHelp(MISSING_HELP);
+      log("Not connected (sid/tok missing).");
+      log(MISSING_HELP);
+      speak("Tracker not connected yet. Please open the tracker link created in Students Dashboard to connect.");
+
+      btnStart.disabled = true;
+      btnStop.disabled = true;
+      btnTest.disabled = true;
+      syncSecondaryControls();
+    } else {
+      hideHelp();
+      setStatus("Ready — please allow location permission", null);
+
+      btnStart.disabled = true; // enables after permission test
+      btnStop.disabled = true;
+      btnTest.disabled = false;
+
+      log("Connected ✅");
+      log("Auto-start will begin shortly. Please allow Location permission.");
+      speak("Tracker connected. Please allow location permission. Tracking will start automatically.");
+      syncSecondaryControls();
+    }
+
+    // =========================
+    // Tracking logic
+    // =========================
+    let timer = null;
+    let watching = false;
+    let inFlight = false;
+    let failStreak = 0;
+
+    function getPosition(){
+      return new Promise((resolve, reject)=>{
+        if(!navigator.geolocation){
+          reject(new Error("Geolocation not supported on this device."));
+          return;
+        }
+
+        let done = false;
+        const to = setTimeout(()=>{
+          if(done) return;
+          done = true;
+          reject(new Error("Location timeout. Try again in an open area."));
+        }, MAX_WAIT_MS);
+
+        navigator.geolocation.getCurrentPosition(
+          (pos)=>{
+            if(done) return;
+            done = true;
+            clearTimeout(to);
+            resolve(pos);
+          },
+          (err)=>{
+            if(done) return;
+            done = true;
+            clearTimeout(to);
+            reject(err);
+          },
+          {
+            enableHighAccuracy: HIGH_ACCURACY,
+            timeout: MAX_WAIT_MS,
+            maximumAge: 0
+          }
+        );
+      });
+    }
+
+    function stopLoopSilent(){
+      watching = false;
+      btnStart.disabled = false;
+      btnStop.disabled = true;
+      if(timer){ clearInterval(timer); timer = null; }
+      releaseWakeLock();
+      syncSecondaryControls();
+    }
+
+    async function sendPingOnce(){
+      if(!sid || !tok){
+        setStatus("Not connected", false);
+        syncSecondaryControls();
+        return;
+      }
+
+      if(!navigator.onLine){
+        setStatus("Offline — waiting for network", false);
+        log("Offline. Waiting for network...");
+        syncSecondaryControls();
+        return;
+      }
+
+      if(inFlight){
+        log("Skipping ping (previous ping still running)...");
+        return;
+      }
+
+      inFlight = true;
+      try{
+        setStatus("Getting GPS…", null);
+        const pos = await getPosition();
+
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        const acc = pos.coords.accuracy || 0;
+
+        setStatus("Sending ping…", null);
+
+        const resp = await fetch(TRACK_PING_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sid, tok, lat, lng, acc })
+        });
+
+        const text = await resp.text().catch(()=> "");
+        let data = {};
+        try { data = JSON.parse(text); } catch(_) { data = { raw: text }; }
+
+        if(!resp.ok || !data.ok){
+          failStreak += 1;
+          setStatus("Ping failed — will retry", false);
+          log(`Ping failed: HTTP ${resp.status} | ${data?.error || "unknown error"}`);
+
+          if(failStreak >= 3){
+            speak("Network or server problem. I will keep trying. Please check mobile data.");
+          }
+          return;
+        }
+
+        failStreak = 0;
+        setStatus("✅ Tracking OK", true);
+        log(`Ping OK: lat=${lat.toFixed(6)} lng=${lng.toFixed(6)} acc=${Math.round(acc)}m`);
+      }catch(e){
+        failStreak += 1;
+        const m = e?.message || String(e);
+        setStatus("Location error — please allow location", false);
+        log(`Error: ${m}`);
+
+        const low = String(m).toLowerCase();
+        if(low.includes("denied")){
+          log("Location permission denied. Tracking paused.");
+          speak("Location permission denied. Please allow location and then press start.");
+          stopLoopSilent();
+          btnStop.disabled = true;
+          btnStart.disabled = false;
+          syncSecondaryControls();
+        } else {
+          if(failStreak >= 2) speak("Location error. Please move to an open area and try again.");
+        }
+      }finally{
+        inFlight = false;
+        syncSecondaryControls();
+      }
+    }
+
+    function startLoop(){
+      if(!sid || !tok) return;
+      if(watching) return;
+
+      watching = true;
+      btnStart.disabled = true;
+      btnStop.disabled = false;
+      btnTest.disabled = false;
+
+      log("Tracking started ✅");
+      speak("Tracking started.");
+
+      requestWakeLock();
+
+      sendPingOnce();
+      timer = setInterval(sendPingOnce, PING_SECONDS * 1000);
+      syncSecondaryControls();
+    }
+
+    function stopLoop(){
+      if(!watching) return;
+      watching = false;
+
+      btnStart.disabled = false;
+      btnStop.disabled = true;
+
+      if(timer){ clearInterval(timer); timer = null; }
+      releaseWakeLock();
+
+      setStatus("Stopped", null);
+      log("Tracking stopped.");
+      speak("Tracking stopped.");
+      syncSecondaryControls();
+    }
+
+    // Buttons (main)
+    btnStart.onclick = startLoop;
+    btnStop.onclick = stopLoop;
+    btnTest.onclick = sendPingOnce;
+
+    // Buttons (secondary panel)
+    btnStart2.onclick = startLoop;
+    btnStop2.onclick = stopLoop;
+    btnTest2.onclick = sendPingOnce;
+
+    // =========================
+    // AUTO-START behavior
+    // =========================
+    async function autoStartIfConnected(){
+      if(!sid || !tok) return;
+
+      try{
+        setStatus("Requesting location permission…", null);
+        await getPosition();
+
+        btnStart.disabled = false;
+        setStatus("Permission OK — starting now…", null);
+        log("Location permission OK. Auto-starting…");
+        speak("Location permission granted. Starting tracking now.");
+
+        startLoop();
+      }catch(e){
+        btnStart.disabled = false;
+        const m = e?.message || String(e);
+        setStatus("Please allow location to start", false);
+        log(`Waiting for permission: ${m}`);
+        speak("Please allow location permission to start tracking.");
+        syncSecondaryControls();
+      }
+    }
+
+    setTimeout(autoStartIfConnected, 900);
+
+    document.addEventListener("visibilitychange", ()=>{
+      if(document.visibilityState === "visible" && watching){
+        requestWakeLock();
+      }
+    });
+  </script>
+
+  <script src="/lang.js" defer></script>
+</body>
+</html>

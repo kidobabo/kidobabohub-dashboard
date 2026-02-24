@@ -1,0 +1,765 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+
+  <title>Safety Songs — Kido &amp; Babo Hub</title>
+  <meta name="description" content="Safety songs (3D animations) for kids — playlist with auto-next."/>
+  <meta name="theme-color" content="#16a34a"/>
+
+  <link rel="canonical" href="https://kidobabohub.web.app/safetysongs.html"/>
+
+  <!-- Social preview -->
+  <meta property="og:type" content="website"/>
+  <meta property="og:site_name" content="Kido &amp; Babo Hub"/>
+  <meta property="og:title" content="Safety Songs — Kido &amp; Babo Hub"/>
+  <meta property="og:description" content="Kido & Babo Hub — Designed for Homes • Schools • Religious Institutions • Parents • Children • Admins • All Devices Work • Voiced • Languages 100+ Online/Offline"/>
+  <meta property="og:url" content="https://kidobabohub.web.app/safetysongs.html"/>
+  <meta property="og:image" content="https://kidobabohub.web.app/logo.jpg"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:image" content="https://kidobabohub.web.app/logo.jpg"/>
+
+  <style>
+    :root{
+      --bg:#0b1020;
+
+      /* ✅ Dim bright white text to softer grey */
+      --text: rgba(234,240,255,.86);
+      --muted:#b7c3ff;
+
+      --line:rgba(255,255,255,.12);
+      --shadow:0 18px 60px rgba(0,0,0,.45);
+      --radius:18px;
+
+      /* ✅ Eye-care variables (saved via localStorage) */
+      --kbBrightness: 1;     /* 0.65 - 1 */
+      --kbTextScale: 1;      /* 0.9 - 1.25 */
+      --kbSoftContrast: 0;   /* 0/1 */
+      --kbBlue: 0;           /* 0 - 0.6 */
+      --kbBlueHue: 35;
+      --kbBlueSat: 100%;
+      --kbBlueLum: 55%;
+    }
+
+    *{ box-sizing:border-box; }
+
+    html{
+      font-size: calc(16px * var(--kbTextScale));
+    }
+
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+
+      /* ✅ Eye-care dim */
+      filter: brightness(var(--kbBrightness));
+
+      background: radial-gradient(1100px 560px at 10% 10%, #23316e 0%, transparent 50%),
+                  radial-gradient(900px 520px at 90% 10%, #7a1b1b 0%, transparent 55%),
+                  radial-gradient(800px 520px at 50% 100%, #0e5b2f 0%, transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      min-height:100vh;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    /* ✅ Blue light overlay layer */
+    #kbBlueOverlay{
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 999999;
+      background: hsl(var(--kbBlueHue) var(--kbBlueSat) var(--kbBlueLum));
+      opacity: var(--kbBlue);
+      mix-blend-mode: multiply;
+    }
+
+    /* ✅ Soft contrast mode */
+    .kb-soft header,
+    .kb-soft main,
+    .kb-soft .card{
+      border-color: rgba(255,255,255,.08) !important;
+    }
+    .kb-soft .nav button,
+    .kb-soft .btn,
+    .kb-soft .playerCard,
+    .kb-soft .songCard{
+      background: rgba(255,255,255,.05) !important;
+      border-color: rgba(255,255,255,.10) !important;
+    }
+    .kb-soft .nav button:hover,
+    .kb-soft .btn:hover,
+    .kb-soft .songCard:hover{
+      background: rgba(255,255,255,.08) !important;
+      border-color: rgba(255,255,255,.14) !important;
+    }
+    .kb-soft p{ color: rgba(234,240,255,.78); }
+
+    /* ✅ Reduce motion mode */
+    .kb-reduce-motion *{
+      animation: none !important;
+      transition: none !important;
+      scroll-behavior: auto !important;
+    }
+
+    .wrap{ max-width: 1050px; margin: 0 auto; padding: 18px 14px 70px; }
+
+    header{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding: 14px 14px 10px;
+      border:1px solid var(--line);
+      background: rgba(15, 23, 51, .55);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+    .brand{ display:flex; flex-direction:column; gap:4px; padding: 2px 6px; }
+    .brand .title{ font-weight: 1000; font-size: 18px; letter-spacing: .2px; line-height: 1.1; }
+    .brand .sub{ font-size: 12px; color: var(--muted); font-weight: 800; line-height: 1.35; }
+
+    .nav{ display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; align-items:center; }
+    .nav button{
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-weight: 950;
+      cursor:pointer;
+      transition: transform .05s ease, background .15s ease, border-color .15s ease;
+      white-space:nowrap;
+      font-size: 13px;
+    }
+    .nav button:hover{ background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.24); }
+    .nav button:active{ transform: translateY(1px); }
+
+    /* ✅ Eye-care button (matches nav style) */
+    .nav button.kb-eyeBtn{
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      color: rgba(234,240,255,.86);
+      font-weight: 950;
+    }
+
+    main{
+      margin-top: 14px;
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(15, 23, 51, .55);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:hidden;
+    }
+
+    .page{ padding: 18px 16px; }
+    .card{
+      background: rgba(12, 19, 48, .72);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+
+    h1{ margin:0 0 6px; font-size: 18px; font-weight: 1000; }
+
+    /* ✅ slightly dimmer p */
+    p{ margin: 6px 0; color: rgba(234,240,255,.82); line-height: 1.5; font-weight: 700; }
+
+    .muted{ color: var(--muted); font-weight: 800; font-size: 13px; }
+
+    .playerCard{
+      margin-top: 12px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 16px;
+      padding: 12px;
+    }
+
+    .playerTop{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom: 10px;
+    }
+
+    .pill{
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.14);
+      font-weight: 950;
+      font-size: 12px;
+
+      /* ✅ slightly dimmer pill text */
+      color: rgba(234,240,255,.86);
+    }
+
+    video{
+      width:100%;
+      max-height: 520px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.35);
+    }
+
+    .actions{
+      margin-top: 10px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .btn{
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.10);
+      color: rgba(234,240,255,.86);
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-weight: 950;
+      cursor:pointer;
+    }
+    .btn:hover{ background: rgba(255,255,255,.14); }
+
+    .grid{
+      margin-top: 14px;
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 12px;
+    }
+
+    .songCard{
+      grid-column: span 12;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 16px;
+      padding: 12px;
+      cursor:pointer;
+      transition: transform .06s ease, background .15s ease, border-color .15s ease;
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .songCard:hover{
+      background: rgba(255,255,255,.10);
+      border-color: rgba(255,255,255,.18);
+      transform: translateY(-1px);
+    }
+
+    .songTitle{
+      font-weight: 1000;
+      font-size: 14px;
+      line-height: 1.2;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      color: rgba(234,240,255,.86);
+    }
+    .songSub{
+      margin-top:4px;
+      font-size: 12px;
+      color: rgba(183,195,255,.92);
+      font-weight: 800;
+    }
+
+    @media (min-width: 720px){
+      .songCard{ grid-column: span 6; }
+    }
+    @media (min-width: 980px){
+      .songCard{ grid-column: span 4; }
+    }
+
+    /* ✅ dimmer footer */
+    .footer{
+      margin-top: 14px;
+      padding: 14px 16px;
+      border-top: 1px solid rgba(255,255,255,.12);
+      color: rgba(234,240,255,.78);
+      font-weight: 800;
+      font-size: 12px;
+      text-align:center;
+      background: rgba(0,0,0,.12);
+    }
+
+    /* ✅ Eye-care panel UI (same style as homepage) */
+    .kb-panel{
+      margin-top: 12px;
+      margin-bottom: 12px;
+      border-radius: 16px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      padding: 12px;
+    }
+    .kb-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      margin-top: 10px;
+    }
+    .kb-row label{
+      font-weight: 900;
+      font-size: 13px;
+      color: rgba(234,240,255,.84);
+    }
+    .kb-inline{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
+      min-width: 280px;
+    }
+    .kb-pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.07);
+      font-weight: 900;
+      font-size: 12px;
+      color: rgba(234,240,255,.84);
+      white-space: nowrap;
+    }
+    .kb-toggle{
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      color: rgba(234,240,255,.86);
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-weight: 950;
+      cursor:pointer;
+      white-space: nowrap;
+      font-size: 13px;
+    }
+    .kb-toggle:hover{ background: rgba(255,255,255,.12); }
+    input[type="range"]{ width: 240px; accent-color: #b7c3ff; }
+
+    button:focus, input:focus{
+      outline: 3px solid rgba(183,195,255,.85);
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ✅ Blue-light overlay layer -->
+  <div id="kbBlueOverlay" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="title">Kido &amp; Babo Hub</div>
+        <div class="sub">Designed for Homes • Schools • Religious Institutions • Parents • Children • Admins • All Devices Work • Voiced • Languages 100+ Online/Offline</div>
+      </div>
+
+      <div class="nav" aria-label="Top navigation">
+        <button onclick="location.href='index.html'">🏠 Home</button>
+        <button onclick="location.href='studentsdashboard.html'">📊 Students</button>
+        <button onclick="location.href='readaloud.html'">🔊 Read</button>
+
+        <!-- ✅ Global Eye-Care button -->
+        <button class="kb-eyeBtn" id="kbEyeBtn" onclick="kbToggleEyePanel()" aria-expanded="false">👁️ Eye-Care</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="page">
+
+        <!-- ✅ Global Eye-Care panel -->
+        <div class="kb-panel" id="kbEyePanel" style="display:none;" aria-label="Eye-care settings panel">
+          <div class="kb-row" style="margin-top:0;">
+            <div>
+              <div style="font-weight:1000;">👁️ Eye-Care Settings</div>
+              <div class="muted">Protect your eyes. Settings are saved automatically.</div>
+            </div>
+            <span class="kb-pill" id="kbAutoPill">Auto Night: ON</span>
+          </div>
+
+          <div class="kb-row">
+            <label for="kbBrightness">🔆 Brightness (dim)</label>
+            <div class="kb-inline">
+              <input id="kbBrightness" type="range" min="0.65" max="1" step="0.01" />
+              <span class="kb-pill" id="kbBrightnessVal">100%</span>
+            </div>
+          </div>
+
+          <div class="kb-row">
+            <label for="kbBlue">🟧 Blue-light filter (warm)</label>
+            <div class="kb-inline">
+              <input id="kbBlue" type="range" min="0" max="0.6" step="0.01" />
+              <span class="kb-pill" id="kbBlueVal">0%</span>
+            </div>
+          </div>
+
+          <div class="kb-row">
+            <label for="kbTextScale">🔎 Text size</label>
+            <div class="kb-inline">
+              <input id="kbTextScale" type="range" min="0.9" max="1.25" step="0.01" />
+              <span class="kb-pill" id="kbTextVal">100%</span>
+            </div>
+          </div>
+
+          <div class="kb-row">
+            <label>🫧 Soft contrast</label>
+            <div class="kb-inline">
+              <button class="kb-toggle" onclick="kbToggleSoftContrast()" id="kbSoftBtn" aria-pressed="false">OFF</button>
+              <span class="muted">Less harsh UI</span>
+            </div>
+          </div>
+
+          <div class="kb-row">
+            <label>🌀 Reduce motion</label>
+            <div class="kb-inline">
+              <button class="kb-toggle" onclick="kbToggleReduceMotion()" id="kbMotionBtn" aria-pressed="false">OFF</button>
+              <span class="muted">Stops animations</span>
+            </div>
+          </div>
+
+          <div class="kb-row">
+            <label>🌙 Auto Night Mode (6pm–6am)</label>
+            <div class="kb-inline">
+              <button class="kb-toggle" onclick="kbToggleAutoNight()" id="kbAutoBtn" aria-pressed="true">ON</button>
+              <span class="muted">Auto protects eyes at night</span>
+            </div>
+          </div>
+
+          <div class="kb-row">
+            <button class="kb-toggle" onclick="kbResetEyeCare()">♻ Reset Eye-Care</button>
+            <span class="muted">Back to safe defaults</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h1>🚸 Safety Songs (3D Animations)</h1>
+          <p class="muted">Tap any song to start. When a video ends, the next one plays automatically.</p>
+
+          <div class="playerCard">
+            <div class="playerTop">
+              <div class="pill">🎬 Now Playing: <span id="nowTitle">—</span></div>
+            </div>
+
+            <video id="player" controls playsinline preload="metadata"></video>
+
+            <div class="actions">
+              <button class="btn" onclick="playPrev()">⏮ Prev</button>
+              <button class="btn" onclick="playNext()">⏭ Next</button>
+            </div>
+
+            <p class="muted" style="margin-top:10px;">
+              Note: Browsers require the first play to be started by a tap. After that, auto-next will work.
+            </p>
+          </div>
+
+          <div class="grid" id="grid"></div>
+
+          <div class="footer">
+            kidobabohub.web.app • Est. 2026 • © Copyright
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // =========================
+    // ✅ GLOBAL EYE-CARE SYSTEM (same behavior as homepage)
+    // =========================
+    const EC = {
+      LS: "kb_eyeCare_v1",
+      defaults: {
+        brightness: 0.90,
+        blue: 0.12,
+        textScale: 1.00,
+        softContrast: true,
+        reduceMotion: false,
+        autoNight: true
+      }
+    };
+
+    function kbReadEC(){
+      try{
+        const raw = localStorage.getItem(EC.LS);
+        const obj = raw ? JSON.parse(raw) : {};
+        return { ...EC.defaults, ...(obj||{}) };
+      }catch(_){
+        return { ...EC.defaults };
+      }
+    }
+    function kbWriteEC(v){
+      localStorage.setItem(EC.LS, JSON.stringify(v||{}));
+    }
+
+    function kbApplyEC(state){
+      if(state.autoNight){
+        const h = new Date().getHours();
+        const isNight = (h >= 18 || h < 6);
+        const nightBrightness = Math.min(state.brightness, 0.85);
+        const nightBlue = Math.max(state.blue, 0.18);
+
+        document.documentElement.style.setProperty("--kbBrightness", String(isNight ? nightBrightness : state.brightness));
+        document.documentElement.style.setProperty("--kbBlue", String(isNight ? nightBlue : state.blue));
+
+        const ap = document.getElementById("kbAutoPill");
+        if(ap) ap.textContent = "Auto Night: ON";
+      } else {
+        document.documentElement.style.setProperty("--kbBrightness", String(state.brightness));
+        document.documentElement.style.setProperty("--kbBlue", String(state.blue));
+
+        const ap = document.getElementById("kbAutoPill");
+        if(ap) ap.textContent = "Auto Night: OFF";
+      }
+
+      document.documentElement.style.setProperty("--kbTextScale", String(state.textScale));
+
+      document.documentElement.classList.toggle("kb-soft", !!state.softContrast);
+      document.documentElement.classList.toggle("kb-reduce-motion", !!state.reduceMotion);
+
+      const b = document.getElementById("kbBrightness");
+      const bl = document.getElementById("kbBlue");
+      const t = document.getElementById("kbTextScale");
+
+      if(b) b.value = String(state.brightness);
+      if(bl) bl.value = String(state.blue);
+      if(t) t.value = String(state.textScale);
+
+      const bV = document.getElementById("kbBrightnessVal");
+      const blV = document.getElementById("kbBlueVal");
+      const tV = document.getElementById("kbTextVal");
+
+      if(bV) bV.textContent = Math.round(parseFloat(state.brightness) * 100) + "%";
+      if(blV) blV.textContent = Math.round(parseFloat(state.blue) * 100) + "%";
+      if(tV) tV.textContent = Math.round(parseFloat(state.textScale) * 100) + "%";
+
+      const softBtn = document.getElementById("kbSoftBtn");
+      const motionBtn = document.getElementById("kbMotionBtn");
+      const autoBtn = document.getElementById("kbAutoBtn");
+
+      if(softBtn){
+        softBtn.textContent = state.softContrast ? "ON" : "OFF";
+        softBtn.setAttribute("aria-pressed", state.softContrast ? "true" : "false");
+      }
+      if(motionBtn){
+        motionBtn.textContent = state.reduceMotion ? "ON" : "OFF";
+        motionBtn.setAttribute("aria-pressed", state.reduceMotion ? "true" : "false");
+      }
+      if(autoBtn){
+        autoBtn.textContent = state.autoNight ? "ON" : "OFF";
+        autoBtn.setAttribute("aria-pressed", state.autoNight ? "true" : "false");
+      }
+    }
+
+    function kbBindEyeCare(){
+      let st = kbReadEC();
+      kbApplyEC(st);
+
+      const brightness = document.getElementById("kbBrightness");
+      const blue = document.getElementById("kbBlue");
+      const text = document.getElementById("kbTextScale");
+
+      if(brightness){
+        brightness.addEventListener("input", ()=>{
+          st = kbReadEC();
+          st.brightness = parseFloat(brightness.value);
+          kbWriteEC(st);
+          kbApplyEC(st);
+        });
+      }
+      if(blue){
+        blue.addEventListener("input", ()=>{
+          st = kbReadEC();
+          st.blue = parseFloat(blue.value);
+          kbWriteEC(st);
+          kbApplyEC(st);
+        });
+      }
+      if(text){
+        text.addEventListener("input", ()=>{
+          st = kbReadEC();
+          st.textScale = parseFloat(text.value);
+          kbWriteEC(st);
+          kbApplyEC(st);
+        });
+      }
+    }
+
+    function kbToggleEyePanel(){
+      const p = document.getElementById("kbEyePanel");
+      const btn = document.getElementById("kbEyeBtn");
+      if(!p || !btn) return;
+      const open = (p.style.display === "none" || !p.style.display);
+      p.style.display = open ? "block" : "none";
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+    window.kbToggleEyePanel = kbToggleEyePanel;
+
+    window.kbToggleSoftContrast = function(){
+      const st = kbReadEC();
+      st.softContrast = !st.softContrast;
+      kbWriteEC(st);
+      kbApplyEC(st);
+    };
+
+    window.kbToggleReduceMotion = function(){
+      const st = kbReadEC();
+      st.reduceMotion = !st.reduceMotion;
+      kbWriteEC(st);
+      kbApplyEC(st);
+    };
+
+    window.kbToggleAutoNight = function(){
+      const st = kbReadEC();
+      st.autoNight = !st.autoNight;
+      kbWriteEC(st);
+      kbApplyEC(st);
+    };
+
+    window.kbResetEyeCare = function(){
+      kbWriteEC({ ...EC.defaults });
+      kbApplyEC(kbReadEC());
+    };
+
+    // keep auto-night correct
+    setInterval(()=> kbApplyEC(kbReadEC()), 60 * 1000);
+
+    // init eye-care
+    kbBindEyeCare();
+  </script>
+
+  <script>
+    // Files must be here: public/safetysongs/<name>.mp4   => URL: /safetysongs/<name>.mp4
+
+    const SONGS = [
+      { id: "activitysong",      title: "Activity Song" },
+      { id: "adventuresong",     title: "Adventure Song" },
+      { id: "animalsong",        title: "Animal Song" },
+      { id: "bicyclesong",       title: "Bicycle Song" },
+      { id: "firesafetysong",    title: "Fire Safety Song" },
+      { id: "happybirthdaysong", title: "Happy Birthday Song" },
+      { id: "herosong",          title: "Hero Song" },
+      { id: "playsafesong",      title: "Play Safe Song" },
+      { id: "roadsafetysong",    title: "Road Safety Song" },
+      { id: "schoolsafetysong",  title: "School Safety Song" },
+      { id: "thankyousong",      title: "Thank You Song" },
+      { id: "treehousefixsong",  title: "Treehouse Fix Song" }
+    ].sort((a,b)=>a.title.localeCompare(b.title));
+
+    const player = document.getElementById("player");
+    const nowTitle = document.getElementById("nowTitle");
+    const grid = document.getElementById("grid");
+
+    let currentIndex = 0;
+    let userStarted = false;
+
+    function fileUrl(id){
+      return `/safetysongs/${id}.mp4`;
+    }
+
+    function setNowPlaying(index, tryAutoplay){
+      currentIndex = (index + SONGS.length) % SONGS.length;
+      const song = SONGS[currentIndex];
+
+      nowTitle.textContent = song.title;
+
+      // Reset the player reliably
+      player.pause();
+      player.removeAttribute("src");
+      player.load();
+
+      player.src = fileUrl(song.id);
+      player.load();
+
+      highlightCurrent();
+
+      if(tryAutoplay && userStarted){
+        const p = player.play();
+        if(p && typeof p.catch === "function") p.catch(()=>{});
+      }
+    }
+
+    function highlightCurrent(){
+      document.querySelectorAll(".songCard").forEach((el, idx)=>{
+        el.style.outline = (idx === currentIndex) ? "3px solid rgba(183,195,255,.85)" : "none";
+        el.style.outlineOffset = "2px";
+      });
+    }
+
+    function playNext(){
+      setNowPlaying(currentIndex + 1, true);
+    }
+
+    function playPrev(){
+      setNowPlaying(currentIndex - 1, true);
+    }
+
+    // IMPORTANT: If the browser fires "ended", we immediately go next.
+    player.addEventListener("ended", () => {
+      playNext();
+    });
+
+    // Mark that the user has started playback at least once (autoplay policies)
+    player.addEventListener("play", () => {
+      userStarted = true;
+    });
+
+    function buildGrid(){
+      grid.innerHTML = "";
+      SONGS.forEach((song, idx) => {
+        const card = document.createElement("div");
+        card.className = "songCard";
+        card.setAttribute("role","button");
+        card.setAttribute("tabindex","0");
+        card.setAttribute("aria-label", "Play " + song.title);
+
+        const left = document.createElement("div");
+        const title = document.createElement("div");
+        title.className = "songTitle";
+        title.textContent = song.title;
+
+        const sub = document.createElement("div");
+        sub.className = "songSub";
+        sub.textContent = "Tap to play";
+
+        left.appendChild(title);
+        left.appendChild(sub);
+
+        const right = document.createElement("div");
+        right.style.fontWeight = "1000";
+        right.textContent = "▶";
+
+        card.appendChild(left);
+        card.appendChild(right);
+
+        card.addEventListener("click", () => {
+          userStarted = true; // user gesture
+          setNowPlaying(idx, true);
+          const p = player.play();
+          if(p && typeof p.catch === "function") p.catch(()=>{});
+        });
+
+        card.addEventListener("keydown", (e) => {
+          if(e.key === "Enter" || e.key === " "){
+            e.preventDefault();
+            card.click();
+          }
+        });
+
+        grid.appendChild(card);
+      });
+    }
+
+    buildGrid();
+    setNowPlaying(0, false);
+  </script>
+</body>
+</html>

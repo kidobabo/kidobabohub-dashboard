@@ -1,0 +1,77 @@
+{
+  "hosting": [
+    {
+      "site": "kidobabohub",
+      "public": "public",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "cleanUrls": false,
+
+      "headers": [
+        {
+          "source": "/sitemap.xml",
+          "headers": [
+            { "key": "Content-Type", "value": "application/xml; charset=utf-8" },
+            { "key": "Cache-Control", "value": "public, max-age=3600" }
+          ]
+        },
+        {
+          "source": "/robots.txt",
+          "headers": [
+            { "key": "Content-Type", "value": "text/plain; charset=utf-8" },
+            { "key": "Cache-Control", "value": "public, max-age=3600" }
+          ]
+        },
+        {
+          "source": "**/*.json",
+          "headers": [
+            { "key": "Content-Type", "value": "application/json; charset=utf-8" },
+            { "key": "Cache-Control", "value": "no-cache" }
+          ]
+        },
+        {
+          "source": "**/*.pdf",
+          "headers": [
+            { "key": "Content-Type", "value": "application/pdf" },
+            { "key": "Cache-Control", "value": "public, max-age=3600" }
+          ]
+        },
+        {
+          "source": "**/*.{mp3,wav,ogg}",
+          "headers": [
+            { "key": "Cache-Control", "value": "public, max-age=86400" }
+          ]
+        }
+      ],
+
+      "rewrites": [
+        { "source": "/sitemap.xml", "destination": "/sitemap.xml" },
+        { "source": "/robots.txt", "destination": "/robots.txt" }
+
+        /*
+          IMPORTANT:
+          If you have a SPA catch-all rewrite somewhere like:
+          { "source": "**", "destination": "/index.html" }
+          it MUST go AFTER the two lines above.
+        */
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "disallowLegacyRuntimeConfig": true,
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
+    }
+  ]
+}

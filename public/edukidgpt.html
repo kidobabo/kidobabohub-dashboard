@@ -1,0 +1,1404 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+
+  <title>EdukidGPT (KidGPT) — Kido &amp; Babo Hub</title>
+  <meta name="description" content="KidGPT is for kids under 10 years. Ask any question and Kido will answer you — safe learning about school subjects, countries, animals, nature, climate, computers, technology, robotics and AI. No cheating on exams: only clues."/>
+  <meta name="theme-color" content="#111827"/>
+  <link rel="icon" href="/logo.jpg"/>
+
+  <style>
+    /* =========================================================
+       🌙 FULL EYE-CARE SYSTEM (GLOBAL)
+       - brightness dim (global)
+       - blue light warm overlay (global)
+       - soft contrast mode
+       - text scaling
+       - reduce motion
+       - auto night mode schedule
+       - eye-rest reminders (20-20-20)
+       ========================================================= */
+
+    :root{
+      /* Base theme */
+      --bg:#0f1115;
+      --panel: rgba(15, 23, 51, .55);
+      --card: rgba(12, 19, 48, .72);
+      --text:#eaf0ff;
+      --muted:#b7c3ff;
+      --line:rgba(255,255,255,.12);
+      --shadow:0 18px 60px rgba(0,0,0,.45);
+      --radius:18px;
+
+      /* Buttons */
+      --btnBg: rgba(255,255,255,.10);
+      --btnBorder: rgba(255,255,255,.16);
+      --btnHoverBg: rgba(255,255,255,.14);
+      --btnHoverBorder: rgba(255,255,255,.24);
+
+      /* Accent */
+      --accent: linear-gradient(90deg,#006600,#bb0000,#000000);
+
+      /* Eye-care controls */
+      --kbBrightness: 1;     /* 0.65 - 1 */
+      --kbTextScale: 1;      /* 0.9 - 1.25 */
+      --kbBlue: 0;           /* 0 - 0.6 */
+      --kbBlueHue: 35;       /* warm hue */
+      --kbBlueSat: 100%;
+      --kbBlueLum: 55%;
+    }
+
+    *{ box-sizing:border-box; }
+
+    html{
+      font-size: calc(16px * var(--kbTextScale));
+    }
+
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+
+      /* Eye-care dim */
+      filter: brightness(var(--kbBrightness));
+
+      background:
+        radial-gradient(1100px 560px at 10% 10%, #23316e 0%, transparent 50%),
+        radial-gradient(900px 520px at 90% 10%, #7a1b1b 0%, transparent 55%),
+        radial-gradient(800px 520px at 50% 100%, #0e5b2f 0%, transparent 55%),
+        var(--bg);
+
+      color:var(--text);
+      min-height:100vh;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    /* Blue light overlay */
+    #kbBlueOverlay{
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 999999;
+      background: hsl(var(--kbBlueHue) var(--kbBlueSat) var(--kbBlueLum));
+      opacity: var(--kbBlue);
+      mix-blend-mode: multiply;
+    }
+
+    /* Soft contrast */
+    .kb-soft header,
+    .kb-soft main,
+    .kb-soft .card,
+    .kb-soft .msg,
+    .kb-soft .panel{
+      border-color: rgba(255,255,255,.08) !important;
+    }
+    .kb-soft .btn,
+    .kb-soft .nav button{
+      background: rgba(255,255,255,.07) !important;
+      border-color: rgba(255,255,255,.12) !important;
+    }
+    .kb-soft .btn:hover,
+    .kb-soft .nav button:hover{
+      background: rgba(255,255,255,.10) !important;
+      border-color: rgba(255,255,255,.16) !important;
+    }
+    .kb-soft p{ color: rgba(234,240,255,.85); }
+
+    /* Reduce motion */
+    .kb-reduce-motion *{
+      animation: none !important;
+      transition: none !important;
+      scroll-behavior: auto !important;
+    }
+
+    .wrap{ max-width: 980px; margin: 0 auto; padding: 18px 14px 60px; }
+
+    header{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding: 14px 14px 10px;
+      border:1px solid var(--line);
+      background: var(--panel);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .brandRow{ display:flex; align-items:center; gap:12px; }
+    .logo{
+      width:44px; height:44px; border-radius: 14px;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.08);
+      object-fit: cover;
+      box-shadow: 0 8px 22px rgba(0,0,0,.25);
+      flex: 0 0 auto;
+    }
+
+    .brand{ display:flex; flex-direction:column; gap:4px; padding: 2px 6px; }
+    .brand .title{ font-weight: 900; font-size: 18px; letter-spacing: .2px; line-height: 1.1; }
+    .brand .sub{ font-size: 12px; color: var(--muted); font-weight: 800; line-height: 1.35; }
+
+    .nav{ display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; align-items:center; }
+    .nav button{
+      border:1px solid var(--btnBorder);
+      background: var(--btnBg);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-weight: 900;
+      cursor:pointer;
+      transition: transform .05s ease, background .15s ease, border-color .15s ease;
+      white-space:nowrap;
+      font-size: 13px;
+    }
+    .nav button:hover{ background: var(--btnHoverBg); border-color: var(--btnHoverBorder); }
+    .nav button:active{ transform: translateY(1px); }
+
+    .nav button.primary{
+      background: var(--accent);
+      border-color: rgba(255,255,255,.30);
+      box-shadow: 0 10px 25px rgba(0,0,0,.25);
+      position: relative;
+      overflow: hidden;
+    }
+    .nav button.primary.is-open::before{
+      content:"";
+      position:absolute;
+      inset:-40%;
+      background: conic-gradient(from 0deg, rgba(255,255,255,.0), rgba(255,255,255,.35), rgba(255,255,255,.0));
+      animation: spinGlow 1.4s linear infinite;
+      filter: blur(1px);
+    }
+    .nav button.primary.is-open span{ position: relative; z-index: 1; }
+    @keyframes spinGlow { to { transform: rotate(360deg); } }
+
+    main{
+      margin-top: 14px;
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:hidden;
+    }
+
+    .page{ padding: 18px 16px; }
+
+    .grid{ display:grid; grid-template-columns: repeat(12, 1fr); gap: 12px; }
+    .col-12{ grid-column: span 12; }
+    .col-8{ grid-column: span 8; }
+    .col-4{ grid-column: span 4; }
+    @media (max-width: 980px){
+      .col-8, .col-4{ grid-column: span 12; }
+    }
+    @media (max-width: 860px){
+      header{ flex-direction: column; align-items: stretch; }
+      .nav{ justify-content:flex-start; }
+      .brandRow{ justify-content:flex-start; }
+    }
+
+    .card{
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+
+    h1{ margin:0; font-size: 18px; font-weight:1000; }
+    h2{ margin:0 0 10px; font-size: 16px; font-weight:1000; }
+    p{ margin: 8px 0; color: rgba(234,240,255,.92); line-height: 1.55; font-weight:800; font-size:13px; }
+    .muted{ color: var(--muted); font-weight: 800; font-size: 13px; }
+    .tiny{ font-size:12px; font-weight:850; color: rgba(234,240,255,.86); line-height: 1.45; }
+
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px; border-radius:999px;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.12);
+      font-weight:900; font-size:12px; color: rgba(234,240,255,.95);
+      white-space:nowrap;
+    }
+
+    .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .rowBetween{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
+
+    .btn{
+      border: 1px solid var(--btnBorder);
+      background: var(--btnBg);
+      color: var(--text);
+      padding: 11px 12px;
+      border-radius: 14px;
+      font-weight: 1000;
+      cursor:pointer;
+      transition: transform .05s ease, background .15s ease, border-color .15s ease;
+      white-space:nowrap;
+      font-size: 13px;
+    }
+    .btn:hover{ background: var(--btnHoverBg); border-color: var(--btnHoverBorder); }
+    .btn:active{ transform: translateY(1px); }
+
+    .btnBlue{ background: rgba(77,212,255,.20); border-color: rgba(77,212,255,.35); }
+    .btnGreen{ background: rgba(124,255,107,.20); border-color: rgba(124,255,107,.35); }
+    .btnRed{ background: rgba(255,77,109,.22); border-color: rgba(255,77,109,.45); }
+    .btnGold{ background: rgba(255,204,0,.18); border-color: rgba(255,204,0,.35); }
+    .btnAccent{
+      background: var(--accent);
+      border-color: rgba(255,255,255,.28);
+      box-shadow: 0 12px 28px rgba(0,0,0,.28);
+    }
+
+    input, select, textarea{
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      font-weight:900;
+      outline:none;
+      min-width: 240px;
+      flex:1;
+    }
+    input::placeholder, textarea::placeholder{ color: rgba(234,240,255,.60); font-weight:800; }
+
+    textarea{ width:100%; min-height: 92px; resize: vertical; }
+
+    button:focus, select:focus, input:focus, textarea:focus{
+      outline: 3px solid rgba(183,195,255,.85);
+      outline-offset: 2px;
+    }
+
+    .panel{
+      margin-top:10px;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:14px;
+      padding:12px;
+      background: rgba(255,255,255,.06);
+    }
+
+    .chatWrap{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin-top:10px;
+      max-height: 520px;
+      overflow:auto;
+      padding-right: 2px;
+    }
+    .msg{
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(12,19,48,.52);
+      border-radius: 16px;
+      padding: 10px 12px;
+      box-shadow: 0 10px 24px rgba(0,0,0,.20);
+      max-width: 92%;
+    }
+    .msg.kid{ align-self:flex-start; }
+    .msg.kido{ align-self:flex-end; background: rgba(255,255,255,.07); }
+    .msgHeader{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      margin-bottom: 6px;
+      font-weight: 1000;
+      font-size: 12px;
+      color: rgba(234,240,255,.92);
+    }
+    .msgBody{
+      font-weight: 850;
+      font-size: 13px;
+      line-height: 1.45;
+      color: rgba(234,240,255,.92);
+      white-space: pre-wrap;
+    }
+
+    .kpiRow{
+      display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;
+      margin-top: 10px;
+    }
+    .kpi{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      font-weight: 950;
+      min-width: 240px;
+      flex: 1;
+    }
+    .kpi .big{ font-size: 18px; font-weight: 1000; }
+    .kpi .label{ font-size: 12px; font-weight: 900; color: var(--muted); margin-top:2px; }
+
+    .chipRow{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    .chip{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.07);
+      font-weight: 950;
+      font-size: 12px;
+      cursor:pointer;
+      user-select:none;
+      color: rgba(234,240,255,.92);
+    }
+    .chip:hover{ background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.24); }
+
+    .footer{
+      margin-top: 14px;
+      padding: 14px 16px;
+      border-top: 1px solid rgba(255,255,255,.12);
+      color: rgba(234,240,255,.88);
+      font-weight: 800;
+      font-size: 12px;
+      text-align:center;
+      background: rgba(0,0,0,.12);
+    }
+
+    .sr-only{
+      position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden;
+      clip:rect(0,0,0,0); white-space:nowrap; border:0;
+    }
+
+    /* =========================================================
+       Eye-care panel (UI)
+       ========================================================= */
+    .kb-panel{
+      margin-top: 10px;
+      border-radius: 16px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      padding: 12px;
+    }
+    .kb-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      margin-top: 10px;
+    }
+    .kb-row label{
+      font-weight: 900;
+      font-size: 13px;
+      color: rgba(234,240,255,.92);
+    }
+    .kb-inline{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
+      min-width: 280px;
+    }
+    .kb-pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.07);
+      font-weight: 900;
+      font-size: 12px;
+      color: rgba(234,240,255,.92);
+      white-space: nowrap;
+    }
+    .kb-toggle{
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-weight: 950;
+      cursor:pointer;
+    }
+    .kb-toggle:hover{ background: rgba(255,255,255,.12); }
+
+    input[type="range"]{
+      width: 240px;
+      accent-color: #b7c3ff;
+    }
+
+    /* Toast */
+    .kb-toast{
+      position: fixed;
+      left: 14px;
+      right: 14px;
+      bottom: 16px;
+      max-width: 980px;
+      margin: 0 auto;
+      z-index: 1000000;
+      display:none;
+    }
+    .kb-toast .box{
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(15, 23, 51, .82);
+      box-shadow: 0 18px 60px rgba(0,0,0,.55);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 12px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      font-weight: 900;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Eye-care warm overlay -->
+  <div id="kbBlueOverlay" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <!-- HEADER -->
+    <header>
+      <div class="brandRow">
+        <img class="logo" src="/logo.jpg" alt="Kido &amp; Babo Hub logo" />
+        <div class="brand">
+          <div class="title">EdukidGPT (KidGPT)</div>
+          <div class="sub">Kid-safe learning • Under 10 • Subjects • Science • Countries • Tech • AI • Health • DIY • No exam cheating</div>
+        </div>
+      </div>
+
+      <div class="nav" aria-label="Top navigation">
+        <button onclick="goPage('index.html')">🏠 Home</button>
+        <button onclick="goPage('studentsdashboard.html')">📊 Students Dashboard</button>
+        <button onclick="goPage('translator.html')">🌍 Translator</button>
+        <button onclick="goPage('readaloud.html')">🔊 Read Aloud</button>
+        <button onclick="goPage('help.html')">🆘 Help</button>
+
+        <!-- ✅ Language pill (global) -->
+        <span class="kb-pill" id="kbLangPill">🌐 Language: EN • offline</span>
+
+        <!-- ✅ Eye-care toggle -->
+        <button class="kb-toggle" id="kbEyeBtn" onclick="kbToggleEyePanel()" aria-expanded="false">👁️ Eye-Care</button>
+
+        <button class="primary" id="voiceToggle" onclick="toggleVoice()" aria-pressed="true"><span>🔊 Voice: ON</span></button>
+      </div>
+    </header>
+
+    <main>
+      <section class="page">
+        <div class="grid">
+
+          <div class="col-12">
+            <div class="card">
+              <div class="rowBetween">
+                <div>
+                  <h1>🤖 KidGPT is for kids under 10 years</h1>
+                  <p class="muted" style="margin-top:6px;">
+                    Ask any question and <b>Kido</b> will answer you.
+                  </p>
+                </div>
+                <div class="row">
+                  <span class="pill">✅ Safe words</span>
+                  <span class="pill">🧠 Learning first</span>
+                  <span class="pill">🚫 No exam cheating</span>
+                </div>
+              </div>
+
+              <div class="kpiRow" aria-label="Progress">
+                <div class="kpi" role="status" aria-live="polite">
+                  <div>
+                    <div class="big">⭐ Stars: <span id="stars">0</span></div>
+                    <div class="label">Earn for good learning</div>
+                  </div>
+                </div>
+                <div class="kpi" role="status" aria-live="polite">
+                  <div>
+                    <div class="big">🔥 Streak: <span id="streak">0</span></div>
+                    <div class="label">One win per day</div>
+                  </div>
+                </div>
+                <div class="kpi" role="status" aria-live="polite">
+                  <div>
+                    <div class="big">🏅 Badges: <span id="badges">0</span></div>
+                    <div class="label">Unlock with stars</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="panel" style="margin-top:12px;">
+                <div class="rowBetween">
+                  <div style="font-weight:1000;">🧠 What can Kido teach?</div>
+                  <span class="pill" id="modePill">Mode: Offline</span>
+                </div>
+
+                <div class="chipRow" aria-label="Quick topics">
+                  <div class="chip" onclick="quickAsk('Explain the water cycle like I am 8.')">🌧️ Weather</div>
+                  <div class="chip" onclick="quickAsk('Tell me 5 facts about Kenya for kids.')">🌍 Countries</div>
+                  <div class="chip" onclick="quickAsk('What do lions eat and where do they live?')">🦁 Animals</div>
+                  <div class="chip" onclick="quickAsk('What is climate change in simple words?')">🌱 Climate</div>
+                  <div class="chip" onclick="quickAsk('Teach me multiplication tips for 7 times table.')">➗ Math</div>
+                  <div class="chip" onclick="quickAsk('What is a computer? Explain with examples.')">💻 Computers</div>
+                  <div class="chip" onclick="quickAsk('What is a robot? What can robots do?')">🤖 Robotics</div>
+                  <div class="chip" onclick="quickAsk('What is AI? Give kid-friendly examples.')">✨ AI</div>
+                  <div class="chip" onclick="quickAsk('Give me a healthy lunch idea for a kid.')">🥗 Health</div>
+                  <div class="chip" onclick="quickAsk('Give me a simple DIY science experiment at home.')">🧪 DIY</div>
+                  <div class="chip" onclick="quickAsk('Help me create a short funny story about a brave rabbit.')">📖 Stories</div>
+                </div>
+
+                <div class="tiny" style="margin-top:10px;">
+                  Safe rules: Kido will not use bad words, adult content, violence, or hate. For exams, Kido gives <b>clues and steps</b>, not answers to cheat.
+                </div>
+              </div>
+
+              <!-- ✅ EYE-CARE PANEL -->
+              <div class="kb-panel" id="kbEyePanel" style="display:none" aria-label="Eye-care settings panel">
+                <div class="kb-row" style="margin-top:0;">
+                  <div>
+                    <div style="font-weight:1000;">👁️ Eye-Care Settings</div>
+                    <div class="muted">Protect your eyes on all devices. Settings are saved automatically.</div>
+                  </div>
+                  <span class="kb-pill" id="kbAutoPill">Auto Night: ON</span>
+                </div>
+
+                <div class="kb-row">
+                  <label for="kbBrightness">🔆 Brightness (dim)</label>
+                  <div class="kb-inline">
+                    <input id="kbBrightness" type="range" min="0.65" max="1" step="0.01" />
+                    <span class="kb-pill" id="kbBrightnessVal">100%</span>
+                  </div>
+                </div>
+
+                <div class="kb-row">
+                  <label for="kbBlue">🟧 Blue-light filter (warm)</label>
+                  <div class="kb-inline">
+                    <input id="kbBlue" type="range" min="0" max="0.6" step="0.01" />
+                    <span class="kb-pill" id="kbBlueVal">0%</span>
+                  </div>
+                </div>
+
+                <div class="kb-row">
+                  <label for="kbTextScale">🔎 Text size</label>
+                  <div class="kb-inline">
+                    <input id="kbTextScale" type="range" min="0.9" max="1.25" step="0.01" />
+                    <span class="kb-pill" id="kbTextVal">100%</span>
+                  </div>
+                </div>
+
+                <div class="kb-row">
+                  <label>🫧 Soft contrast (reduce harsh white)</label>
+                  <div class="kb-inline">
+                    <button class="kb-toggle" onclick="kbToggleSoftContrast()" id="kbSoftBtn" aria-pressed="false">OFF</button>
+                    <span class="muted">Recommended for long use</span>
+                  </div>
+                </div>
+
+                <div class="kb-row">
+                  <label>🌀 Reduce motion</label>
+                  <div class="kb-inline">
+                    <button class="kb-toggle" onclick="kbToggleReduceMotion()" id="kbMotionBtn" aria-pressed="false">OFF</button>
+                    <span class="muted">Stops animations</span>
+                  </div>
+                </div>
+
+                <div class="kb-row">
+                  <label>🌙 Auto Night Mode (6pm–6am)</label>
+                  <div class="kb-inline">
+                    <button class="kb-toggle" onclick="kbToggleAutoNight()" id="kbAutoBtn" aria-pressed="true">ON</button>
+                    <span class="muted">Auto protects eyes at night</span>
+                  </div>
+                </div>
+
+                <div class="kb-row">
+                  <label>⏱ Eye-Rest reminders (every 20 minutes)</label>
+                  <div class="kb-inline">
+                    <button class="kb-toggle" onclick="kbToggleReminders()" id="kbRemBtn" aria-pressed="false">OFF</button>
+                    <span class="muted">20-20-20 rule</span>
+                  </div>
+                </div>
+
+                <div class="kb-row">
+                  <button class="kb-toggle" onclick="kbResetEyeCare()">♻ Reset Eye-Care</button>
+                  <span class="muted">Back to safe defaults</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CHAT -->
+          <div class="col-8">
+            <div class="card">
+              <div class="rowBetween">
+                <h2>💬 Chat with Kido</h2>
+                <span class="pill">Kid-safe replies</span>
+              </div>
+
+              <div class="chatWrap" id="chat" aria-label="Chat messages">
+                <div class="msg kido">
+                  <div class="msgHeader"><span>🤖 Kido</span><span class="tiny">Hello!</span></div>
+                  <div class="msgBody">Hi friend! 👋 Ask me anything about school, animals, countries, nature, technology, health, or DIY.</div>
+                </div>
+                <div class="msg kido">
+                  <div class="msgHeader"><span>🤖 Kido</span><span class="tiny">Safety</span></div>
+                  <div class="msgBody">If this is about a test or exam, I will give clues and steps — not cheating answers.</div>
+                </div>
+              </div>
+
+              <div class="panel" aria-label="Ask area">
+                <div class="row">
+                  <input id="kidAsk" placeholder="Type your question… e.g., What is photosynthesis?" />
+                  <button class="btn btnAccent" type="button" onclick="sendAsk()">🧠 Ask Kido</button>
+                  <button class="btn btnBlue" type="button" onclick="speakLast()">🔊 Read last</button>
+                </div>
+
+                <div class="row" style="margin-top:10px;">
+                  <button class="btn btnGreen" type="button" onclick="reward('Great question! +1 Star', 1)">⭐ Give Star</button>
+                  <button class="btn btnGold" type="button" onclick="startQuiz()">🎮 Mini Quiz</button>
+                  <button class="btn btnRed" type="button" onclick="clearChat()">🧹 Clear chat</button>
+                </div>
+
+                <div class="tiny" style="margin-top:10px;">
+                  Tip for parents: Ask “Explain like my child is 8” for simpler answers.
+                </div>
+              </div>
+
+              <div class="sr-only" aria-live="polite" id="srLive"></div>
+            </div>
+          </div>
+
+          <!-- RIGHT PANEL: QUIZ + RULES -->
+          <div class="col-4">
+            <div class="card">
+              <div class="rowBetween">
+                <h2>🎮 Fun Learning</h2>
+                <span class="pill">Offline</span>
+              </div>
+
+              <div class="panel">
+                <div style="font-weight:1000;">Mini Quiz</div>
+                <div class="tiny" id="quizQ" style="margin-top:6px;">Tap “Start Quiz”.</div>
+                <div class="row" style="margin-top:10px;">
+                  <button class="btn btnBlue" type="button" onclick="pickQuiz(0)">A</button>
+                  <button class="btn btnBlue" type="button" onclick="pickQuiz(1)">B</button>
+                  <button class="btn btnBlue" type="button" onclick="pickQuiz(2)">C</button>
+                </div>
+                <div class="tiny" id="quizNote" style="margin-top:10px;"></div>
+              </div>
+
+              <div class="panel">
+                <div style="font-weight:1000;">Safety Promise ✅</div>
+                <div class="tiny" style="margin-top:6px;">
+                  • No bad words / adult content<br/>
+                  • No bullying or hate<br/>
+                  • No dangerous instructions<br/>
+                  • No cheating on exams (only hints)<br/>
+                  • Friendly, age-appropriate learning
+                </div>
+              </div>
+
+              <div class="panel">
+                <div style="font-weight:1000;">What do you want to learn today?</div>
+                <div class="tiny" style="margin-top:6px;">Pick one:</div>
+                <div class="chipRow">
+                  <div class="chip" onclick="quickAsk('Teach me 3 new words and their meanings.')">📘 Words</div>
+                  <div class="chip" onclick="quickAsk('Give me 5 fun facts about the ocean.')">🌊 Ocean</div>
+                  <div class="chip" onclick="quickAsk('Explain electricity safely for kids.')">⚡ Electricity</div>
+                  <div class="chip" onclick="quickAsk('How do plants breathe?')">🌿 Plants</div>
+                </div>
+              </div>
+
+              <div class="tiny" style="margin-top:10px;">
+                Want “ChatGPT-like” intelligence? This page is offline-safe. If you later connect a real AI embed, you can keep this UI + safety gate.
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="footer">
+          kidobabohub.web.app • Est. 2026 • © Copyright
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Eye-rest Toast -->
+  <div class="kb-toast" id="kbToast" aria-live="polite">
+    <div class="box">
+      <div id="kbToastText">Take a short eye break.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <button class="kb-toggle" onclick="kbToastHide()">OK</button>
+        <button class="kb-toggle" onclick="kbSnooze()">Snooze 5 min</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =============================
+    // Navigation (independent page)
+    // =============================
+    function goPage(file){ window.location.href = file; }
+
+    // =============================
+    // Global Language Pill
+    // =============================
+    function kbUpdateLangPill(){
+      const mode = localStorage.getItem("kb_siteLangMode") || "offline";
+      const code = localStorage.getItem("kb_siteLangCode") || "en";
+      const pill = document.getElementById("kbLangPill");
+      if(pill){
+        pill.textContent = `🌐 Language: ${String(code).toUpperCase()} • ${mode}`;
+      }
+      // apply voice lang to document lang
+      const voice = localStorage.getItem("kb_siteVoiceLang") || code || "en";
+      document.documentElement.lang = voice;
+    }
+
+    // =============================
+    // Online/offline pill
+    // =============================
+    function updateModePill(){
+      const p = document.getElementById("modePill");
+      if(!p) return;
+      const online = navigator.onLine === true;
+      p.textContent = online ? "Mode: Online" : "Mode: Offline";
+    }
+    window.addEventListener("online", updateModePill);
+    window.addEventListener("offline", updateModePill);
+
+    // =============================
+    // Voice
+    // =============================
+    const LS_VOICE = "kb_kidgpt_voiceOn";
+    let voiceOn = (localStorage.getItem(LS_VOICE) !== "0"); // default ON
+
+    function hasTTS(){
+      return typeof window.speechSynthesis !== "undefined" && typeof SpeechSynthesisUtterance !== "undefined";
+    }
+
+    function speak(text){
+      if(!voiceOn) return;
+      if(!hasTTS()) return;
+      const t = String(text||"").trim();
+      if(!t) return;
+      try{
+        speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(t);
+        u.lang = localStorage.getItem("kb_siteVoiceLang") || "en";
+        u.rate = 0.98;
+        u.pitch = 1.25;
+        speechSynthesis.speak(u);
+      }catch(_){}
+    }
+
+    function toggleVoice(){
+      voiceOn = !voiceOn;
+      localStorage.setItem(LS_VOICE, voiceOn ? "1" : "0");
+      const b = document.getElementById("voiceToggle");
+      if(b){
+        b.textContent = voiceOn ? "🔊 Voice: ON" : "🔇 Voice: OFF";
+        b.setAttribute("aria-pressed", voiceOn ? "true" : "false");
+      }
+      speak(voiceOn ? "Voice is on." : "Voice is off.");
+    }
+
+    // =============================
+    // Rewards (simple, achievable)
+    // =============================
+    const LS_STARS = "kb_kidgpt_stars";
+    const LS_STREAK = "kb_kidgpt_streak";
+    const LS_BADGES = "kb_kidgpt_badges";
+    const LS_LAST_WIN = "kb_kidgpt_lastWinDate";
+
+    function todayKey(){
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth()+1).padStart(2,"0");
+      const day = String(d.getDate()).padStart(2,"0");
+      return `${y}-${m}-${day}`;
+    }
+    function getInt(key, def=0){
+      const n = parseInt(localStorage.getItem(key) || "", 10);
+      return Number.isFinite(n) ? n : def;
+    }
+    function setUIStats(){
+      document.getElementById("stars").textContent = String(getInt(LS_STARS,0));
+      document.getElementById("streak").textContent = String(getInt(LS_STREAK,0));
+      document.getElementById("badges").textContent = String(getInt(LS_BADGES,0));
+    }
+    function maybeBadge(){
+      const stars = getInt(LS_STARS,0);
+      const needs = [10, 25, 50, 100];
+      const badges = getInt(LS_BADGES,0);
+      if(badges < needs.length && stars >= needs[badges]){
+        localStorage.setItem(LS_BADGES, String(badges + 1));
+        setUIStats();
+        speak("Badge unlocked!");
+      }
+    }
+    function reward(msg, addStars){
+      const curStars = getInt(LS_STARS,0) + (addStars||0);
+      localStorage.setItem(LS_STARS, String(curStars));
+
+      const last = localStorage.getItem(LS_LAST_WIN) || "";
+      const t = todayKey();
+      if(last !== t){
+        localStorage.setItem(LS_STREAK, String(getInt(LS_STREAK,0) + 1));
+        localStorage.setItem(LS_LAST_WIN, t);
+      }
+
+      setUIStats();
+      maybeBadge();
+      announce(msg || "Nice!");
+      speak(msg || "Great job!");
+    }
+    window.reward = reward;
+
+    function announce(text){
+      const sr = document.getElementById("srLive");
+      if(sr) sr.textContent = text;
+    }
+
+    // =============================
+    // Kid-safe filter (simple offline)
+    // =============================
+    const BAD_WORDS = [
+      "sex","porn","nude","naked",
+      "kill","suicide","bomb","gun",
+      "drugs","cocaine","heroin",
+      "hate"
+    ];
+
+    function looksUnsafe(text){
+      const t = String(text||"").toLowerCase();
+      return BAD_WORDS.some(w => t.includes(w));
+    }
+
+    function looksLikeCheating(text){
+      const t = String(text||"").toLowerCase();
+      return /(answer key|give me the answers|leak|cheat|exam answers|test answers|solve for me without steps|do my homework)/i.test(t)
+          || /(kcse|exam|test|quiz)\s*(answers|leak|key)/i.test(t);
+    }
+
+    function safeRefusal(){
+      return "Safe mode ✅ I can’t help with that. But I can help you learn!\n\nTell me:\n1) What topic is it? (math, science, English…)\n2) Show one question (no answer key)\n\nI will give you hints and steps.";
+    }
+
+    // =============================
+    // Offline “KidGPT brain”
+    // =============================
+    const KB = {
+      climate: {
+        keys:["climate change","global warming","greenhouse","carbon","pollution"],
+        answer: () => (
+`Climate change means the Earth is getting warmer and weather is changing.
+
+Why it happens (simple):
+• We burn fuel (cars, factories) → smoke has gases like CO₂.
+• These gases trap heat like a blanket.
+
+What we can do:
+• Plant trees 🌳
+• Save electricity 💡
+• Walk, cycle, or share rides 🚶‍♀️🚲
+• Reuse and recycle ♻️
+
+Want a mini-quiz: What gas is famous for warming the Earth? (Hint: CO₂)`
+        )
+      },
+      water: {
+        keys:["water cycle","rain","cloud","evaporation","condensation"],
+        answer: () => (
+`The water cycle is how water moves around Earth:
+
+1) Sun heats water → it turns into vapor (evaporation)
+2) Vapor goes up and cools → makes clouds (condensation)
+3) Clouds get heavy → water falls (rain)
+4) Water goes to rivers/oceans → and it starts again
+
+Try this: draw a circle and label the 4 steps.`
+        )
+      },
+      animals: {
+        keys:["lion","elephant","giraffe","habitat","herbivore","carnivore","omnivore"],
+        answer: () => (
+`Animals live in habitats (their homes). Examples:
+• Lion 🦁: carnivore (eats meat), lives in savannah/grasslands.
+• Elephant 🐘: herbivore (eats plants), needs lots of water and space.
+• Giraffe 🦒: herbivore, eats leaves high in trees.
+
+Fun task: Pick one animal and tell me:
+1) What it eats
+2) Where it lives
+3) One cool fact`
+        )
+      },
+      countries: {
+        keys:["country","capital","kenya","tanzania","uganda","nairobi","africa","map"],
+        answer: () => (
+`Countries are places where people live with their own government and borders.
+
+Example (Kenya 🇰🇪):
+• Capital city: Nairobi
+• Languages: English and Kiswahili
+• Famous nature: savannah animals
+
+Learning game:
+Ask me “Give me 3 facts about (country name) for kids” and I will do it.`
+        )
+      },
+      computers: {
+        keys:["computer","cpu","ram","internet","keyboard","mouse","software","hardware"],
+        answer: () => (
+`A computer is a smart machine that helps us work and learn.
+
+Main parts:
+• Screen (shows)
+• Keyboard/mouse (input)
+• CPU (the “brain”)
+• Memory (RAM) helps it run fast
+• Storage saves files
+
+Safe tip: If a website asks for your password, tell a parent/teacher first.`
+        )
+      },
+      robotics_ai: {
+        keys:["robot","robotics","ai","artificial intelligence","machine learning"],
+        answer: () => (
+`A robot is a machine that can do tasks (sometimes automatically).
+AI (Artificial Intelligence) is when computers learn patterns to help make decisions.
+
+Kid examples:
+• A phone that recognizes your face
+• A robot vacuum that avoids obstacles
+• A game that gets harder as you improve
+
+Try this DIY idea (safe):
+Make a “paper robot” and label: sensors (eyes), brain (CPU), power (battery).`
+        )
+      },
+      health_food: {
+        keys:["healthy","food","diet","exercise","sleep","teeth","hygiene"],
+        answer: () => (
+`Healthy kid basics:
+• Eat a mix: fruits 🍌, veggies 🥦, proteins (eggs/beans), and whole grains.
+• Drink water 💧
+• Sleep enough 😴 (kids often need about 9–11 hours)
+• Brush teeth morning & night 🪥
+• Move your body daily 🏃‍♂️
+
+Want a simple healthy lunch idea for your school day?`
+        )
+      },
+      stories: {
+        keys:["story","make a story","create a story","fairy","adventure"],
+        answer: () => (
+`Story time! Pick 3:
+1) Hero (kid / animal)
+2) Place (school / forest / space)
+3) Lesson (kindness / bravery / honesty)
+
+Reply like: “Hero: rabbit, Place: forest, Lesson: bravery”
+and I will write a short, funny, kid-safe story.`
+        )
+      }
+    };
+
+    function findTopicAnswer(q){
+      const t = String(q||"").toLowerCase();
+      for(const key of Object.keys(KB)){
+        const obj = KB[key];
+        if(obj.keys.some(k => t.includes(k))) return obj.answer(q);
+      }
+      return (
+`I can help! 😊
+
+Tell me:
+• What subject is it? (Math, Science, English, Geography, Computers)
+• Your age or class (optional)
+• What you already know
+
+Then I will explain step-by-step in kid-friendly words.`
+      );
+    }
+
+    // =============================
+    // Chat UI
+    // =============================
+    function addMsg(who, text){
+      const chat = document.getElementById("chat");
+      const wrap = document.createElement("div");
+      wrap.className = "msg " + (who === "kid" ? "kid" : "kido");
+
+      const head = document.createElement("div");
+      head.className = "msgHeader";
+      head.innerHTML = `<span>${who === "kid" ? "🧒 You" : "🤖 Kido"}</span><span class="tiny">${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>`;
+
+      const body = document.createElement("div");
+      body.className = "msgBody";
+      body.textContent = text;
+
+      wrap.appendChild(head);
+      wrap.appendChild(body);
+      chat.appendChild(wrap);
+
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function sendAsk(){
+      const inp = document.getElementById("kidAsk");
+      const q = (inp.value || "").trim();
+      if(!q) return;
+
+      addMsg("kid", q);
+      inp.value = "";
+
+      if(looksUnsafe(q)){
+        const msg = "Safe mode ✅ I can’t talk about that. Let’s learn something helpful: animals, countries, science, math, computers, health, or DIY.";
+        addMsg("kido", msg);
+        speak(msg);
+        return;
+      }
+
+      if(looksLikeCheating(q)){
+        const msg = safeRefusal();
+        addMsg("kido", msg);
+        speak(msg);
+        return;
+      }
+
+      const ans = findTopicAnswer(q);
+      addMsg("kido", ans);
+      speak(ans);
+
+      reward("Nice question! +1 Star", 1);
+    }
+
+    function quickAsk(text){
+      const inp = document.getElementById("kidAsk");
+      inp.value = text;
+      sendAsk();
+    }
+    window.quickAsk = quickAsk;
+    window.sendAsk = sendAsk;
+
+    function speakLast(){
+      const chat = document.getElementById("chat");
+      const msgs = chat.querySelectorAll(".msgBody");
+      if(!msgs.length) return;
+      const last = msgs[msgs.length - 1].textContent || "";
+      speak(last);
+    }
+    window.speakLast = speakLast;
+
+    function clearChat(){
+      if(!confirm("Clear chat messages?")) return;
+      const chat = document.getElementById("chat");
+      chat.innerHTML = "";
+      addMsg("kido", "Hi friend! 👋 Ask me anything about school, animals, countries, nature, technology, health, or DIY.");
+      addMsg("kido", "If this is about a test or exam, I will give clues and steps — not cheating answers.");
+      speak("Chat cleared.");
+    }
+    window.clearChat = clearChat;
+
+    // =============================
+    // Mini Quiz
+    // =============================
+    const QUIZ = [
+      { q:"Which one is a mammal?\nA) Snake  B) Dog  C) Fish", a:1, ok:"Correct! Dogs are mammals.", no:"Try again! Hint: mammals drink milk when babies." },
+      { q:"What makes rain?\nA) Clouds  B) Stones  C) Fire", a:0, ok:"Correct! Clouds bring rain.", no:"Try again! Look up at the sky." },
+      { q:"Which is the cleanest habit?\nA) Wash hands  B) Litter  C) Shout", a:0, ok:"Correct! Washing hands helps stop germs.", no:"Try again! Germs can make us sick." },
+      { q:"What is 7 + 5?\nA) 10  B) 12  C) 14", a:1, ok:"Correct! 7 + 5 = 12.", no:"Try again! Count on: 7, 8, 9, 10, 11, 12." },
+      { q:"What is AI?\nA) A kind of tree  B) Computer that learns patterns  C) A shoe", a:1, ok:"Correct! AI helps computers learn patterns.", no:"Try again! Think about computers." }
+    ];
+    let quizIndex = -1;
+
+    function startQuiz(){
+      quizIndex = Math.floor(Math.random() * QUIZ.length);
+      document.getElementById("quizQ").textContent = QUIZ[quizIndex].q;
+      document.getElementById("quizNote").textContent = "";
+      speak("Quiz started.");
+    }
+    window.startQuiz = startQuiz;
+
+    function pickQuiz(i){
+      if(quizIndex < 0){
+        startQuiz();
+        return;
+      }
+      const item = QUIZ[quizIndex];
+      const note = document.getElementById("quizNote");
+      if(i === item.a){
+        note.textContent = "✅ " + item.ok;
+        reward("Quiz win! +2 Stars", 2);
+        speak(item.ok);
+        quizIndex = -1;
+      }else{
+        note.textContent = "❌ " + item.no;
+        speak(item.no);
+      }
+    }
+    window.pickQuiz = pickQuiz;
+
+    // =========================================================
+    // ✅ FULL EYE-CARE SYSTEM (GLOBAL)
+    // Uses same keys as Home:
+    // - kb_eyeCare_v1
+    // =========================================================
+    const EC = {
+      LS: "kb_eyeCare_v1",
+      defaults: {
+        brightness: 0.90,
+        blue: 0.12,
+        textScale: 1.00,
+        softContrast: true,
+        reduceMotion: false,
+        autoNight: true,
+        reminders: false,
+        snoozeUntil: 0
+      }
+    };
+
+    function kbReadEC(){
+      try{
+        const raw = localStorage.getItem(EC.LS);
+        const obj = raw ? JSON.parse(raw) : {};
+        return { ...EC.defaults, ...(obj||{}) };
+      }catch(_){
+        return { ...EC.defaults };
+      }
+    }
+    function kbWriteEC(v){
+      localStorage.setItem(EC.LS, JSON.stringify(v||{}));
+    }
+
+    function kbApplyEC(state){
+      if(state.autoNight){
+        const h = new Date().getHours();
+        const isNight = (h >= 18 || h < 6);
+        const nightBrightness = Math.min(state.brightness, 0.85);
+        const nightBlue = Math.max(state.blue, 0.18);
+
+        document.documentElement.style.setProperty("--kbBrightness", String(isNight ? nightBrightness : state.brightness));
+        document.documentElement.style.setProperty("--kbBlue", String(isNight ? nightBlue : state.blue));
+        const ap = document.getElementById("kbAutoPill");
+        if(ap) ap.textContent = "Auto Night: ON";
+      } else {
+        document.documentElement.style.setProperty("--kbBrightness", String(state.brightness));
+        document.documentElement.style.setProperty("--kbBlue", String(state.blue));
+        const ap = document.getElementById("kbAutoPill");
+        if(ap) ap.textContent = "Auto Night: OFF";
+      }
+
+      document.documentElement.style.setProperty("--kbTextScale", String(state.textScale));
+
+      document.documentElement.classList.toggle("kb-soft", !!state.softContrast);
+      document.documentElement.classList.toggle("kb-reduce-motion", !!state.reduceMotion);
+
+      const b = document.getElementById("kbBrightness");
+      const bl = document.getElementById("kbBlue");
+      const t = document.getElementById("kbTextScale");
+
+      if(b) b.value = String(state.brightness);
+      if(bl) bl.value = String(state.blue);
+      if(t) t.value = String(state.textScale);
+
+      const bV = document.getElementById("kbBrightnessVal");
+      const blV = document.getElementById("kbBlueVal");
+      const tV = document.getElementById("kbTextVal");
+
+      if(bV) bV.textContent = Math.round(parseFloat(state.brightness) * 100) + "%";
+      if(blV) blV.textContent = Math.round(parseFloat(state.blue) * 100) + "%";
+      if(tV) tV.textContent = Math.round(parseFloat(state.textScale) * 100) + "%";
+
+      const softBtn = document.getElementById("kbSoftBtn");
+      const motionBtn = document.getElementById("kbMotionBtn");
+      const autoBtn = document.getElementById("kbAutoBtn");
+      const remBtn = document.getElementById("kbRemBtn");
+
+      if(softBtn){
+        softBtn.textContent = state.softContrast ? "ON" : "OFF";
+        softBtn.setAttribute("aria-pressed", state.softContrast ? "true" : "false");
+      }
+      if(motionBtn){
+        motionBtn.textContent = state.reduceMotion ? "ON" : "OFF";
+        motionBtn.setAttribute("aria-pressed", state.reduceMotion ? "true" : "false");
+      }
+      if(autoBtn){
+        autoBtn.textContent = state.autoNight ? "ON" : "OFF";
+        autoBtn.setAttribute("aria-pressed", state.autoNight ? "true" : "false");
+      }
+      if(remBtn){
+        remBtn.textContent = state.reminders ? "ON" : "OFF";
+        remBtn.setAttribute("aria-pressed", state.reminders ? "true" : "false");
+      }
+    }
+
+    function kbToggleEyePanel(){
+      const p = document.getElementById("kbEyePanel");
+      const btn = document.getElementById("kbEyeBtn");
+      if(!p || !btn) return;
+      const open = (p.style.display === "none" || !p.style.display);
+      p.style.display = open ? "block" : "none";
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+      if(open) speak("Eye care settings opened.");
+    }
+    window.kbToggleEyePanel = kbToggleEyePanel;
+
+    function kbBindEyeCare(){
+      let st = kbReadEC();
+      kbApplyEC(st);
+
+      const brightness = document.getElementById("kbBrightness");
+      const blue = document.getElementById("kbBlue");
+      const text = document.getElementById("kbTextScale");
+
+      if(brightness){
+        brightness.addEventListener("input", ()=>{
+          st = kbReadEC();
+          st.brightness = parseFloat(brightness.value);
+          kbWriteEC(st);
+          kbApplyEC(st);
+        });
+      }
+      if(blue){
+        blue.addEventListener("input", ()=>{
+          st = kbReadEC();
+          st.blue = parseFloat(blue.value);
+          kbWriteEC(st);
+          kbApplyEC(st);
+        });
+      }
+      if(text){
+        text.addEventListener("input", ()=>{
+          st = kbReadEC();
+          st.textScale = parseFloat(text.value);
+          kbWriteEC(st);
+          kbApplyEC(st);
+        });
+      }
+
+      try{
+        const mq = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)");
+        if(mq && mq.matches){
+          const cur = kbReadEC();
+          if(cur.reduceMotion === false){
+            cur.reduceMotion = true;
+            kbWriteEC(cur);
+            kbApplyEC(cur);
+          }
+        }
+      }catch(_){}
+    }
+
+    window.kbToggleSoftContrast = function(){
+      const st = kbReadEC();
+      st.softContrast = !st.softContrast;
+      kbWriteEC(st);
+      kbApplyEC(st);
+      speak(st.softContrast ? "Soft contrast on." : "Soft contrast off.");
+    };
+
+    window.kbToggleReduceMotion = function(){
+      const st = kbReadEC();
+      st.reduceMotion = !st.reduceMotion;
+      kbWriteEC(st);
+      kbApplyEC(st);
+      speak(st.reduceMotion ? "Reduce motion on." : "Reduce motion off.");
+    };
+
+    window.kbToggleAutoNight = function(){
+      const st = kbReadEC();
+      st.autoNight = !st.autoNight;
+      kbWriteEC(st);
+      kbApplyEC(st);
+      speak(st.autoNight ? "Auto night mode on." : "Auto night mode off.");
+    };
+
+    let kbRemTimer = null;
+
+    function kbToastShow(text){
+      const t = document.getElementById("kbToast");
+      const tx = document.getElementById("kbToastText");
+      if(tx) tx.textContent = text || "Take a short eye break.";
+      if(t) t.style.display = "block";
+      try{ speak("Time for an eye break. Look far away for twenty seconds."); }catch(_){}
+    }
+    function kbToastHide(){
+      const t = document.getElementById("kbToast");
+      if(t) t.style.display = "none";
+    }
+    window.kbToastHide = kbToastHide;
+
+    window.kbSnooze = function(){
+      const st = kbReadEC();
+      st.snoozeUntil = Date.now() + 5*60*1000;
+      kbWriteEC(st);
+      kbToastHide();
+    };
+
+    function kbStartReminders(){
+      if(kbRemTimer) clearInterval(kbRemTimer);
+      kbRemTimer = setInterval(()=>{
+        const st = kbReadEC();
+        if(!st.reminders) return;
+        if(st.snoozeUntil && Date.now() < st.snoozeUntil) return;
+        kbToastShow("👁️ Eye Break: Look 20 feet away for 20 seconds (20-20-20 rule).");
+      }, 20 * 60 * 1000);
+    }
+
+    window.kbToggleReminders = function(){
+      const st = kbReadEC();
+      st.reminders = !st.reminders;
+      st.snoozeUntil = 0;
+      kbWriteEC(st);
+      kbApplyEC(st);
+      if(st.reminders){
+        kbStartReminders();
+        speak("Eye rest reminders on.");
+      }else{
+        if(kbRemTimer) clearInterval(kbRemTimer);
+        kbToastHide();
+        speak("Eye rest reminders off.");
+      }
+    };
+
+    window.kbResetEyeCare = function(){
+      kbWriteEC({ ...EC.defaults });
+      const st = kbReadEC();
+      kbApplyEC(st);
+      if(kbRemTimer) clearInterval(kbRemTimer);
+      kbToastHide();
+      speak("Eye care reset.");
+    };
+
+    setInterval(()=>{
+      const st = kbReadEC();
+      kbApplyEC(st);
+    }, 60 * 1000);
+
+    // =============================
+    // Init
+    // =============================
+    (function init(){
+      kbUpdateLangPill();
+      updateModePill();
+
+      // set voice toggle UI
+      const b = document.getElementById("voiceToggle");
+      if(b){
+        b.textContent = voiceOn ? "🔊 Voice: ON" : "🔇 Voice: OFF";
+        b.setAttribute("aria-pressed", voiceOn ? "true" : "false");
+      }
+
+      setUIStats();
+
+      // Eye care
+      kbBindEyeCare();
+      const st = kbReadEC();
+      if(st.reminders) kbStartReminders();
+
+      // greet once
+      if(!localStorage.getItem("kb_kidgpt_greeted")){
+        localStorage.setItem("kb_kidgpt_greeted","1");
+        setTimeout(()=> speak("Welcome to Kid GPT. Ask any question and Kido will answer you."), 700);
+      }
+    })();
+  </script>
+
+  <!-- Keep your translator script if you use it across site -->
+  <script src="/lang.js" defer></script>
+</body>
+</html>

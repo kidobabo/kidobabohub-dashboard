@@ -1,0 +1,906 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kido & Babo Hub</title>
+  <meta name="description" content="Kido & Babo Hub — Home, Dashboard, Help, Pay, Tracker, Translator, Read Aloud, Safety Songs." />
+
+  <style>
+    :root{
+      --bg:#0b1020;
+      --card:#0f1733;
+      --card2:#0c1330;
+      --text:#eaf0ff;
+      --muted:#b7c3ff;
+      --line:rgba(255,255,255,.12);
+      --shadow:0 18px 60px rgba(0,0,0,.45);
+      --radius:18px;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1100px 560px at 10% 10%, #23316e 0%, transparent 50%),
+                  radial-gradient(900px 520px at 90% 10%, #7a1b1b 0%, transparent 55%),
+                  radial-gradient(800px 520px at 50% 100%, #0e5b2f 0%, transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      min-height:100vh;
+    }
+
+    .wrap{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 18px 14px 60px;
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding: 14px 14px 10px;
+      border:1px solid var(--line);
+      background: rgba(15, 23, 51, .55);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .brand{
+      display:flex; flex-direction:column; gap:4px;
+      padding: 2px 6px;
+    }
+    .brand .title{
+      font-weight: 900;
+      font-size: 18px;
+      letter-spacing: .2px;
+      line-height: 1.1;
+    }
+    .brand .sub{
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .nav{
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      gap:8px;
+    }
+
+    .nav button{
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-weight: 900;
+      cursor:pointer;
+      transition: transform .05s ease, background .15s ease, border-color .15s ease;
+      white-space:nowrap;
+      font-size: 13px;
+    }
+    .nav button:hover{
+      background: rgba(255,255,255,.12);
+      border-color: rgba(255,255,255,.24);
+    }
+    .nav button:active{ transform: translateY(1px); }
+    .nav button.active{
+      background: linear-gradient(90deg,#006600,#bb0000,#000000);
+      border-color: rgba(255,255,255,.30);
+      box-shadow: 0 10px 25px rgba(0,0,0,.25);
+    }
+
+    main{
+      margin-top: 14px;
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(15, 23, 51, .55);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:hidden;
+    }
+
+    .page{
+      display:none;
+      padding: 18px 16px;
+    }
+    .page.active{ display:block; }
+
+    .card{
+      background: rgba(12, 19, 48, .72);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+
+    h2{
+      margin: 0 0 10px;
+      font-size: 18px;
+      font-weight: 950;
+    }
+    p{ margin: 8px 0; color: rgba(234,240,255,.92); line-height: 1.5; }
+    .muted{ color: var(--muted); font-weight: 700; font-size: 13px; }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .col-12{ grid-column: span 12; }
+    .col-7{ grid-column: span 7; }
+    .col-5{ grid-column: span 5; }
+    @media (max-width: 860px){
+      .col-7,.col-5{ grid-column: span 12; }
+      header{ flex-direction: column; align-items: stretch; }
+      .nav{ justify-content:flex-start; }
+    }
+
+    .pill{
+      display:inline-block;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      font-weight: 900;
+      font-size: 12px;
+      color: var(--text);
+    }
+
+    /* Small helper button style inside pages */
+    .btn{
+      border:none;
+      padding: 11px 12px;
+      border-radius: 14px;
+      font-weight: 950;
+      cursor:pointer;
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.16);
+      color: var(--text);
+      margin-right:8px;
+      margin-top:8px;
+    }
+    .btn:hover{ background: rgba(255,255,255,.14); }
+
+    /* Stats row (Views / Reviews like before) */
+    .stats{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:10px;
+      align-items:center;
+    }
+    .statBox{
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 14px;
+      padding: 10px 12px;
+      font-weight: 950;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      box-shadow: 0 10px 25px rgba(0,0,0,.18);
+    }
+    .statBox small{
+      display:block;
+      opacity:.9;
+      font-size:11px;
+      font-weight:900;
+    }
+    .statBox .n{
+      font-size:16px;
+      font-weight:1000;
+    }
+
+    /* ✅ Voice bar (simple accessibility) */
+    .voiceBar{
+      margin-top: 14px;
+      border:1px solid var(--line);
+      background: rgba(15, 23, 51, .55);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      padding: 12px 12px;
+    }
+    .voiceRow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .voiceLeft{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+    }
+    .voiceRight{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+      justify-content:flex-end;
+    }
+    .toggle{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 9px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      font-weight: 950;
+      cursor:pointer;
+      user-select:none;
+    }
+    .dot{
+      width:10px;height:10px;border-radius:50%;
+      background:#bb0000;
+      box-shadow: 0 0 0 3px rgba(187,0,0,.18);
+    }
+    .dot.on{
+      background:#00b300;
+      box-shadow: 0 0 0 3px rgba(0,179,0,.18);
+    }
+    .voiceSelect{
+      padding: 9px 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      font-weight: 900;
+      outline:none;
+    }
+    .voiceMini{
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 800;
+      line-height: 1.4;
+    }
+
+    footer{
+      margin-top: 14px;
+      padding: 14px 14px;
+      border:1px solid var(--line);
+      background: rgba(15, 23, 51, .55);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      color: rgba(234,240,255,.92);
+    }
+    footer .row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      justify-content:space-between;
+      align-items:center;
+    }
+    footer a{ color: var(--text); font-weight:900; text-decoration:none; }
+    footer a:hover{ text-decoration:underline; }
+    footer .mini{ font-size:12px; color: var(--muted); font-weight:800; }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="title">Kido & Babo Hub</div>
+        <div class="sub">Home • Dashboard • Help • Pay • Tracker • Translator • Read Aloud • Safety Songs</div>
+      </div>
+
+      <!-- ✅ KEEP BUTTONS + POSITIONS -->
+      <div class="nav" id="nav">
+        <button data-page="home" class="active">🏠 Home</button>
+
+        <button data-link="/studentsdashboard.html#tracking">📍 Tracker GPS</button>
+        <button data-link="/help.html">🆘 Help/Voice</button>
+        <button data-link="/pay.html">🌱 Free trial</button>
+
+        <button data-link="/tracker.html">📍 Tracker</button>
+        <button data-link="/translator.html">🌍 Translator</button>
+        <button data-link="/readaloud.html">🔊 Read Aloud</button>
+        <button data-link="/safetysongs.html">🎶 Safety Songs</button>
+
+        <button data-action="edukid">🎓 EdukidGPT</button>
+      </div>
+    </header>
+
+    <!-- ✅ Voice toolbar (simple + safe, for blind accessibility) -->
+    <div class="voiceBar" role="region" aria-label="Voice Accessibility">
+      <div class="voiceRow">
+        <div class="voiceLeft">
+          <div class="toggle" id="voiceToggle" title="Turn Voice On/Off">
+            <span class="dot" id="voiceDot"></span>
+            <span id="voiceLabel">Voice: OFF</span>
+          </div>
+
+          <select class="voiceSelect" id="voiceLang" title="Voice language">
+            <option value="en-US">English (US)</option>
+            <option value="en-GB">English (UK)</option>
+            <option value="en">English (General)</option>
+            <option value="sw-KE">Kiswahili (Kenya)</option>
+            <option value="sw">Kiswahili (General)</option>
+            <option value="fr">French</option>
+            <option value="ar">Arabic</option>
+          </select>
+
+          <button class="btn" id="btnReadSelected" title="Reads highlighted text">🔊 Read Selected</button>
+          <button class="btn" id="btnReadPage" title="Reads main headings and buttons">📣 Read Page</button>
+          <button class="btn" id="btnStopVoice" title="Stop speaking">⏹ Stop</button>
+        </div>
+
+        <div class="voiceRight">
+          <div class="voiceMini">
+            Tip: Highlight text then click <b>Read Selected</b>.<br/>
+            Shortcuts: <b>Ctrl+Shift+S</b> (selected), <b>Esc</b> (stop)
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <main>
+      <!-- HOME -->
+      <section class="page active" id="home">
+        <div class="grid">
+          <div class="col-7">
+            <div class="card">
+              <h2>Welcome 👋</h2>
+              <p class="muted">This is a single-page layout so everything loads and works (no missing files).</p>
+              <p>Use the top buttons to open your features. This home stays light and fast.</p>
+
+              <!-- ✅ Views / Reviews -->
+              <div class="stats">
+                <div class="statBox">
+                  <div>👁️</div>
+                  <div>
+                    <small>Views</small>
+                    <div class="n" id="viewsCount">0</div>
+                  </div>
+                </div>
+
+                <div class="statBox">
+                  <div>⭐</div>
+                  <div>
+                    <small>Reviews</small>
+                    <div class="n"><span id="reviewsCount">0</span> <span id="reviewsStars" style="opacity:.9;"></span></div>
+                  </div>
+                </div>
+
+                <span class="pill">Status: Hosting layout OK ✅</span>
+              </div>
+
+              <button class="btn" onclick="location.href='/studentsdashboard.html#tracking'">Open Tracker GPS</button>
+              <button class="btn" onclick="location.href='/pay.html'">Go to Free trial</button>
+              <button class="btn" onclick="toggleEdukid()">Open EdukidGPT</button>
+            </div>
+          </div>
+
+          <div class="col-5">
+            <div class="card">
+              <h2>Quick Actions</h2>
+              <p class="muted">Fast links for parents/teachers.</p>
+              <button class="btn" onclick="location.href='/tracker.html'">Open Tracker</button>
+              <button class="btn" onclick="location.href='/translator.html'">Open Translator</button>
+              <button class="btn" onclick="location.href='/readaloud.html'">Open Read Aloud</button>
+              <button class="btn" onclick="location.href='/safetysongs.html'">Open Safety Songs</button>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="card">
+              <h2>🎓 EdukidGPT (Restored Embed)</h2>
+
+              <!-- ====== YOUR EDUKID EMBED (UNCHANGED) ====== -->
+              <div style="font-family:Arial;text-align:center;max-width:860px;margin:auto;">
+                <button onclick="toggleEdukid()" style="border:none;padding:14px 18px;border-radius:18px;font-size:18px;font-weight:900;cursor:pointer;color:white;
+                  background:linear-gradient(90deg,#006600,#bb0000,#000000);box-shadow:0 6px 18px rgba(0,0,0,0.25);">
+                  🎓 EDUKID GPT
+                </button>
+
+                <div class="eduBlink">Ask school questions only • Fun • Safe • Learn!</div>
+
+                <style>
+                  .eduBlink{margin-top:8px;font-size:14px;font-weight:900;color:#006600;animation:eduPulse 1.4s ease-in-out infinite;}
+                  @keyframes eduPulse{0%{opacity:.35;transform:scale(1)}50%{opacity:1;transform:scale(1.03)}100%{opacity:.35;transform:scale(1)}}
+                  .eduCard{background:#fff;border:1px solid #e8eef7;border-radius:16px;padding:12px;box-shadow:0 8px 18px rgba(0,0,0,.12);}
+                  .eduBtn{padding:10px 12px;border:none;border-radius:12px;font-weight:900;cursor:pointer;}
+                  .eduMini{font-size:12px;opacity:.85}
+                </style>
+
+                <div id="edukidPanel" class="eduCard" style="display:none;margin-top:14px;text-align:left;">
+                  <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;">
+                    <div style="font-weight:900;font-size:16px;">👧🧒 EdukidGPT (Offline)</div>
+                    <div class="eduMini">Safe mode: only school topics ✅</div>
+                  </div>
+
+                  <div style="margin-top:10px;display:grid;gap:10px;">
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+                      <label style="font-weight:900;">Choose topic:</label>
+                      <select id="eduTopic" onchange="loadTopic()" style="padding:10px;border-radius:12px;border:1px solid #ddd;min-width:260px;">
+                        <option value="math_add">Math: Add & Subtract</option>
+                        <option value="math_mul">Math: Multiply</option>
+                        <option value="math_frac">Math: Fractions</option>
+                        <option value="time_money">Time & Money</option>
+                        <option value="shapes_meas">Shapes & Measure</option>
+                        <option value="english_read">English: Reading</option>
+                        <option value="english_gram">English: Grammar</option>
+                        <option value="science_animals">Science: Animals & Plants</option>
+                        <option value="science_weather">Science: Weather</option>
+                        <option value="social_safety">Social: Community & Safety</option>
+                      </select>
+
+                      <button class="eduBtn" onclick="randomQuestion()" style="background:#4dd4ff;">🎲 Random Q</button>
+                      <button class="eduBtn" onclick="giveStar()" style="background:#ffcc00;">⭐ Star</button>
+                    </div>
+
+                    <div style="background:#f7fbff;border:1px dashed #cfe3ff;border-radius:14px;padding:12px;">
+                      <div style="font-weight:900;">Question</div>
+                      <div id="eduQ" style="margin-top:6px;font-size:15px;font-weight:900;"></div>
+
+                      <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;">
+                        <button class="eduBtn" onclick="showAnswer()" style="background:#7CFF6B;">✅ Show Answer</button>
+                        <button class="eduBtn" onclick="hideAnswer()" style="background:#ff4d6d;color:#fff;">🙈 Hide</button>
+                        <button class="eduBtn" onclick="speakEdu('q')" style="background:#bb0000;color:#fff;">🔊 Read Question</button>
+                        <button class="eduBtn" onclick="speakEdu('a')" style="background:#006600;color:#fff;">🔊 Read Answer</button>
+                      </div>
+
+                      <div id="eduABox" style="display:none;margin-top:12px;background:#fff;border:1px solid #e8eef7;border-radius:12px;padding:10px;">
+                        <div style="font-weight:900;">Answer</div>
+                        <div id="eduA" style="margin-top:6px;font-size:14px;line-height:1.4;"></div>
+                        <div id="eduTip" class="eduMini" style="margin-top:8px;font-weight:800;color:#006600;"></div>
+                      </div>
+                    </div>
+
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;">
+                      <div style="font-weight:900;">⭐ Stars: <span id="eduStars">0</span></div>
+                      <div class="eduMini">Tip: pick a topic, click Random, then Read Answer 🔊</div>
+                    </div>
+
+                    <div style="background:#fff;border:1px solid #e8eef7;border-radius:14px;padding:10px;">
+                      <div style="font-weight:900;margin-bottom:6px;">Ask your own (school only)</div>
+                      <div class="eduMini">EdukidGPT will only answer if it matches the allowed school topics.</div>
+                      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;">
+                        <input id="eduAsk" placeholder="Type a school question… e.g., What is 7+5?"
+                          style="flex:1;min-width:240px;padding:10px;border-radius:12px;border:1px solid #ddd;">
+                        <button class="eduBtn" onclick="answerTyped()" style="background:#4dd4ff;">🧠 Answer</button>
+                      </div>
+                      <div id="eduAskReply" style="margin-top:10px;font-weight:900;"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- ====== END EDUKID EMBED ====== -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- (kept placeholders - top buttons open real pages) -->
+      <section class="page" id="dashboard">
+        <div class="card">
+          <h2>📊 Dashboard</h2>
+          <p class="muted">Use Tracker GPS button on top to open the real dashboard.</p>
+        </div>
+      </section>
+
+      <section class="page" id="help">
+        <div class="card">
+          <h2>🆘 Help</h2>
+          <p class="muted">Open Help/Voice from the top toolbar.</p>
+        </div>
+      </section>
+
+      <section class="page" id="pay">
+        <div class="card">
+          <h2>🌱 Free trial</h2>
+          <p class="muted">Open Free trial from the top toolbar.</p>
+        </div>
+      </section>
+
+      <section class="page" id="tracker">
+        <div class="card">
+          <h2>📍 Tracker</h2>
+          <p class="muted">Open Tracker from the top toolbar.</p>
+        </div>
+      </section>
+
+      <section class="page" id="translator">
+        <div class="card">
+          <h2>🌍 Translator</h2>
+          <p class="muted">Open Translator from the top toolbar.</p>
+        </div>
+      </section>
+
+      <section class="page" id="readaloud">
+        <div class="card">
+          <h2>🔊 Read Aloud</h2>
+          <p class="muted">Open Read Aloud from the top toolbar.</p>
+        </div>
+      </section>
+
+      <section class="page" id="safetysongs">
+        <div class="card">
+          <h2>🎶 Safety Songs</h2>
+          <p class="muted">Open Safety Songs from the top toolbar.</p>
+        </div>
+      </section>
+    </main>
+
+    <!-- ✅ FOOTER RESTORED -->
+    <footer>
+      <div class="row">
+        <div>
+          <div style="font-weight:1000;">Kido & Babo Hub</div>
+          <div class="mini">Domain: <a href="https://kidobabohub.web.app" target="_blank" rel="noopener">kidobabohub.web.app</a> • Est. 2026</div>
+        </div>
+        <div class="mini">© 2026 Kido & Babo Hub. All rights reserved.</div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    /* ---------------- NAV ---------------- */
+    function go(pageId){
+      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+      const page = document.getElementById(pageId);
+      if(page) page.classList.add("active");
+
+      document.querySelectorAll("#nav button").forEach(b => b.classList.remove("active"));
+      const btn = document.querySelector(`#nav button[data-page="${pageId}"]`);
+      if(btn) btn.classList.add("active");
+
+      location.hash = pageId;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    document.getElementById("nav").addEventListener("click", (e) => {
+      const b = e.target.closest("button");
+      if(!b) return;
+
+      const link = b.getAttribute("data-link");
+      if(link){
+        location.href = link;
+        return;
+      }
+
+      const action = b.getAttribute("data-action");
+      if(action === "edukid"){
+        go("home");
+        const p=document.getElementById("edukidPanel");
+        if(p && (p.style.display==="none"||!p.style.display)) toggleEdukid();
+        setTimeout(()=>{ p.scrollIntoView({behavior:"smooth", block:"start"}); }, 200);
+        return;
+      }
+
+      const pageId = b.getAttribute("data-page");
+      if(pageId) go(pageId);
+    });
+
+    window.addEventListener("load", () => {
+      const h = (location.hash || "").replace("#","").trim();
+      if(h && document.getElementById(h)) go(h);
+    });
+
+    /* ✅ SIMPLE "VIEWS / REVIEWS" (device-local, as requested)
+       If you want GLOBAL real visitors, we add Google Analytics later.
+    */
+    (function(){
+      const VKEY="kbh_views";
+      const RKEY="kbh_reviews";
+      const SKEY="kbh_review_stars";
+
+      function getInt(k, d=0){
+        const n=parseInt(localStorage.getItem(k)||String(d),10);
+        return Number.isFinite(n) ? n : d;
+      }
+
+      const views = getInt(VKEY, 0) + 1;
+      localStorage.setItem(VKEY, String(views));
+      const vEl = document.getElementById("viewsCount");
+      if(vEl) vEl.textContent = String(views);
+
+      let reviews = getInt(RKEY, 12345);
+      if(!localStorage.getItem(RKEY)) localStorage.setItem(RKEY, String(reviews));
+      const rEl = document.getElementById("reviewsCount");
+      if(rEl) rEl.textContent = String(reviews);
+
+      let stars = localStorage.getItem(SKEY) || "4.9★";
+      if(!localStorage.getItem(SKEY)) localStorage.setItem(SKEY, stars);
+      const sEl = document.getElementById("reviewsStars");
+      if(sEl) sEl.textContent = `(${stars})`;
+    })();
+
+    /* ---------------- VOICE / TEXT TO SPEECH (simple + safe) ---------------- */
+    const VOICE_ON_KEY = "kbh_voice_on";
+    const VOICE_LANG_KEY = "kbh_voice_lang";
+
+    let voiceOn = (localStorage.getItem(VOICE_ON_KEY) === "1");
+    let voiceLang = localStorage.getItem(VOICE_LANG_KEY) || "en-US";
+
+    const voiceToggle = document.getElementById("voiceToggle");
+    const voiceDot = document.getElementById("voiceDot");
+    const voiceLabel = document.getElementById("voiceLabel");
+    const voiceLangSel = document.getElementById("voiceLang");
+    const btnReadSelected = document.getElementById("btnReadSelected");
+    const btnReadPage = document.getElementById("btnReadPage");
+    const btnStopVoice = document.getElementById("btnStopVoice");
+
+    function canSpeak(){
+      return ("speechSynthesis" in window) && ("SpeechSynthesisUtterance" in window);
+    }
+    function stopSpeak(){
+      try{ if(canSpeak()) speechSynthesis.cancel(); }catch(_){}
+    }
+    function setVoiceUI(){
+      if(voiceLangSel) voiceLangSel.value = voiceLang;
+      if(voiceDot) voiceDot.classList.toggle("on", voiceOn);
+      if(voiceLabel) voiceLabel.textContent = voiceOn ? "Voice: ON" : "Voice: OFF";
+    }
+    function speakText(text, lang){
+      if(!voiceOn) return;
+      if(!canSpeak()){ alert("Voice is not supported in this browser."); return; }
+      const t = (text || "").trim();
+      if(!t) return;
+      stopSpeak();
+      const u = new SpeechSynthesisUtterance(t);
+      u.lang = lang || voiceLang || "en";
+      u.rate = 1.0;
+      u.pitch = 1.1;
+      speechSynthesis.speak(u);
+    }
+    function readSelected(){
+      const sel = (window.getSelection && window.getSelection().toString()) ? window.getSelection().toString() : "";
+      if(!sel.trim()){
+        // fallback: read the first paragraph on page
+        const p = document.querySelector("#home p");
+        speakText(p ? p.textContent : "Please highlight text to read.");
+        return;
+      }
+      speakText(sel);
+    }
+    function readPageSummary(){
+      // Reads key headings + button labels (best for blind, fast, not too long)
+      const parts = [];
+      const h2s = Array.from(document.querySelectorAll("#home h2")).map(x => x.textContent.trim()).filter(Boolean);
+      const btns = Array.from(document.querySelectorAll("#home button.btn")).map(x => x.textContent.trim()).filter(Boolean);
+
+      parts.push("Kido and Babo Hub.");
+      if(h2s.length) parts.push("On this page: " + h2s.join(". ") + ".");
+      if(btns.length) parts.push("Quick buttons are: " + btns.join(", ") + ".");
+
+      speakText(parts.join(" "));
+    }
+
+    if(voiceLangSel) voiceLangSel.value = voiceLang;
+
+    if(voiceToggle){
+      voiceToggle.addEventListener("click", ()=>{
+        voiceOn = !voiceOn;
+        localStorage.setItem(VOICE_ON_KEY, voiceOn ? "1" : "0");
+        setVoiceUI();
+        if(voiceOn){
+          speakText("Voice is on.");
+        } else {
+          stopSpeak();
+        }
+      });
+    }
+    if(voiceLangSel){
+      voiceLangSel.addEventListener("change", ()=>{
+        voiceLang = voiceLangSel.value || "en-US";
+        localStorage.setItem(VOICE_LANG_KEY, voiceLang);
+        setVoiceUI();
+        if(voiceOn) speakText("Language set.");
+      });
+    }
+    if(btnReadSelected) btnReadSelected.addEventListener("click", readSelected);
+    if(btnReadPage) btnReadPage.addEventListener("click", readPageSummary);
+    if(btnStopVoice) btnStopVoice.addEventListener("click", stopSpeak);
+
+    // Keyboard shortcuts
+    document.addEventListener("keydown", (e)=>{
+      if(e.key === "Escape"){ stopSpeak(); return; }
+      // Ctrl+Shift+S => read selected
+      if(e.ctrlKey && e.shiftKey && (e.key === "S" || e.key === "s")){ e.preventDefault(); readSelected(); }
+    });
+
+    setVoiceUI();
+
+    /* ---------- EdukidGPT script (unchanged) ---------- */
+    function toggleEdukid(){
+      const p=document.getElementById("edukidPanel");
+      p.style.display=(p.style.display==="none"||!p.style.display)?"block":"none";
+      loadTopic(); updateStars();
+    }
+
+    const BANK = {
+      math_add: [
+        {q:"What is 7 + 5?", a:"7 + 5 = 12.", tip:"Count on: 7, 8, 9, 10, 11, 12."},
+        {q:"What is 15 − 6?", a:"15 − 6 = 9.", tip:"Take away 6 from 15."},
+        {q:"What is 9 + 8?", a:"9 + 8 = 17.", tip:"9 + 1 = 10, then +7 = 17."},
+        {q:"What is 20 − 9?", a:"20 − 9 = 11.", tip:"20 − 10 = 10, then +1 = 11."},
+        {q:"What is 13 + 4?", a:"13 + 4 = 17.", tip:"Add 4 to 13."},
+        {q:"What is 18 − 7?", a:"18 − 7 = 11.", tip:"Subtract step by step."},
+        {q:"What is 6 + 6?", a:"6 + 6 = 12.", tip:"Double 6."},
+        {q:"What is 14 − 5?", a:"14 − 5 = 9.", tip:"14 take away 5."},
+        {q:"What is 10 + 9?", a:"10 + 9 = 19.", tip:"Ten plus nine."},
+        {q:"What is 16 − 8?", a:"16 − 8 = 8.", tip:"Half of 16 is 8."}
+      ],
+      math_mul: [
+        {q:"What is 3 × 4?", a:"3 × 4 = 12.", tip:"3 groups of 4."},
+        {q:"What is 5 × 2?", a:"5 × 2 = 10.", tip:"Count by 2s: 2,4,6,8,10."},
+        {q:"What is 6 × 3?", a:"6 × 3 = 18.", tip:"Count by 6s: 6,12,18."},
+        {q:"What is 4 × 5?", a:"4 × 5 = 20.", tip:"5 + 5 + 5 + 5."},
+        {q:"What is 7 × 1?", a:"7 × 1 = 7.", tip:"Any number times 1 stays the same."},
+        {q:"What is 8 × 2?", a:"8 × 2 = 16.", tip:"Double 8."},
+        {q:"What is 9 × 2?", a:"9 × 2 = 18.", tip:"Double 9."},
+        {q:"What is 10 × 3?", a:"10 × 3 = 30.", tip:"Add a zero: 10, 20, 30."},
+        {q:"What is 2 × 6?", a:"2 × 6 = 12.", tip:"2 groups of 6."},
+        {q:"What is 3 × 3?", a:"3 × 3 = 9.", tip:"3 groups of 3."}
+      ],
+      math_frac: [
+        {q:"What is 1/2 of 10?", a:"1/2 of 10 = 5.", tip:"Half means divide by 2."},
+        {q:"Which is bigger: 1/2 or 1/4?", a:"1/2 is bigger.", tip:"A half is larger than a quarter."},
+        {q:"What is 1/3 of 12?", a:"1/3 of 12 = 4.", tip:"Divide 12 by 3."},
+        {q:"What fraction of a pizza is 2 slices out of 8?", a:"2/8 = 1/4.", tip:"Simplify by dividing top and bottom by 2."},
+        {q:"What is 3/4 of 20?", a:"3/4 of 20 = 15.", tip:"First 1/4 of 20 is 5, then 5×3=15."},
+        {q:"If you split a cake into 6 equal parts, one part is what fraction?", a:"1/6.", tip:"One out of six equal parts."},
+        {q:"Is 2/6 equal to 1/3?", a:"Yes.", tip:"Divide top and bottom by 2."},
+        {q:"What is 1/5 of 25?", a:"1/5 of 25 = 5.", tip:"Divide 25 by 5."},
+        {q:"Which is bigger: 3/8 or 1/2?", a:"1/2 is bigger.", tip:"1/2 = 4/8."},
+        {q:"What fraction is 5 out of 10?", a:"5/10 = 1/2.", tip:"Simplify by dividing by 5."}
+      ],
+      time_money: [
+        {q:"How many minutes are in 1 hour?", a:"60 minutes.", tip:"1 hour = 60 minutes."},
+        {q:"What time is half past 3?", a:"3:30.", tip:"Half past means 30 minutes after."},
+        {q:"How many days are in a week?", a:"7 days.", tip:"Mon–Sun."},
+        {q:"If you have 50 shillings and spend 20, how much is left?", a:"30 shillings.", tip:"50 − 20 = 30."},
+        {q:"How many months are in a year?", a:"12 months.", tip:"January to December."},
+        {q:"If a book costs 60 and you have 100, what change do you get?", a:"40 change.", tip:"100 − 60 = 40."},
+        {q:"What comes after 2:45?", a:"2:46.", tip:"Add one minute."},
+        {q:"How many seconds are in 1 minute?", a:"60 seconds.", tip:"1 minute = 60 seconds."},
+        {q:"If you save 10 per day for 5 days, how much?", a:"50.", tip:"10 × 5 = 50."},
+        {q:"What time is quarter to 6?", a:"5:45.", tip:"Quarter to = 15 minutes before."}
+      ],
+      shapes_meas: [
+        {q:"How many sides does a triangle have?", a:"3 sides.", tip:"Tri = three."},
+        {q:"How many corners does a square have?", a:"4 corners.", tip:"Squares have 4."},
+        {q:"Which is longer: 1 meter or 1 centimeter?", a:"1 meter.", tip:"1 m = 100 cm."},
+        {q:"What is the shape of a ball?", a:"A sphere.", tip:"Round in all directions."},
+        {q:"How many sides does a rectangle have?", a:"4 sides.", tip:"Opposite sides equal."},
+        {q:"What tool measures length?", a:"A ruler or tape measure.", tip:"Use cm or inches."},
+        {q:"What is the perimeter?", a:"The distance around a shape.", tip:"Add all sides."},
+        {q:"What is the area?", a:"The space inside a shape.", tip:"For rectangles: length × width."},
+        {q:"How many faces does a cube have?", a:"6 faces.", tip:"All faces are squares."},
+        {q:"What is a circle?", a:"A round shape with no corners.", tip:"It has one curved edge."}
+      ],
+      english_read: [
+        {q:"Read: 'Tom has a red ball.' What color is the ball?", a:"The ball is red.", tip:"Look for the word 'red'."},
+        {q:"Read: 'Sara is happy.' How does Sara feel?", a:"Sara feels happy.", tip:"Feeling word: happy."},
+        {q:"Read: 'The cat sat on the mat.' Where is the cat?", a:"On the mat.", tip:"Location phrase."},
+        {q:"What is the main idea of a sentence?", a:"What the sentence is mostly about.", tip:"Ask: Who/What is it about?"},
+        {q:"What is a character?", a:"A person or animal in a story.", tip:"Like Tom or the cat."},
+        {q:"What is a setting?", a:"Where and when a story happens.", tip:"Place + time."},
+        {q:"What is a beginning?", a:"The start of the story.", tip:"It introduces characters/setting."},
+        {q:"What is a middle?", a:"Where the problem/events happen.", tip:"Things happen here."},
+        {q:"What is an ending?", a:"The story finishes and the problem is solved.", tip:"Wrap-up."},
+        {q:"What is a title?", a:"The name of the story.", tip:"Usually at the top."}
+      ],
+      english_gram: [
+        {q:"What is a noun?", a:"A naming word (person, place, thing).", tip:"Example: school, dog."},
+        {q:"What is a verb?", a:"An action word.", tip:"Example: run, read."},
+        {q:"What is an adjective?", a:"A describing word.", tip:"Example: big, red."},
+        {q:"What is a sentence?", a:"Words that make complete sense.", tip:"It starts with a capital letter and ends with punctuation."},
+        {q:"What punctuation ends a question?", a:"A question mark (?)", tip:"Use ? for questions."},
+        {q:"What punctuation ends a statement?", a:"A full stop (.)", tip:"Use . for statements."},
+        {q:"What does 'I' look like in a sentence?", a:"Always capital: I", tip:"Even in the middle of a sentence."},
+        {q:"Plural of 'cat'?", a:"Cats.", tip:"Add s."},
+        {q:"Plural of 'bus'?", a:"Buses.", tip:"Add es."},
+        {q:"What is a capital letter?", a:"A big letter like A, B, C.", tip:"Used at start of sentences and names."}
+      ],
+      science_animals: [
+        {q:"What do plants need to grow?", a:"Water, sunlight, air, and soil nutrients.", tip:"Plants make food using sunlight."},
+        {q:"What is a herbivore?", a:"An animal that eats plants.", tip:"Example: cow."},
+        {q:"What is a carnivore?", a:"An animal that eats meat.", tip:"Example: lion."},
+        {q:"What is an omnivore?", a:"An animal that eats plants and meat.", tip:"Example: human."},
+        {q:"What is a habitat?", a:"Where an animal lives.", tip:"Forest, ocean, savannah."},
+        {q:"What are mammals?", a:"Animals that feed babies with milk.", tip:"Humans, dogs, whales."},
+        {q:"What do birds have?", a:"Feathers and beaks.", tip:"Most birds can fly."},
+        {q:"Why do we need clean water?", a:"To stay healthy and hydrated.", tip:"Drink safe water."},
+        {q:"What is a food chain?", a:"Who eats who in nature.", tip:"Grass → goat → lion."},
+        {q:"Name the 5 senses.", a:"Sight, hearing, smell, taste, touch.", tip:"We use senses to learn."}
+      ],
+      science_weather: [
+        {q:"What causes rain?", a:"Water vapor cools and becomes drops that fall.", tip:"Clouds hold tiny drops."},
+        {q:"What is a cloud?", a:"A group of tiny water drops in the sky.", tip:"Not cotton—water drops!"},
+        {q:"What is the sun?", a:"A star that gives light and heat.", tip:"It helps plants grow."},
+        {q:"What is wind?", a:"Moving air.", tip:"Air moving faster feels windy."},
+        {q:"What is a rainbow?", a:"Colors made when sunlight passes through water drops.", tip:"Sun + rain = rainbow."},
+        {q:"What is temperature?", a:"How hot or cold something is.", tip:"Measured with a thermometer."},
+        {q:"What is thunder?", a:"Sound made by lightning heating the air.", tip:"Lightning first, thunder later."},
+        {q:"What is lightning?", a:"A big spark of electricity in the sky.", tip:"Stay indoors in storms."},
+        {q:"What is a season?", a:"A time of year with certain weather.", tip:"Rainy/dry or spring/summer."},
+        {q:"How do we stay safe in storms?", a:"Go indoors and avoid tall trees.", tip:"Safety first."}
+      ],
+      social_safety: [
+        {q:"What is a community?", a:"People living and working together.", tip:"Neighbors help each other."},
+        {q:"Who helps in emergencies?", a:"Police, firefighters, doctors, teachers.", tip:"Ask a trusted adult."},
+        {q:"What should you do before crossing the road?", a:"Stop, look left-right-left, and listen.", tip:"Cross at safe places."},
+        {q:"What is a map?", a:"A drawing that shows places.", tip:"Maps help us find directions."},
+        {q:"Why should we wash hands?", a:"To remove germs and stay healthy.", tip:"Before eating and after toilet."},
+        {q:"What is sharing?", a:"Letting others use things fairly.", tip:"Take turns."},
+        {q:"What is respect?", a:"Being kind and polite to others.", tip:"Use please and thank you."},
+        {q:"What should you do if lost?", a:"Stay calm and ask a trusted adult.", tip:"Don’t go with strangers."},
+        {q:"Why do we go to school?", a:"To learn skills and knowledge.", tip:"Reading, math, and more."},
+        {q:"What is bullying?", a:"Hurting someone on purpose, again and again.", tip:"Tell a teacher or parent."}
+      ]
+    };
+
+    let currentTopic="math_add";
+    let currentIndex=0;
+
+    function loadTopic(){
+      currentTopic=document.getElementById("eduTopic").value;
+      currentIndex=0;
+      setQA(BANK[currentTopic][currentIndex]);
+    }
+    function setQA(item){
+      document.getElementById("eduQ").textContent=item.q;
+      document.getElementById("eduA").textContent=item.a;
+      document.getElementById("eduTip").textContent="Tip: "+item.tip;
+      hideAnswer();
+    }
+    function randomQuestion(){
+      const list=BANK[currentTopic];
+      currentIndex=Math.floor(Math.random()*list.length);
+      setQA(list[currentIndex]);
+    }
+    function showAnswer(){ document.getElementById("eduABox").style.display="block"; }
+    function hideAnswer(){ document.getElementById("eduABox").style.display="none"; }
+
+    function speakEdu(which){
+      const q=document.getElementById("eduQ").textContent || "";
+      const a=document.getElementById("eduA").textContent || "";
+      const t=(which==="q")?q:a;
+      // Edukid always reads in English (safe)
+      speakText(t,"en");
+    }
+
+    function getStars(){ return parseInt(localStorage.getItem("eduStars")||"0",10); }
+    function updateStars(){ document.getElementById("eduStars").textContent=String(getStars()); }
+    function giveStar(){ localStorage.setItem("eduStars", String(getStars()+1)); updateStars(); }
+
+    function answerTyped(){
+      const q=(document.getElementById("eduAsk").value||"").trim();
+      const out=document.getElementById("eduAskReply");
+      if(!q){ out.textContent="Type a school question first 🙂"; return; }
+
+      const allowed = /(add|plus|minus|subtract|multiply|times|fraction|clock|time|money|shape|triangle|square|read|sentence|noun|verb|plant|animal|weather|rain|wind|map|road|safety|school|hand|wash|bully)/i;
+      if(!allowed.test(q)){
+        out.textContent="✅ EdukidGPT safe mode: Please ask a school question like “What is 8+4?” or “What is a noun?”";
+        return;
+      }
+
+      const all = Object.values(BANK).flat();
+      const firstWord = q.toLowerCase().split(" ")[0];
+      const found = all.find(x => x.q.toLowerCase().includes(firstWord));
+      if(found){
+        out.textContent="Answer: " + found.a;
+      }else{
+        out.textContent="Answer: I can help! Choose a topic above and press 🎲 Random Q, then click ✅ Show Answer.";
+      }
+    }
+
+    // init edukid
+    loadTopic(); updateStars();
+  </script>
+</body>
+</html>

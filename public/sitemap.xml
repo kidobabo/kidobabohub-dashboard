@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- Homepage (main discovery page) -->
+  <url>
+    <loc>https://kidobabohub.web.app/</loc>
+  </url>
+
+  <!-- AI learning for kids -->
+  <url>
+    <loc>https://kidobabohub.web.app/edukidgpt.html</loc>
+  </url>
+
+  <!-- Language / translator -->
+  <url>
+    <loc>https://kidobabohub.web.app/translator.html</loc>
+  </url>
+
+  <!-- Read aloud / books -->
+  <url>
+    <loc>https://kidobabohub.web.app/readaloud.html</loc>
+  </url>
+
+  <!-- Nursery rhymes / safety songs -->
+  <url>
+    <loc>https://kidobabohub.web.app/safetysongs.html</loc>
+  </url>
+
+</urlset>

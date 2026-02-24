@@ -1,0 +1,730 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+
+  <title>Read Aloud Books for Kids — Kido &amp; Babo Hub</title>
+  <meta name="description" content="Flipbook read-aloud library for kids. Works on low-data devices. Use the language switcher to translate the site."/>
+  <meta name="theme-color" content="#16a34a"/>
+  <link rel="icon" href="/logo.jpg"/>
+
+  <style>
+    :root{
+      --bg:#0b1020;
+
+      /* ✅ Dim bright whites to softer grey */
+      --text: rgba(234,240,255,.86);
+      --muted:#b7c3ff;
+
+      --line:rgba(255,255,255,.12);
+      --shadow:0 18px 60px rgba(0,0,0,.45);
+      --radius:18px;
+      --accent: linear-gradient(90deg,#006600,#bb0000,#000000);
+
+      /* ✅ Eye-care controls (global, same as homepage) */
+      --kbBrightness: 1;     /* 0.65 - 1 */
+      --kbTextScale: 1;      /* 0.9 - 1.25 */
+      --kbBlue: 0;           /* 0 - 0.6 */
+      --kbBlueHue: 35;
+      --kbBlueSat: 100%;
+      --kbBlueLum: 55%;
+    }
+
+    *{ box-sizing:border-box; }
+
+    html{ font-size: calc(16px * var(--kbTextScale)); }
+
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+
+      /* ✅ Eye-care dim */
+      filter: brightness(var(--kbBrightness));
+
+      background:
+        radial-gradient(1100px 560px at 10% 10%, #23316e 0%, transparent 50%),
+        radial-gradient(900px 520px at 90% 10%, #7a1b1b 0%, transparent 55%),
+        radial-gradient(800px 520px at 50% 100%, #0e5b2f 0%, transparent 55%),
+        var(--bg);
+
+      color:var(--text);
+      min-height:100vh;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    /* ✅ Blue-light overlay */
+    #kbBlueOverlay{
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 999999;
+      background: hsl(var(--kbBlueHue) var(--kbBlueSat) var(--kbBlueLum));
+      opacity: var(--kbBlue);
+      mix-blend-mode: multiply;
+    }
+
+    /* ✅ Optional soft contrast + reduce motion (same as homepage behavior) */
+    .kb-soft header,
+    .kb-soft main,
+    .kb-soft .card{
+      border-color: rgba(255,255,255,.08) !important;
+    }
+    .kb-soft .nav button,
+    .kb-soft .book{
+      background: rgba(255,255,255,.06) !important;
+      border-color: rgba(255,255,255,.10) !important;
+    }
+    .kb-soft .nav button:hover,
+    .kb-soft .book:hover{
+      background: rgba(255,255,255,.09) !important;
+      border-color: rgba(255,255,255,.14) !important;
+    }
+    .kb-soft p{ color: rgba(234,240,255,.78); }
+
+    .kb-reduce-motion *{
+      animation: none !important;
+      transition: none !important;
+      scroll-behavior: auto !important;
+    }
+
+    .wrap{ max-width: 1050px; margin: 0 auto; padding: 18px 14px 60px; }
+
+    header{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding: 14px 14px 10px;
+      border:1px solid var(--line);
+      background: rgba(15, 23, 51, .55);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .brandRow{ display:flex; align-items:center; gap:12px; }
+    .logo{
+      width:44px; height:44px; border-radius: 14px;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.08);
+      object-fit: cover;
+      box-shadow: 0 8px 22px rgba(0,0,0,.25);
+      flex: 0 0 auto;
+    }
+    .brand{ display:flex; flex-direction:column; gap:4px; padding: 2px 6px; }
+    .brand .title{ font-weight: 900; font-size: 18px; letter-spacing: .2px; line-height: 1.1; }
+    .brand .sub{ font-size: 12px; color: var(--muted); font-weight: 700; line-height: 1.35; }
+
+    .nav{ display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; align-items:center; }
+    .nav button{
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-weight: 900;
+      cursor:pointer;
+      transition: transform .05s ease, background .15s ease, border-color .15s ease;
+      white-space:nowrap;
+      font-size: 13px;
+    }
+    .nav button:hover{ background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.24); }
+    .nav button:active{ transform: translateY(1px); }
+
+    main{
+      margin-top: 14px;
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(15, 23, 51, .55);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:hidden;
+    }
+
+    .page{ padding: 18px 16px; }
+    .card{
+      background: rgba(12, 19, 48, .72);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+
+    h2{ margin: 0 0 10px; font-size: 18px; font-weight: 950; }
+    p{ margin: 8px 0; color: rgba(234,240,255,.80); line-height: 1.55; } /* ✅ dimmer */
+    .muted{ color: rgba(183,195,255,.92); font-weight: 800; font-size: 13px; }
+
+    .books{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    @media (max-width: 980px){ .books{ grid-template-columns: repeat(3, minmax(0,1fr)); } }
+    @media (max-width: 720px){ .books{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
+    @media (max-width: 420px){ .books{ grid-template-columns: repeat(1, minmax(0,1fr)); } }
+
+    .book{
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      border-radius: 16px;
+      padding: 10px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      cursor:pointer;
+      transition: transform .08s ease, background .15s ease, border-color .15s ease;
+      outline: none;
+    }
+    .book:hover{
+      background: rgba(255,255,255,.09);
+      border-color: rgba(255,255,255,.20);
+      transform: translateY(-1px);
+    }
+
+    .thumb{
+      width:100%;
+      aspect-ratio: 1 / 1.2;
+      border-radius: 14px;
+      background: rgba(0,0,0,.25);
+      border:1px solid rgba(255,255,255,.10);
+      overflow:hidden;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      position:relative;
+    }
+    .thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+    .thumb .loading{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:900;
+      font-size:12px;
+      color: rgba(234,240,255,.82);
+      padding: 8px;
+      text-align:center;
+    }
+
+    .bookTitle{ font-weight: 950; font-size: 13px; line-height: 1.25; }
+    .bookMeta{ font-size: 12px; color: rgba(234,240,255,.72); font-weight: 800; } /* ✅ dimmer */
+
+    .footer{
+      margin-top: 14px;
+      padding: 14px 16px;
+      border-top: 1px solid rgba(255,255,255,.12);
+      color: rgba(234,240,255,.78); /* ✅ dimmer */
+      font-weight: 800;
+      font-size: 12px;
+      text-align:center;
+      background: rgba(0,0,0,.12);
+    }
+
+    /* ✅ Eye-care panel UI */
+    .kb-panel{
+      margin-top: 12px;
+      border-radius: 16px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      padding: 12px;
+    }
+    .kb-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      margin-top: 10px;
+    }
+    .kb-row label{
+      font-weight: 900;
+      font-size: 13px;
+      color: rgba(234,240,255,.84);
+    }
+    .kb-inline{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
+      min-width: 280px;
+    }
+    .kb-pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.07);
+      font-weight: 900;
+      font-size: 12px;
+      color: rgba(234,240,255,.84);
+      white-space: nowrap;
+    }
+    .kb-toggle{
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      color: rgba(234,240,255,.86);
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-weight: 950;
+      cursor:pointer;
+    }
+    .kb-toggle:hover{ background: rgba(255,255,255,.12); }
+
+    input[type="range"]{
+      width: 240px;
+      accent-color: #b7c3ff;
+    }
+  </style>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+
+<body>
+  <!-- ✅ Blue-light overlay -->
+  <div id="kbBlueOverlay" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <header>
+      <div class="brandRow">
+        <img class="logo" src="/logo.jpg" alt="Kido &amp; Babo Hub logo" />
+        <div class="brand">
+          <div class="title">Kido &amp; Babo Hub</div>
+          <!-- ✅ Removed “Faster loading” -->
+          <div class="sub">Flipbook • Read Aloud • Low-data friendly</div>
+        </div>
+      </div>
+
+      <div class="nav" aria-label="Top navigation">
+        <button onclick="location.href='index.html'">🏠 Home</button>
+        <button onclick="location.href='translator.html'">🌍 Translator</button>
+        <button onclick="location.href='readaloud.html'">🔊 Read Aloud</button>
+
+        <!-- ✅ Global Eye-care button -->
+        <button class="kb-toggle" id="kbEyeBtn" onclick="kbToggleEyePanel()" aria-expanded="false">👁️ Eye-Care</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="page">
+
+        <!-- ✅ Eye-care panel (global) -->
+        <div class="kb-panel" id="kbEyePanel" style="display:none" aria-label="Eye-care settings panel">
+          <div class="kb-row" style="margin-top:0;">
+            <div>
+              <div style="font-weight:1000;">👁️ Eye-Care Settings</div>
+              <div class="muted">Protect your eyes on all devices. Settings are saved automatically.</div>
+            </div>
+            <span class="kb-pill" id="kbAutoPill">Auto Night: ON</span>
+          </div>
+
+          <div class="kb-row">
+            <label for="kbBrightness">🔆 Brightness (dim)</label>
+            <div class="kb-inline">
+              <input id="kbBrightness" type="range" min="0.65" max="1" step="0.01" />
+              <span class="kb-pill" id="kbBrightnessVal">100%</span>
+            </div>
+          </div>
+
+          <div class="kb-row">
+            <label for="kbBlue">🟧 Blue-light filter (warm)</label>
+            <div class="kb-inline">
+              <input id="kbBlue" type="range" min="0" max="0.6" step="0.01" />
+              <span class="kb-pill" id="kbBlueVal">0%</span>
+            </div>
+          </div>
+
+          <div class="kb-row">
+            <label for="kbTextScale">🔎 Text size</label>
+            <div class="kb-inline">
+              <input id="kbTextScale" type="range" min="0.9" max="1.25" step="0.01" />
+              <span class="kb-pill" id="kbTextVal">100%</span>
+            </div>
+          </div>
+
+          <div class="kb-row">
+            <label>🫧 Soft contrast (reduce harsh white)</label>
+            <div class="kb-inline">
+              <button class="kb-toggle" onclick="kbToggleSoftContrast()" id="kbSoftBtn" aria-pressed="false">OFF</button>
+              <span class="muted">Recommended for long use</span>
+            </div>
+          </div>
+
+          <div class="kb-row">
+            <label>🌀 Reduce motion</label>
+            <div class="kb-inline">
+              <button class="kb-toggle" onclick="kbToggleReduceMotion()" id="kbMotionBtn" aria-pressed="false">OFF</button>
+              <span class="muted">Stops animations</span>
+            </div>
+          </div>
+
+          <div class="kb-row">
+            <label>🌙 Auto Night Mode (6pm–6am)</label>
+            <div class="kb-inline">
+              <button class="kb-toggle" onclick="kbToggleAutoNight()" id="kbAutoBtn" aria-pressed="true">ON</button>
+              <span class="muted">Auto protects eyes at night</span>
+            </div>
+          </div>
+
+          <div class="kb-row">
+            <button class="kb-toggle" onclick="kbResetEyeCare()">♻ Reset Eye-Care</button>
+            <span class="muted">Back to safe defaults</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>📚 Read Aloud Books (Flipbook)</h2>
+
+          <!-- ✅ Removed the “Covers and page counts...” paragraph -->
+          <div class="books" id="books"></div>
+
+          <!-- ✅ Removed “Tip: Your PDF front page acts as the cover thumbnail.” -->
+        </div>
+
+        <div class="footer">kidobabohub.web.app • ©</div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // ----- PDF.js worker ONCE
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+    const BOOKS_JSON = "/storybooks.pdf/books.json";
+
+    // ----- Concurrency queue (keeps phones smooth)
+    const MAX_CONCURRENT = 2;
+    let running = 0;
+    const queue = [];
+
+    function enqueue(taskFn){
+      return new Promise((resolve, reject) => {
+        queue.push({taskFn, resolve, reject});
+        pump();
+      });
+    }
+
+    async function pump(){
+      if(running >= MAX_CONCURRENT) return;
+      const item = queue.shift();
+      if(!item) return;
+      running++;
+      try{
+        const result = await item.taskFn();
+        item.resolve(result);
+      }catch(e){
+        item.reject(e);
+      }finally{
+        running--;
+        pump();
+      }
+    }
+
+    // ----- Utility: detect HTML redirect/fallback
+    function looksLikeHTML(text){
+      const t = (text || "").trim().toLowerCase();
+      return t.startsWith("<!doctype") || t.startsWith("<html");
+    }
+
+    // ----- Validate PDF is reachable before heavy PDF.js load
+    async function checkPdfReachable(pdfUrl){
+      try{
+        const r = await fetch(pdfUrl, { method:"GET", headers: { "Range": "bytes=0-2047" }});
+        if(!r.ok && r.status !== 206) return { ok:false, reason:"HTTP " + r.status };
+        const ct = (r.headers.get("content-type") || "").toLowerCase();
+        if(ct.includes("text/html")) return { ok:false, reason:"Got HTML (redirect)" };
+        return { ok:true };
+      }catch(e){
+        try{
+          const r2 = await fetch(pdfUrl, { method:"GET" });
+          if(!r2.ok) return { ok:false, reason:"HTTP " + r2.status };
+          const ct2 = (r2.headers.get("content-type") || "").toLowerCase();
+          if(ct2.includes("text/html")) return { ok:false, reason:"Got HTML (redirect)" };
+          return { ok:true };
+        }catch(e2){
+          return { ok:false, reason:"Network error" };
+        }
+      }
+    }
+
+    function openBook(book){
+      const url = `reader.html?book=${encodeURIComponent(book.id)}`;
+      window.open(url, "_blank", "noopener");
+    }
+
+    // ----- Lazy load cover + page count ONLY when near viewport (faster on phones)
+    function observeForPreview(cardEl, book, thumbEl, metaEl){
+      const io = new IntersectionObserver((entries) => {
+        for(const entry of entries){
+          if(entry.isIntersecting){
+            io.unobserve(cardEl);
+            enqueue(() => loadPreview(book, thumbEl, metaEl)).catch((e)=> {
+              console.log("Preview failed:", book.file, e);
+              thumbEl.innerHTML = `<div class="loading">Preview unavailable</div>`;
+              metaEl.textContent = "Tap to open";
+            });
+          }
+        }
+      }, { root: null, threshold: 0.12, rootMargin: "250px" });
+
+      io.observe(cardEl);
+    }
+
+    async function loadPreview(book, thumbEl, metaEl){
+      thumbEl.innerHTML = `<div class="loading">Loading cover…</div>`;
+      metaEl.textContent = "Checking PDF…";
+
+      const reachable = await checkPdfReachable(book.file);
+      if(!reachable.ok){
+        thumbEl.innerHTML = `<div class="loading">PDF not reachable</div>`;
+        metaEl.textContent = reachable.reason + " • Tap to open";
+        return;
+      }
+
+      // PDF.js: page 1 thumbnail + num pages
+      const task = pdfjsLib.getDocument({ url: book.file });
+      const pdf = await task.promise;
+
+      metaEl.textContent = `Pages: ${pdf.numPages} • Tap to open`;
+
+      const page = await pdf.getPage(1);
+      const viewport = page.getViewport({ scale: 0.45 });
+
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d", { alpha:false });
+
+      canvas.width = Math.floor(viewport.width);
+      canvas.height = Math.floor(viewport.height);
+
+      await page.render({ canvasContext: ctx, viewport }).promise;
+
+      const img = document.createElement("img");
+      img.alt = "Cover";
+      img.loading = "lazy";
+      img.src = canvas.toDataURL("image/jpeg", 0.80);
+
+      thumbEl.innerHTML = "";
+      thumbEl.appendChild(img);
+    }
+
+    async function loadBooks(){
+      const wrap = document.getElementById("books");
+      wrap.innerHTML = `<div class="muted">Loading…</div>`;
+
+      try{
+        const r = await fetch(BOOKS_JSON, { cache:"no-store" });
+        if(!r.ok) throw new Error("HTTP " + r.status);
+
+        const txt = await r.text();
+        if(looksLikeHTML(txt)) throw new Error("Got HTML instead of JSON");
+
+        const books = JSON.parse(txt);
+        wrap.innerHTML = "";
+
+        for(const b of books){
+          const card = document.createElement("div");
+          card.className = "book";
+          card.tabIndex = 0;
+          card.setAttribute("role","button");
+          card.onclick = () => openBook(b);
+          card.onkeydown = (ev) => {
+            if(ev.key === "Enter" || ev.key === " ") openBook(b);
+          };
+
+          const thumb = document.createElement("div");
+          thumb.className = "thumb";
+          thumb.innerHTML = `<div class="loading">Scroll to load</div>`;
+
+          const title = document.createElement("div");
+          title.className = "bookTitle";
+          title.textContent = b.title || b.id;
+
+          const meta = document.createElement("div");
+          meta.className = "bookMeta";
+          meta.textContent = "Tap to open";
+
+          card.appendChild(thumb);
+          card.appendChild(title);
+          card.appendChild(meta);
+          wrap.appendChild(card);
+
+          observeForPreview(card, b, thumb, meta);
+        }
+      }catch(e){
+        wrap.innerHTML = `<div class="muted">
+          Failed to load books list.<br>
+          ${BOOKS_JSON}<br>
+          ${String(e)}
+        </div>`;
+      }
+    }
+
+    // =============================
+    // ✅ GLOBAL EYE-CARE (same as homepage)
+    // =============================
+    const EC = {
+      LS: "kb_eyeCare_v1",
+      defaults: {
+        brightness: 0.90,
+        blue: 0.12,
+        textScale: 1.00,
+        softContrast: true,
+        reduceMotion: false,
+        autoNight: true
+      }
+    };
+
+    function kbReadEC(){
+      try{
+        const raw = localStorage.getItem(EC.LS);
+        const obj = raw ? JSON.parse(raw) : {};
+        return { ...EC.defaults, ...(obj||{}) };
+      }catch(_){
+        return { ...EC.defaults };
+      }
+    }
+    function kbWriteEC(v){
+      localStorage.setItem(EC.LS, JSON.stringify(v||{}));
+    }
+
+    function kbApplyEC(state){
+      if(state.autoNight){
+        const h = new Date().getHours();
+        const isNight = (h >= 18 || h < 6);
+        const nightBrightness = Math.min(state.brightness, 0.85);
+        const nightBlue = Math.max(state.blue, 0.18);
+
+        document.documentElement.style.setProperty("--kbBrightness", String(isNight ? nightBrightness : state.brightness));
+        document.documentElement.style.setProperty("--kbBlue", String(isNight ? nightBlue : state.blue));
+        const ap = document.getElementById("kbAutoPill");
+        if(ap) ap.textContent = "Auto Night: ON";
+      } else {
+        document.documentElement.style.setProperty("--kbBrightness", String(state.brightness));
+        document.documentElement.style.setProperty("--kbBlue", String(state.blue));
+        const ap = document.getElementById("kbAutoPill");
+        if(ap) ap.textContent = "Auto Night: OFF";
+      }
+
+      document.documentElement.style.setProperty("--kbTextScale", String(state.textScale));
+
+      document.documentElement.classList.toggle("kb-soft", !!state.softContrast);
+      document.documentElement.classList.toggle("kb-reduce-motion", !!state.reduceMotion);
+
+      const b = document.getElementById("kbBrightness");
+      const bl = document.getElementById("kbBlue");
+      const t = document.getElementById("kbTextScale");
+
+      if(b) b.value = String(state.brightness);
+      if(bl) bl.value = String(state.blue);
+      if(t) t.value = String(state.textScale);
+
+      const bV = document.getElementById("kbBrightnessVal");
+      const blV = document.getElementById("kbBlueVal");
+      const tV = document.getElementById("kbTextVal");
+
+      if(bV) bV.textContent = Math.round(parseFloat(state.brightness) * 100) + "%";
+      if(blV) blV.textContent = Math.round(parseFloat(state.blue) * 100) + "%";
+      if(tV) tV.textContent = Math.round(parseFloat(state.textScale) * 100) + "%";
+
+      const softBtn = document.getElementById("kbSoftBtn");
+      const motionBtn = document.getElementById("kbMotionBtn");
+      const autoBtn = document.getElementById("kbAutoBtn");
+
+      if(softBtn){
+        softBtn.textContent = state.softContrast ? "ON" : "OFF";
+        softBtn.setAttribute("aria-pressed", state.softContrast ? "true" : "false");
+      }
+      if(motionBtn){
+        motionBtn.textContent = state.reduceMotion ? "ON" : "OFF";
+        motionBtn.setAttribute("aria-pressed", state.reduceMotion ? "true" : "false");
+      }
+      if(autoBtn){
+        autoBtn.textContent = state.autoNight ? "ON" : "OFF";
+        autoBtn.setAttribute("aria-pressed", state.autoNight ? "true" : "false");
+      }
+    }
+
+    function kbToggleEyePanel(){
+      const p = document.getElementById("kbEyePanel");
+      const btn = document.getElementById("kbEyeBtn");
+      if(!p || !btn) return;
+      const open = (p.style.display === "none" || !p.style.display);
+      p.style.display = open ? "block" : "none";
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+    window.kbToggleEyePanel = kbToggleEyePanel;
+
+    function kbBindEyeCare(){
+      let st = kbReadEC();
+      kbApplyEC(st);
+
+      const brightness = document.getElementById("kbBrightness");
+      const blue = document.getElementById("kbBlue");
+      const text = document.getElementById("kbTextScale");
+
+      if(brightness){
+        brightness.addEventListener("input", ()=>{
+          st = kbReadEC();
+          st.brightness = parseFloat(brightness.value);
+          kbWriteEC(st);
+          kbApplyEC(st);
+        });
+      }
+      if(blue){
+        blue.addEventListener("input", ()=>{
+          st = kbReadEC();
+          st.blue = parseFloat(blue.value);
+          kbWriteEC(st);
+          kbApplyEC(st);
+        });
+      }
+      if(text){
+        text.addEventListener("input", ()=>{
+          st = kbReadEC();
+          st.textScale = parseFloat(text.value);
+          kbWriteEC(st);
+          kbApplyEC(st);
+        });
+      }
+    }
+
+    window.kbToggleSoftContrast = function(){
+      const st = kbReadEC();
+      st.softContrast = !st.softContrast;
+      kbWriteEC(st);
+      kbApplyEC(st);
+    };
+
+    window.kbToggleReduceMotion = function(){
+      const st = kbReadEC();
+      st.reduceMotion = !st.reduceMotion;
+      kbWriteEC(st);
+      kbApplyEC(st);
+    };
+
+    window.kbToggleAutoNight = function(){
+      const st = kbReadEC();
+      st.autoNight = !st.autoNight;
+      kbWriteEC(st);
+      kbApplyEC(st);
+    };
+
+    window.kbResetEyeCare = function(){
+      kbWriteEC({ ...EC.defaults });
+      kbApplyEC(kbReadEC());
+    };
+
+    // Re-apply every minute so Auto Night stays correct
+    setInterval(()=> kbApplyEC(kbReadEC()), 60 * 1000);
+
+    // Init
+    kbBindEyeCare();
+    loadBooks();
+  </script>
+
+  <script src="/lang.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Redirecting…</title>
+    <script>
+      (function () {
+        var path = (location.pathname || "/").replace(/^\/+/, "");
+        if (path) location.replace("/#" + path);
+        else location.replace("/#home");
+      })();
+    </script>
+  </head>
+  <body>Redirecting…</body>
+</html>
