@@ -1,6 +1,7 @@
 {
   "projects": {
-    "kidobabohub": "kidobabohub"
+    "kidobabohub": "kidobabohub",
+    "default": "kidobabohub"
   },
   "targets": {},
   "etags": {}
